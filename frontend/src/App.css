@@ -1,0 +1,32 @@
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.Lobby {
+  margin: 20px;
+}
+
+.GameBoard {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.flops {
+  display: flex;
+  gap: 10px;
+}
+
+.private-cards {
+  display: flex;
+  gap: 10px;
+}
+
+.Card {
+  padding: 10px;
+  border: 1px solid black;
+  border-radius: 5px;
+  background-color: lightgray;
+  font-weight: bold;
+}
