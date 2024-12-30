@@ -1,0 +1,12 @@
+.flops {
+    display: flex;
+    flex-direction: column; /* Keeps each flop in its own row */
+    gap: 16px; /* Add spacing between flops */
+}
+  
+.flop {
+    display: flex; /* Makes the cards in each flop align left-to-right */
+    justify-content: flex-start; /* Ensures left alignment */
+    gap: 8px; /* Add spacing between cards */
+}
+  
