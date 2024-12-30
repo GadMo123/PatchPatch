@@ -33,7 +33,19 @@ io.on('connection', (socket) => {
   socket.on('start-game', (gameId: string) => {
     console.log('joined');
     const deck = generateDeck();
-    const flops = [deck.slice(0, 3), deck.slice(3, 6), deck.slice(6, 9)];
+
+    // Convert each card string into an object with rank and suit
+    const convertToCardObject = (card: string) => {
+      const rank = card.slice(0, -1); // Extract rank (e.g., "2", "T", "A")
+      const suit = card.slice(-1); // Extract suit (e.g., "c", "d", "h", "s")
+      return { rank, suit };
+    };
+
+    const flops = [
+      deck.slice(0, 3).map(convertToCardObject),
+      deck.slice(3, 6).map(convertToCardObject),
+      deck.slice(6, 9).map(convertToCardObject),
+    ];
 
     const gameState = {
       flops, // 3 poker flops

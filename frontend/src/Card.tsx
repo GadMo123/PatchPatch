@@ -1,5 +1,3 @@
-// src/components/Card.tsx
-
 import React from 'react';
 
 interface CardProps {
@@ -10,9 +8,16 @@ interface CardProps {
 }
 
 const Card: React.FC<CardProps> = ({ card }) => {
+  let imageName = `${card.rank}${card.suit}.png`;
+  console.log("Card received:", card);
+  
   return (
     <div className="Card">
-      {card.rank} of {card.suit}
+      <img
+        src={`/assets/cards/${imageName}`}
+        alt={`${card.rank} of ${card.suit}`}
+        className="CardImage"
+      />
     </div>
   );
 };

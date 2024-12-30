@@ -1,10 +1,11 @@
 // src/socket.ts
 
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
 // Connect to the server (make sure to use the correct URL)
-const socket = io('http://localhost:5000', {
-  transports: ['websocket', 'polling'], // Use websocket first, fallback to polling if necessary
+const socket: Socket = io('http://localhost:5000', {
+  transports: ['websocket'], // Use WebSocket transport
+  withCredentials: true, // Ensure credentials are passed correctly
 });
 
 socket.on('connect', () => {
