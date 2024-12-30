@@ -1,23 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import Time from './Time';
+import Card from '../Card';
 
 interface GameBoardProps {
   gameId: string;
   socket: Socket;
 }
 
+interface CardObject {
+  rank: string;
+  suit: string;
+}
+
 interface GameState {
-  flops: string[][]; // Array of arrays of strings
+  flops: CardObject[][]; // Array of arrays of strings
   status: string;    // Game status, e.g., 'waiting', 'started'
 }
+
+// Helper function to map server card strings to client card objects
+const mapServerCardToClientCard = (card: string): CardObject => ({
+  rank: card[0], // The first character is the rank
+  suit: card[1], // The second character is the suit
+});
 
 const GameBoard: React.FC<GameBoardProps> = ({ gameId, socket }) => {
   const [gameState, setGameState] = useState<GameState | null>(null);
 
   useEffect(() => {
-    const handleGameState = (state: GameState) => {
-      setGameState(state);
+    const handleGameState = (state: { flops: CardObject[][]; status: string }) => {
+      // Directly use the server response
+      setGameState({ flops: state.flops, status: state.status });
     };
 
     socket.on('game-state', handleGameState);
@@ -42,7 +55,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameId, socket }) => {
             {gameState.flops.map((flop, index) => (
               <div key={index} className="flop">
                 {flop.map((card, idx) => (
-                  <span key={idx}>{card}</span>
+                  <Card key={idx} card={card} /> // Use the Card component
                 ))}
               </div>
             ))}

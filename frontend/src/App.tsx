@@ -5,17 +5,11 @@ import './App.css';
 import GameBoard from './components/GameBoard';
 import Lobby from './components/Lobby';
 import socket from './socket';
-import {io} from 'socket.io-client';
 
 
 const App: React.FC = () => {
   const [gameId, setGameId] = useState<string | null>(null);
   const [isJoined, setIsJoined] = useState<boolean>(false);
-
-  const socket = io('http://localhost:5000', {
-    transports: ['websocket'],
-    withCredentials: true,
-  });
 
   useEffect(() => {
     console.log('App component mounted');
@@ -43,7 +37,7 @@ const App: React.FC = () => {
     if (!socket.connected) {
       console.log('Socket is not connected');
       socket.once('connect', () => {
-        console.log('Socket connected, retrying create game');
+        console.log('socket connected, retrying create game');
         createGame(); // Retry creating the game once connected
       });
       return;
