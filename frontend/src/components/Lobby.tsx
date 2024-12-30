@@ -2,8 +2,13 @@
 
 import React, { useState } from 'react';
 
-const Lobby = ({ createGame, joinGame }) => {
-  const [gameId, setGameId] = useState('');
+type LobbyProps = {
+  createGame: () => void; 
+  joinGame: (id: string) => void; 
+};
+
+const Lobby: React.FC<LobbyProps> = ({ createGame, joinGame }) => {
+  const [gameId, setGameId] = useState<string>('');
 
   const handleJoin = () => {
     joinGame(gameId);
