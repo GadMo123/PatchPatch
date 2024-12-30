@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
+import Time from './Time';
 
 interface GameBoardProps {
   gameId: string;
@@ -32,6 +33,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameId, socket }) => {
 
   return (
     <div className="GameBoard">
+      <Time limit={4 * 60}/>
       <h2>Game ID: {gameId}</h2>
       {gameState?.status === 'started' ? (
         <div>

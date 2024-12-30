@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
-import { generateDeck } from './gameUtils/deck';
+import { generateDeck } from './gameUtils/Deck';
 
 
 const app = express();
