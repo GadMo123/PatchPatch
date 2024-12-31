@@ -15,25 +15,44 @@ interface CardObject {
 }
 
 interface GameState {
-  flops: CardObject[][]; // Array of arrays of strings
-  status: string;    // Game status, e.g., 'waiting', 'started'
+  boards: CardObject[][]; // Array of arrays of cards (one for each board)
+  flops: CardObject[][]; // Array of flops (3 cards each)
+  turns: CardObject[]; // Array of turn cards (1 for each flop)
+  rivers: CardObject[]; // Array of river cards (1 for each flop)
+  status: string; // Game status
 }
-
-// Helper function to map server card strings to client card objects
-const mapServerCardToClientCard = (card: string): CardObject => ({
-  rank: card[0], // The first character is the rank
-  suit: card[1], // The second character is the suit
-});
 
 const GameBoard: React.FC<GameBoardProps> = ({ gameId, socket }) => {
   const [gameState, setGameState] = useState<GameState | null>(null);
 
   useEffect(() => {
-    const handleGameState = (state: { flops: CardObject[][]; status: string }) => {
-      // Directly use the server response
-      setGameState({ flops: state.flops, status: state.status });
+    const handleGameState = (state: Omit<GameState, 'boards'>) => {
+      // Construct boards dynamically by combining available flops, turns, and rivers
+      const updatedBoards =
+        state.flops?.map((flop, index) => {
+          const board: CardObject[] = [...flop]; // Start with the flop cards
+
+          // Add the turn card if it exists for this index
+          if (state.turns[index]) {
+            board.push(state.turns[index]);
+          }
+
+          // Add the river card if it exists for this index
+          if (state.rivers[index]) {
+            board.push(state.rivers[index]);
+          }
+
+          return board;
+        }) || []; // Fallback to empty array if no flops are present
+
+      // Update the state with the newly merged boards
+      setGameState({
+        ...state,
+        boards: updatedBoards, // Merge flops, turns, and rivers into boards
+      });
     };
 
+    // Listen to the game state from the server
     socket.on('game-state', handleGameState);
 
     return () => {
@@ -49,14 +68,14 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameId, socket }) => {
     <div className="GameBoard">
       <Time limit={4 * 60} />
       <h2>Game ID: {gameId}</h2>
-      {gameState?.status === 'started' ? (
+      {gameState ? (
         <div>
-          <h3>Game Started</h3>
-          <div className="flops">
-            {gameState.flops.map((flop, index) => (
-              <div key={index} className="flop">
-                {flop.map((card, idx) => (
-                  <Card key={idx} card={card} /> // Use the Card component
+          <h3>Game Status: {gameState.status}</h3>
+          <div className="boards">
+            {gameState.boards.map((board, index) => (
+              <div key={index} className="board">
+                {board.map((card, idx) => (
+                  <Card key={idx} card={card} /> // Display each card
                 ))}
               </div>
             ))}
