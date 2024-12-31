@@ -31,12 +31,7 @@ export class Deck {
   }
 
   // Get player 1's cards
-  getPlayer1Cards() {
-    return this.deck.splice(0, 12).map(this.convertToCardObject);
-  }
-
-  // Get player 2's cards
-  getPlayer2Cards() {
+  getPlayerCards() {
     return this.deck.splice(0, 12).map(this.convertToCardObject);
   }
 

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import Time from './Time';
-import Card from '../Card';
+import Card from './Card';
 import './GameBoard.css';
 
 interface GameBoardProps {
   gameId: string;
   socket: Socket;
+  playerId: string; // Unique ID of the current player
 }
 
 interface CardObject {
@@ -15,48 +16,51 @@ interface CardObject {
 }
 
 interface GameState {
-  boards: CardObject[][]; // Array of arrays of cards (one for each board)
-  flops: CardObject[][]; // Array of flops (3 cards each)
-  turns: CardObject[]; // Array of turn cards (1 for each flop)
-  rivers: CardObject[]; // Array of river cards (1 for each flop)
+  boards: CardObject[][]; // Cards on the boards
+  flops: CardObject[][]; // Flops
+  turns: CardObject[]; // Turn cards
+  rivers: CardObject[]; // River cards
   status: string; // Game status
+  playerCards: CardObject[]; // Player's private cards
+  players: {
+    id: string; // Player ID
+    name: string; // Player name
+    cards: CardObject[]; // Other Player's private cards if exposed
+  }[];
 }
 
-const GameBoard: React.FC<GameBoardProps> = ({ gameId, socket }) => {
+const GameBoard: React.FC<GameBoardProps> = ({ gameId, socket, playerId }) => {
   const [gameState, setGameState] = useState<GameState | null>(null);
 
   useEffect(() => {
     const handleGameState = (state: Omit<GameState, 'boards'>) => {
-      // Construct boards dynamically by combining available flops, turns, and rivers
       const updatedBoards =
         state.flops?.map((flop, index) => {
-          const board: CardObject[] = [...flop]; // Start with the flop cards
-
-          // Add the turn card if it exists for this index
-          if (state.turns[index]) {
-            board.push(state.turns[index]);
-          }
-
-          // Add the river card if it exists for this index
-          if (state.rivers[index]) {
-            board.push(state.rivers[index]);
-          }
-
+          const board: CardObject[] = [...flop];
+          if (state.turns[index]) board.push(state.turns[index]);
+          if (state.rivers[index]) board.push(state.rivers[index]);
           return board;
-        }) || []; // Fallback to empty array if no flops are present
+        }) || [];
 
-      // Update the state with the newly merged boards
       setGameState({
         ...state,
-        boards: updatedBoards, // Merge flops, turns, and rivers into boards
+        boards: updatedBoards,
       });
     };
 
-    // Listen to the game state from the server
     socket.on('game-state', handleGameState);
+
+    // Listen for the 'private-cards' event
+    socket.on('private-cards', playerCards => {
+      setGameState(prevState => ({
+        ...prevState!,
+        playerCards: playerCards,
+      }));
+    });
 
     return () => {
       socket.off('game-state', handleGameState);
+      socket.off('private-cards');
     };
   }, [socket]);
 
@@ -75,11 +79,22 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameId, socket }) => {
             {gameState.boards.map((board, index) => (
               <div key={index} className="board">
                 {board.map((card, idx) => (
-                  <Card key={idx} card={card} /> // Display each card
+                  <Card key={idx} card={card} />
                 ))}
               </div>
             ))}
           </div>
+          {/* Display player's private cards */}
+          {gameState.playerCards && gameState.playerCards.length > 0 && (
+            <div className="player-cards">
+              <h3>Your Cards:</h3>
+              <div className="cards-container">
+                {gameState.playerCards.map((card, index) => (
+                  <Card key={index} card={card} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <button onClick={startGame}>Start Game</button>
