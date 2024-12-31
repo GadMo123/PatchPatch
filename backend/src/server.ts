@@ -1,7 +1,7 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
-import { generateDeck } from './gameUtils/Deck';
+import { Game } from './gameUtils/Game';
 
 
 const app = express();
@@ -10,52 +10,80 @@ const server = http.createServer(app);
 // Initialize socket.io with the server, properly handling CORS
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000", // Ensure this matches your client-side URL
-    methods: ["GET", "POST"],
-    allowedHeaders: ["my-custom-header"],
-    credentials: true
-  }
+    origin: 'http://localhost:3000', // Ensure this matches your client-side URL
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['my-custom-header'],
+    credentials: true,
+  },
 });
 
-io.on('connection', (socket) => {
+// Store all games
+const games: Record<string, Game> = {};
+
+io.on('connection', socket => {
   console.log('A user connected:', socket.id);
 
+  // Create a new game
   socket.on('create-game', (callback: (id: string) => void) => {
     const gameId = `game-${Date.now()}`;
+    games[gameId] = new Game(gameId);
     callback(gameId);
   });
 
-  socket.on('join-game', (gameId: string, callback: (state: any) => void) => {
-    console.log(`User joined game ${gameId}`);
-    callback({ gameId, state: 'waiting' });
+  // Join an existing game
+  socket.on('join-game', (gameId: string, name: string, callback: (state: any) => void) => {
+    const game = games[gameId];
+    if (!game) {
+      return callback({ error: 'Game not found' });
+    }
+
+    try {
+      game.addPlayer(socket.id, name);
+      callback(game.getState());
+    } catch (error: any) {
+      callback({ error: error.message });
+    }
   });
 
+  // Start the game
   socket.on('start-game', (gameId: string) => {
-    console.log('joined');
-    const deck = generateDeck();
+    const game = games[gameId];
+    if (!game) {
+      console.error('Game not found');
+      return;
+    }
 
-    // Convert each card string into an object with rank and suit
-    const convertToCardObject = (card: string) => {
-      const rank = card.slice(0, -1); // Extract rank (e.g., "2", "T", "A")
-      const suit = card.slice(-1); // Extract suit (e.g., "c", "d", "h", "s")
-      return { rank, suit };
-    };
+    try {
+      game.startGame();
+      io.emit('game-state', game.getState());
 
-    const flops = [
-      deck.slice(0, 3).map(convertToCardObject),
-      deck.slice(3, 6).map(convertToCardObject),
-      deck.slice(6, 9).map(convertToCardObject),
-    ];
+      // Deal flops after 5 seconds
+      setTimeout(() => {
+        game.dealFlops();
+        io.emit('game-state', game.getState());
 
-    const gameState = {
-      flops, // 3 poker flops
-      status: 'started',
-    };
+        // Deal turns after another 5 seconds
+        setTimeout(() => {
+          game.dealTurn();
+          io.emit('game-state', game.getState());
 
-    // Emit the game state to all clients in the game
-    io.emit('game-state', gameState);
+          // Deal rivers after another 5 seconds
+          setTimeout(() => {
+            game.dealRiver();
+            io.emit('game-state', game.getState());
+
+            // Mark the game as completed
+            game.endGame();
+            io.emit('game-state', game.getState());
+          }, 1000);
+        }, 1000);
+      }, 1000);
+    } catch (error: any) {
+      console.error(error.message);
+    }
   });
 
+  // Disconnect handling
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });

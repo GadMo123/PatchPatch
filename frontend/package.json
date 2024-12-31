@@ -17,7 +17,6 @@
     "eject": "react-scripts eject",
     "ts-check": "tsc --noEmit"
   },
-
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -35,5 +34,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2"
   }
 }
