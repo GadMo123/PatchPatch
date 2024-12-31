@@ -6,10 +6,10 @@ import GameBoard from './components/GameBoard';
 import Lobby from './components/Lobby';
 import socket from './socket';
 
-
 const App: React.FC = () => {
   const [gameId, setGameId] = useState<string | null>(null);
   const [isJoined, setIsJoined] = useState<boolean>(false);
+  const [playerId, setPlayerId] = useState<string | null>(null);
 
   useEffect(() => {
     console.log('App component mounted');
@@ -24,6 +24,12 @@ const App: React.FC = () => {
       console.log('Socket connected:', socket.id);
     });
 
+    // Listen for player ID from the server
+    socket.on('player-id', (id: string) => {
+      console.log('Received player ID:', id);
+      setPlayerId(id);
+    });
+
     socket.on('game-state', handleGameState);
 
     return () => {
@@ -34,30 +40,22 @@ const App: React.FC = () => {
 
   const createGame = () => {
     console.log('Creating game...');
-    if (!socket.connected) {
-      console.log('Socket is not connected');
-      socket.once('connect', () => {
-        console.log('socket connected, retrying create game');
-        createGame(); // Retry creating the game once connected
-      });
-      return;
-    }
-
-    console.log('Creating game...');
-    socket.emit('create-game', (id: string) => {
-      console.log('Game created with ID:', id); // Should be logged
-      setGameId(id);
-      setIsJoined(true);
-    });
   };
 
   const joinGame = (id: string) => {
+    setGameId(id);
+    setIsJoined(true);
     console.log('Joining game with ID:', id);
-    socket.emit('join-game', id, (gameState: any) => {
-      console.log('Joined game, game state:', gameState);
-      setGameId(id);
-      setIsJoined(true);
+    socket.emit('join-game', id, (response: any) => {
+      if (!response || !response.success) {
+        console.error(
+          `Failed to join game: ${response?.error || 'Unknown error'}`
+        );
+        return;
+      }
+      console.log('Joined game, game state:', response);
     });
+    socket.emit('start-game', id, (response: any) => {});
   };
 
   return (
@@ -65,7 +63,10 @@ const App: React.FC = () => {
       {!isJoined ? (
         <Lobby createGame={createGame} joinGame={joinGame} />
       ) : (
-        <GameBoard gameId={gameId!} socket={socket} />
+        playerId &&
+        gameId && (
+          <GameBoard gameId={gameId} socket={socket} playerId={playerId} />
+        )
       )}
     </div>
   );
