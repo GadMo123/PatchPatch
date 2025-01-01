@@ -32,6 +32,8 @@ const App: React.FC = () => {
 
     socket.on('game-state', handleGameState);
 
+    //socket.on('private-cards', );
+
     return () => {
       socket.off('game-state', handleGameState);
       socket.off('connect');

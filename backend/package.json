@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/server/server.ts",
+    "start": "ts-node src/server/Server.ts",
     "build": "tsc",
-    "serve": "node dist/server.js",
+    "serve": "node dist/Server.js",
     "format": "prettier --write .",
     "format-check": "prettier --check ."
   },
