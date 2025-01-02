@@ -20,12 +20,14 @@ export class Game {
   private id: string;
   private deck: Deck;
   private players: Player[] = [];
+  private stakes: string;
   private state: GameState;
 
-  constructor(id: string) {
+  constructor(id: string, stakes: string) {
     this.id = id;
     this.deck = new Deck();
     this.state = { flops: [], turns: [], rivers: [], status: 'waiting' };
+    this.stakes = stakes;
   }
 
   addPlayer(player: Player) {
@@ -91,7 +93,14 @@ export class Game {
     return this.state;
   }
 
-  // Getter for players
+  getid() {
+    return this.id;
+  }
+
+  getStakes() {
+    return this.stakes;
+  }
+
   get playersList(): Player[] {
     return this.players;
   }
