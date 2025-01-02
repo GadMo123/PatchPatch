@@ -18,6 +18,7 @@ const MainLobby: React.FC<MainLobbyProps> = ({ joinGame }) => {
       'lobby-status',
       {},
       (response: { success: boolean; games: any[] }) => {
+        console.log(response);
         if (response.success) {
           setGames(response.games); // Update games list
         }
@@ -26,13 +27,14 @@ const MainLobby: React.FC<MainLobbyProps> = ({ joinGame }) => {
   };
 
   useEffect(() => {
+    console.log('arrived in lobby');
     // Fetch initially
     fetchLobbyStatus();
 
     // Fetch every 5 seconds
     const interval = setInterval(fetchLobbyStatus, 5000);
     return () => clearInterval(interval); // Cleanup interval on unmount
-  }, [socket]);
+  }, []);
 
   const handleJoinGame = (gameId: string) => {
     socket?.emit(
@@ -52,16 +54,18 @@ const MainLobby: React.FC<MainLobbyProps> = ({ joinGame }) => {
   return (
     <div>
       <h1>Lobby</h1>
-      <ul>
-        {games.map(game => (
-          <li key={game.id}>
-            <h2>{game.blindLevel} Big Blinds</h2>
-            <p>Players: {game.players.join(', ')}</p>
-            <p>State: {game.state}</p>
-            <button onClick={() => handleJoinGame(game.id)}>Join Game</button>
-          </li>
-        ))}
-      </ul>
+      {
+        <ul>
+          {games?.map(game => (
+            <li key={game.id}>
+              <h2>{game.blindLevel} Big Blinds</h2>
+              <p>Players: {game.players?.join(', ')}</p>
+              <p>State: {game.state.status}</p>
+              <button onClick={() => handleJoinGame(game.id)}>Join Game</button>
+            </li>
+          ))}
+        </ul>
+      }
     </div>
   );
 };

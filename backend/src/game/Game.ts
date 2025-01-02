@@ -93,7 +93,7 @@ export class Game {
     return this.state;
   }
 
-  getid() {
+  getId() {
     return this.id;
   }
 

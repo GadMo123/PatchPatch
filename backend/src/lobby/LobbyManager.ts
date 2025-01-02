@@ -33,8 +33,8 @@ export function handleLobbyStatus(games: Record<string, Game>): {
   games: any[];
 } {
   const gameList = Object.values(games).map(game => ({
-    id: game.getid,
-    blindLevel: game.getStakes,
+    id: game.getId(),
+    blindLevel: game.getStakes(),
     players: game.playersList.map((player: Player) => player.name),
     state: game.getState(),
   }));

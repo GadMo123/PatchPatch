@@ -6,7 +6,9 @@ import { Server } from 'socket.io';
 import { Game } from '../game/Game';
 import { Player } from '../player/Player';
 import { handleJoinGame, handleLobbyStatus } from '../lobby/LobbyManager';
-import { SingleGameManager } from '../gameFlowManager/singleGameManager';
+import { SingleGameManager } from '../gameFlowManager/SingleGameManager';
+
+let gameCounter = 0;
 
 const app = express();
 const server = http.createServer(app);
@@ -19,6 +21,17 @@ app.use(express.json());
 // Data storage
 const players: Record<string, Player> = {};
 const games: Record<string, Game> = {};
+
+//create few games for testing, romove later
+function createDummyGames() {
+  createGame('admin', '5-10');
+  createGame('admin', '5-10');
+  createGame('admin', '25-50');
+  createGame('admin', '25-50');
+  createGame('admin', '10-20');
+}
+
+createDummyGames();
 
 // Add a new player
 function addPlayer(socketId: string, name: string): Player {
@@ -34,7 +47,7 @@ function removePlayer(socketId: string) {
 
 // Create a new game
 function createGame(creatorId: string, blindLevel: string): Game {
-  const gameId = `game-${Date.now()}`;
+  const gameId = (gameCounter++).toString();
   const newGame = new Game(gameId, blindLevel);
   games[gameId] = newGame;
 
@@ -81,7 +94,7 @@ io.on('connection', socket => {
     }
 
     const game = createGame(socket.id, blindLevel);
-    callback({ success: true, gameId: game.getid });
+    callback({ success: true, gameId: game.getId() });
   });
 
   // Handle joining a game
