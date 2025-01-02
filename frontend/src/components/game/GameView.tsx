@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Socket } from 'socket.io-client';
-import Time from './Time';
-import Card from './Card';
-import './GameBoard.css';
-
-interface GameBoardProps {
-  gameId: string;
-  socket: Socket;
-  playerId: string; // Unique ID of the current player
-}
+import { useParams, useNavigate } from 'react-router-dom';
+import socket from '../socket/socket';
+import './GameView.css';
+import Time from '../utils/Time';
+import Card from '../utils/Card';
+import './GameView.css';
 
 interface CardObject {
   rank: string;
@@ -29,10 +25,17 @@ interface GameState {
   }[];
 }
 
-const GameBoard: React.FC<GameBoardProps> = ({ gameId, socket, playerId }) => {
+const GameView: React.FC<{ playerId: string }> = ({ playerId }) => {
+  const { gameId } = useParams<{ gameId: string }>();
+  const navigate = useNavigate();
   const [gameState, setGameState] = useState<GameState | null>(null);
 
   useEffect(() => {
+    if (!gameId) {
+      console.error('Game ID is missing');
+      return;
+    }
+
     const handleGameState = (state: Omit<GameState, 'boards'>) => {
       const updatedBoards =
         state.flops?.map((flop, index) => {
@@ -51,25 +54,40 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameId, socket, playerId }) => {
     socket.on('game-state', handleGameState);
 
     // Listen for the 'private-cards' event
-    socket.on('private-cards', playerCards => {
-      setGameState(prevState => ({
-        ...prevState!,
-        playerCards: playerCards,
-      }));
+    socket.on('private-cards', (playerCards: CardObject[]) => {
+      setGameState(prevState =>
+        prevState ? { ...prevState, playerCards } : null
+      );
     });
 
+    // Clean up socket listeners on unmount
     return () => {
       socket.off('game-state', handleGameState);
       socket.off('private-cards');
     };
-  }, [socket]);
+  }, [gameId]);
 
   const startGame = () => {
-    socket.emit('start-game', gameId);
+    if (!gameId) return;
+    socket.emit(
+      'start-game',
+      gameId,
+      (response: { success: boolean; message?: string }) => {
+        if (!response.success) {
+          alert(response.message || 'Failed to start game');
+        }
+      }
+    );
+  };
+
+  const leaveGame = () => {
+    socket.emit('leave-game', gameId, () => {
+      navigate('/lobby');
+    });
   };
 
   return (
-    <div className="GameBoard">
+    <div className="GameView">
       <Time limit={4 * 60} />
       <h2>Game ID: {gameId}</h2>
       {gameState ? (
@@ -95,6 +113,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameId, socket, playerId }) => {
               </div>
             </div>
           )}
+          <button onClick={leaveGame}>Leave Game</button>
         </div>
       ) : (
         <button onClick={startGame}>Start Game</button>
@@ -103,4 +122,4 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameId, socket, playerId }) => {
   );
 };
 
-export default GameBoard;
+export default GameView;

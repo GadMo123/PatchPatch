@@ -1,49 +1,64 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSocket } from '../socket/SocketContext';
+import { useNavigate } from 'react-router-dom';
 
-const Lobby = ({ socket }) => {
-  const [lobbyStatus, setLobbyStatus] = useState([]);
+interface MainLobbyProps {
+  joinGame: (gameId: string) => void; // Callback to pass gameId back to App
+}
+
+const MainLobby: React.FC<MainLobbyProps> = ({ joinGame }) => {
+  const { socket } = useSocket();
+  const [games, setGames] = useState<any[]>([]);
+  const navigate = useNavigate();
+
+  const fetchLobbyStatus = () => {
+    if (!socket) return;
+
+    socket?.emit(
+      'lobby-status',
+      {},
+      (response: { success: boolean; games: any[] }) => {
+        if (response.success) {
+          setGames(response.games); // Update games list
+        }
+      }
+    );
+  };
 
   useEffect(() => {
-    const fetchLobbyStatus = async () => {
-      const response = await fetch('http://localhost:5000/lobby-status');
-      const data = await response.json();
-      setLobbyStatus(data);
-    };
-
+    // Fetch initially
     fetchLobbyStatus();
-  }, []);
 
-  const handleJoinGame = async blindLevel => {
-    const response = await fetch('http://localhost:5000/join-game', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        playerId: localStorage.getItem('playerId'),
-        blindLevel,
-      }),
-    });
+    // Fetch every 5 seconds
+    const interval = setInterval(fetchLobbyStatus, 5000);
+    return () => clearInterval(interval); // Cleanup interval on unmount
+  }, [socket]);
 
-    const data = await response.json();
-    if (data.message === 'Game started') {
-      alert('Game started! Redirecting...');
-      // Redirect to game page
-    } else {
-      alert('Waiting for an opponent...');
-    }
+  const handleJoinGame = (gameId: string) => {
+    socket?.emit(
+      'join-game',
+      gameId,
+      (response: { success: boolean; message?: string }) => {
+        if (response.success) {
+          joinGame(gameId); // Pass gameId to parent
+          navigate(`/game/${gameId}`);
+        } else {
+          alert(response.message || 'Failed to join game');
+        }
+      }
+    );
   };
 
   return (
     <div>
       <h1>Lobby</h1>
       <ul>
-        {lobbyStatus.map(({ blindLevel, waiting, activeGames }) => (
-          <li key={blindLevel}>
-            <h2>{blindLevel} Big Blinds</h2>
-            <p>Players waiting: {waiting}</p>
-            <p>Active games: {activeGames}</p>
-            <button onClick={() => handleJoinGame(blindLevel)}>
-              Join Game
-            </button>
+        {games.map(game => (
+          <li key={game.id}>
+            <h2>{game.blindLevel} Big Blinds</h2>
+            <p>Players: {game.players.join(', ')}</p>
+            <p>State: {game.state}</p>
+            <button onClick={() => handleJoinGame(game.id)}>Join Game</button>
           </li>
         ))}
       </ul>
@@ -51,4 +66,4 @@ const Lobby = ({ socket }) => {
   );
 };
 
-export default Lobby;
+export default MainLobby;
