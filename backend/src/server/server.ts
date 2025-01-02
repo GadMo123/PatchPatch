@@ -1,97 +1,113 @@
-// src/server/Server.ts
+// src/server/server.ts
 
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
 import { Game } from '../game/Game';
 import { Player } from '../player/Player';
-
-let curPlayerID = 0;
+import { handleJoinGame, handleLobbyStatus } from '../lobby/LobbyManager';
+import { SingleGameManager } from '../gameFlowManager/singleGameManager';
 
 const app = express();
 const server = http.createServer(app);
-
-app.use(express.json());
-
 const io = new Server(server, {
   cors: { origin: 'http://localhost:3000', methods: ['GET', 'POST'] },
 });
 
-const games: Record<string, Game> = {};
-const players: Record<string, Player> = {};
+app.use(express.json());
 
+// Data storage
+const players: Record<string, Player> = {};
+const games: Record<string, Game> = {};
+
+// Add a new player
+function addPlayer(socketId: string, name: string): Player {
+  const player = new Player(socketId, name);
+  players[socketId] = player;
+  return player;
+}
+
+// Remove a player
+function removePlayer(socketId: string) {
+  delete players[socketId];
+}
+
+// Create a new game
+function createGame(creatorId: string, blindLevel: string): Game {
+  const gameId = `game-${Date.now()}`;
+  const newGame = new Game(gameId, blindLevel);
+  games[gameId] = newGame;
+
+  // Add the creator as the first player
+  if (players[creatorId]) {
+    newGame.addPlayer(players[creatorId]);
+  }
+
+  return newGame;
+}
+
+// Get a game by ID
+function getGame(gameId: string): Game | undefined {
+  return games[gameId];
+}
+
+// Get all games
+function getGames(): Record<string, Game> | undefined {
+  return games;
+}
+
+// Socket.io communication
 io.on('connection', socket => {
   console.log('A user connected:', socket.id);
-  const playerId = (curPlayerID++).toString();
-  players[playerId] = new Player(playerId, `Player ${playerId}`, socket);
 
-  socket.emit('player-id', playerId);
-
-  socket.on('create-game', callback => {
-    const gameId = createGame();
-    callback({ success: true });
+  // Handle login
+  socket.on('login', (name, callback) => {
+    if (!name) return callback({ success: false, message: 'Name is required' });
+    const player = addPlayer(socket.id, name);
+    callback({ success: true, playerId: player.id });
   });
 
-  socket.on('join-game', (gameId, name, callback) => {
-    const game = games[0] ? games[0] : games[createGame()];
-
-    // Add the player to the game
-    game.addPlayer(players[playerId]);
-
-    // Broadcast the game state to each player individually
-    game.broadcastGameState();
-  });
-
-  socket.on('start-game', gameId => {
-    const game = games[0];
-    if (!game) {
-      console.error('Game not found');
-      return;
-    }
-
-    try {
-      game.startGame();
-      io.emit('game-state', game.getState());
-
-      // Deal flops after 5 seconds
-      setTimeout(() => {
-        game.dealFlops();
-        io.emit('game-state', game.getState());
-
-        // Deal turns after another 5 seconds
-        setTimeout(() => {
-          game.dealTurn();
-          io.emit('game-state', game.getState());
-
-          // Deal rivers after another 5 seconds
-          setTimeout(() => {
-            game.dealRiver();
-            io.emit('game-state', game.getState());
-
-            // Mark the game as completed
-            game.endGame();
-            io.emit('game-state', game.getState());
-          }, 1000);
-        }, 1000);
-      }, 1000);
-    } catch (error: any) {
-      console.error(error.message);
-    }
-  });
-
+  // Handle disconnect
   socket.on('disconnect', () => {
-    delete players[playerId];
     console.log('User disconnected:', socket.id);
+    removePlayer(socket.id);
+  });
+
+  // Handle game creation
+  // Todo: handle permissions, should player be able to create a game??
+  socket.on('create-game', (blindLevel, callback) => {
+    if (!players[socket.id]) {
+      return callback({ success: false, message: 'Player not logged in' });
+    }
+
+    const game = createGame(socket.id, blindLevel);
+    callback({ success: true, gameId: game.getid });
+  });
+
+  // Handle joining a game
+  socket.on('join-game', (gameId, callback) => {
+    const result = handleJoinGame(gameId, socket.id, players);
+
+    if (result.success) {
+      io.to(gameId).emit('game-state', games[gameId]?.getState());
+    }
+    //assuming for now start on single player join
+    new SingleGameManager(games[gameId]).startGame(io);
+    callback(result);
+  });
+
+  // Handle send lobby status to player
+  socket.on('lobby-status', (gameId, callback) => {
+    const result = handleLobbyStatus(games);
+
+    if (result.success) {
+      io.to(gameId).emit('lobby-status', result.games);
+    }
+
+    callback(result);
   });
 });
 
-const PORT = 5000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(5000, () => console.log('Server running on port 5000'));
 
-function createGame() {
-  const id = 0;
-  games[id] = new Game('' + id); // Store the game under the string key.
-  return id;
-}
-
-export { app, io };
+export { io, app };
