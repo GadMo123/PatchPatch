@@ -4,6 +4,7 @@ import { Server } from 'socket.io';
 import { Player } from '../player/Player';
 import { Deck } from './Deck';
 
+// This include private cards and not public only data, filter for player privacy before sending to clients.
 interface GameState {
   flops: { rank: string; suit: string }[][];
   turns: { rank: string; suit: string }[];
@@ -36,6 +37,7 @@ export class Game {
 
   addPlayer(player: Player) {
     if (this.players.length >= 3) throw new Error('Game is full');
+    player.cards = []; //making sure private cards are empty
     this.players.push(player);
   }
 
@@ -43,12 +45,12 @@ export class Game {
     if (this.players.length > 3)
       throw new Error('Too many players to start the game');
 
+    this.state.status = 'started';
+
     this.players.forEach(player => {
       player.cards = this.deck.getPlayerCards();
-      this.io.to(player.socketId).emit('private-cards', player.cards);
+      this.broadcastGameState();
     });
-
-    this.state.status = 'started';
   }
 
   dealFlops() {
@@ -75,10 +77,10 @@ export class Game {
   }
 
   broadcastGameState() {
-    const gameState = this.getPublicGameState();
-    this.players.forEach(player =>
-      this.io.to(player.socketId).emit('game-state', gameState)
-    );
+    this.players.forEach(player => {
+      const personalizedGameState = this.getPersonalizedGameState(player.id);
+      this.io.to(player.socketId).emit('game-state', personalizedGameState);
+    });
   }
 
   getPublicGameState() {
@@ -95,8 +97,23 @@ export class Game {
     };
   }
 
-  getState() {
-    return this.state;
+  getPersonalizedGameState(playerId: string) {
+    return {
+      id: this.id,
+      flops: this.state.flops,
+      turns: this.state.turns,
+      rivers: this.state.rivers,
+      status: this.state.status,
+      players: this.players.map(player => ({
+        id: player.id,
+        name: player.name,
+        cards: player.id === playerId ? player.cards : [], // Include private cards only for the specific player
+      })),
+    };
+  }
+
+  getStatus() {
+    return this.state.status;
   }
 
   getId() {
