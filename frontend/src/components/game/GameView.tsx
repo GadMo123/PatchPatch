@@ -67,17 +67,16 @@ const GameView: React.FC<{ playerId: string }> = ({ playerId }) => {
     };
   }, [gameId]);
 
-  const startGame = () => {
+  const refreshGame = () => {
     if (!gameId) return;
-    socket.emit(
-      'start-game',
-      gameId,
-      (response: { success: boolean; message?: string }) => {
-        if (!response.success) {
-          alert(response.message || 'Failed to start game');
-        }
+    socket.emit('game-state', gameId, (response: any) => {
+      if (response.success && response.gameState) {
+        // This will be caught by the handleGameState listener in useEffect
+        console.log('Game state refreshed:', response.gameState);
+      } else {
+        alert(response.message || 'Failed to refresh game state');
       }
-    );
+    });
   };
 
   const leaveGame = () => {
@@ -116,7 +115,7 @@ const GameView: React.FC<{ playerId: string }> = ({ playerId }) => {
           <button onClick={leaveGame}>Leave Game</button>
         </div>
       ) : (
-        <button onClick={startGame}>Start Game</button>
+        <button onClick={refreshGame}>Start Game</button>
       )}
     </div>
   );

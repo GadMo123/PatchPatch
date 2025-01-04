@@ -1,6 +1,6 @@
 // src/server/singleGameManager.ts
 
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { Game } from '../game/Game';
 export class SingleGameManager {
   game: Game;
@@ -9,6 +9,7 @@ export class SingleGameManager {
   }
 
   startGame(io: Server) {
+    console.log('starting game: ' + this.game.getId());
     try {
       this.game.startGame();
       this.sendGameStateToPlayers(io);
@@ -43,7 +44,12 @@ export class SingleGameManager {
    */
   private sendGameStateToPlayers(io: Server) {
     this.game.playersList.forEach(player => {
-      io.to(player.id).emit('game-state', this.game.getState());
+      if (player.socketId) {
+        // Emit the game state to the specific player's socket
+        io.to(player.socketId).emit('game-state', this.game.getState());
+      } else {
+        console.error(`Player ${player.id} does not have a valid socket ID.`);
+      }
     });
   }
 }

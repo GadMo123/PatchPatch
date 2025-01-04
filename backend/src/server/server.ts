@@ -23,9 +23,9 @@ const players: Record<string, Player> = {};
 const games: Record<string, Game> = {};
 
 // Add a new player
-function addPlayer(socketId: string, name: string): Player {
-  const player = new Player(socketId, name);
-  players[socketId] = player;
+function addPlayer(playerId: string, name: string, socketId: string): Player {
+  const player = new Player(playerId, name, socketId);
+  players[playerId] = player;
   return player;
 }
 
@@ -35,9 +35,13 @@ function removePlayer(socketId: string) {
 }
 
 // Create a new game
-function createGame(creatorId: string, blindLevel: string): Game {
+function createGame(
+  creatorId: string,
+  blindLevel: string,
+  server: Server
+): Game {
   const gameId = (gameCounter++).toString();
-  const newGame = new Game(gameId, blindLevel);
+  const newGame = new Game(gameId, blindLevel, server);
   games[gameId] = newGame;
 
   // Add the creator as the first player
@@ -51,12 +55,12 @@ function createGame(creatorId: string, blindLevel: string): Game {
 // Socket.io communication
 io.on('connection', socket => {
   console.log('A user connected:', socket.id);
-  loginPlayerOnConnection(socket.id); // for debug, todo: remove
+  loginPlayerOnConnection(socket.id, socket.id); // for debug, todo: remove
 
   // Handle login
   socket.on('login', (name, callback) => {
     if (!name) return callback({ success: false, message: 'Name is required' });
-    const player = addPlayer(socket.id, name);
+    const player = addPlayer(socket.id, name, socket.id);
     callback({ success: true, playerId: player.id });
   });
 
@@ -73,7 +77,7 @@ io.on('connection', socket => {
       return callback({ success: false, message: 'Player not logged in' });
     }
 
-    const game = createGame(socket.id, blindLevel);
+    const game = createGame(socket.id, blindLevel, io);
     callback({ success: true, gameId: game.getId() });
   });
 
@@ -99,23 +103,34 @@ io.on('connection', socket => {
 
     callback(result);
   });
+
+  // Server-side: Handle game-state-request from a client
+  socket.on('game-state', (gameId, callback) => {
+    const game = games[gameId];
+    if (game) {
+      const gameState = game.getState();
+      callback({ success: true, gameState });
+    } else {
+      callback({ success: false, message: 'Game not found' });
+    }
+  });
 });
 
 server.listen(5000, () => console.log('Server running on port 5000'));
 
 // this section is temporary for testing, to create loby games, loggin without authentication, ect.
-createDummyGames();
+createDummyGames(io);
 //create few games for testing, romove later
-function createDummyGames() {
-  createGame('admin', '5-10');
-  createGame('admin', '5-10');
-  createGame('admin', '25-50');
-  createGame('admin', '25-50');
-  createGame('admin', '10-20');
+function createDummyGames(server: Server) {
+  createGame('admin', '5-10', server);
+  createGame('admin', '5-10', server);
+  createGame('admin', '25-50', server);
+  createGame('admin', '25-50', server);
+  createGame('admin', '10-20', server);
 }
 
-function loginPlayerOnConnection(playerId: string) {
-  const player = addPlayer(playerId, playerId);
+function loginPlayerOnConnection(playerId: string, socketId: string) {
+  const player = addPlayer(playerId, playerId, socketId);
 }
 
 export { io, app };
