@@ -45,25 +45,23 @@ const GameView: React.FC<{ playerId: string }> = ({ playerId }) => {
           return board;
         }) || [];
 
+      // Extract the current player's cards from the state
+      const currentPlayer = state.players.find(
+        player => player.id === playerId
+      );
+
       setGameState({
         ...state,
+        playerCards: currentPlayer?.cards || [],
         boards: updatedBoards,
       });
     };
 
     socket.on('game-state', handleGameState);
 
-    // Listen for the 'private-cards' event
-    socket.on('private-cards', (playerCards: CardObject[]) => {
-      setGameState(prevState =>
-        prevState ? { ...prevState, playerCards } : null
-      );
-    });
-
     // Clean up socket listeners on unmount
     return () => {
       socket.off('game-state', handleGameState);
-      socket.off('private-cards');
     };
   }, [gameId]);
 

@@ -36,7 +36,7 @@ export function handleLobbyStatus(games: Record<string, Game>): {
     id: game.getId(),
     blindLevel: game.getStakes(),
     players: game.playersList.map((player: Player) => player.name),
-    state: game.getState(),
+    status: game.getStatus(),
   }));
   return { success: true, games: gameList };
 }

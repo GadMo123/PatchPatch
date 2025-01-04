@@ -46,7 +46,10 @@ export class SingleGameManager {
     this.game.playersList.forEach(player => {
       if (player.socketId) {
         // Emit the game state to the specific player's socket
-        io.to(player.socketId).emit('game-state', this.game.getState());
+        io.to(player.socketId).emit(
+          'game-state',
+          this.game.getPersonalizedGameState(player.id)
+        );
       } else {
         console.error(`Player ${player.id} does not have a valid socket ID.`);
       }

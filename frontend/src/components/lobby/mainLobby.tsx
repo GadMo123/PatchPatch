@@ -60,7 +60,7 @@ const MainLobby: React.FC<MainLobbyProps> = ({ joinGame }) => {
             <li key={game.id}>
               <h2>{game.blindLevel} Big Blinds</h2>
               <p>Players: {game.players?.join(', ')}</p>
-              <p>State: {game.state.status}</p>
+              <p>Status: {game.status}</p>
               <button onClick={() => handleJoinGame(game.id)}>Join Game</button>
             </li>
           ))}

@@ -86,7 +86,10 @@ io.on('connection', socket => {
     const result = handleJoinGame(games[gameId], socket.id, players);
 
     if (result.success) {
-      io.to(gameId).emit('game-state', games[gameId]?.getState());
+      io.to(gameId).emit(
+        'game-state',
+        games[gameId]?.getPersonalizedGameState(socket.id)
+      );
     }
     //assuming for now start on single player join
     new SingleGameManager(games[gameId]).startGame(io);
@@ -108,7 +111,7 @@ io.on('connection', socket => {
   socket.on('game-state', (gameId, callback) => {
     const game = games[gameId];
     if (game) {
-      const gameState = game.getState();
+      const gameState = game.getPersonalizedGameState(socket.id);
       callback({ success: true, gameState });
     } else {
       callback({ success: false, message: 'Game not found' });
