@@ -22,17 +22,6 @@ app.use(express.json());
 const players: Record<string, Player> = {};
 const games: Record<string, Game> = {};
 
-//create few games for testing, romove later
-function createDummyGames() {
-  createGame('admin', '5-10');
-  createGame('admin', '5-10');
-  createGame('admin', '25-50');
-  createGame('admin', '25-50');
-  createGame('admin', '10-20');
-}
-
-createDummyGames();
-
 // Add a new player
 function addPlayer(socketId: string, name: string): Player {
   const player = new Player(socketId, name);
@@ -59,19 +48,10 @@ function createGame(creatorId: string, blindLevel: string): Game {
   return newGame;
 }
 
-// Get a game by ID
-function getGame(gameId: string): Game | undefined {
-  return games[gameId];
-}
-
-// Get all games
-function getGames(): Record<string, Game> | undefined {
-  return games;
-}
-
 // Socket.io communication
 io.on('connection', socket => {
   console.log('A user connected:', socket.id);
+  loginPlayerOnConnection(socket.id); // for debug, todo: remove
 
   // Handle login
   socket.on('login', (name, callback) => {
@@ -87,7 +67,7 @@ io.on('connection', socket => {
   });
 
   // Handle game creation
-  // Todo: handle permissions, should player be able to create a game??
+  // Todo: handle permissions, should player be able to create a game? or admin premission?
   socket.on('create-game', (blindLevel, callback) => {
     if (!players[socket.id]) {
       return callback({ success: false, message: 'Player not logged in' });
@@ -99,7 +79,7 @@ io.on('connection', socket => {
 
   // Handle joining a game
   socket.on('join-game', (gameId, callback) => {
-    const result = handleJoinGame(gameId, socket.id, players);
+    const result = handleJoinGame(games[gameId], socket.id, players);
 
     if (result.success) {
       io.to(gameId).emit('game-state', games[gameId]?.getState());
@@ -122,5 +102,20 @@ io.on('connection', socket => {
 });
 
 server.listen(5000, () => console.log('Server running on port 5000'));
+
+// this section is temporary for testing, to create loby games, loggin without authentication, ect.
+createDummyGames();
+//create few games for testing, romove later
+function createDummyGames() {
+  createGame('admin', '5-10');
+  createGame('admin', '5-10');
+  createGame('admin', '25-50');
+  createGame('admin', '25-50');
+  createGame('admin', '10-20');
+}
+
+function loginPlayerOnConnection(playerId: string) {
+  const player = addPlayer(playerId, playerId);
+}
 
 export { io, app };

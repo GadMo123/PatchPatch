@@ -19,7 +19,7 @@ interface GameState {
 export class Game {
   private id: string;
   private deck: Deck;
-  private players: Player[] = [];
+  private players: Player[];
   private stakes: string;
   private state: GameState;
 
@@ -28,6 +28,7 @@ export class Game {
     this.deck = new Deck();
     this.state = { flops: [], turns: [], rivers: [], status: 'waiting' };
     this.stakes = stakes;
+    this.players = [];
   }
 
   addPlayer(player: Player) {
