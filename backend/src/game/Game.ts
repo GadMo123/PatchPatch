@@ -1,5 +1,6 @@
 // src/game/Game.ts
 
+import { Server } from 'socket.io';
 import { Player } from '../player/Player';
 import { Deck } from './Deck';
 
@@ -17,13 +18,15 @@ interface GameState {
 }
 
 export class Game {
+  private io: Server;
   private id: string;
   private deck: Deck;
   private players: Player[];
   private stakes: string;
   private state: GameState;
 
-  constructor(id: string, stakes: string) {
+  constructor(id: string, stakes: string, server: Server) {
+    this.io = server;
     this.id = id;
     this.deck = new Deck();
     this.state = { flops: [], turns: [], rivers: [], status: 'waiting' };
@@ -42,7 +45,7 @@ export class Game {
 
     this.players.forEach(player => {
       player.cards = this.deck.getPlayerCards();
-      player.socket.emit('private-cards', player.cards);
+      this.io.to(player.socketId).emit('private-cards', player.cards);
     });
 
     this.state.status = 'started';
@@ -73,7 +76,9 @@ export class Game {
 
   broadcastGameState() {
     const gameState = this.getPublicGameState();
-    this.players.forEach(player => player.socket.emit('game-state', gameState));
+    this.players.forEach(player =>
+      this.io.to(player.socketId).emit('game-state', gameState)
+    );
   }
 
   getPublicGameState() {
