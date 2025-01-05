@@ -1,36 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import socket from '../socket/socket';
 
 interface LoginProps {
-  setPlayerId: (id: string) => void;
+  onLogin: (playerId: string) => void;
 }
 
-const Login: React.FC<LoginProps> = ({ setPlayerId }) => {
-  const [playerName, setPlayerName] = useState<string>('');
+const Login: React.FC<LoginProps> = ({ onLogin }) => {
+  const [name, setName] = useState('');
+  const [error, setError] = useState('');
 
   const handleLogin = () => {
-    const id = playerName ? playerName : 'viewer'; // Default to 'viewer' if no name
-    setPlayerId(id);
+    if (!name.trim()) {
+      setError('Name is required');
+      return;
+    }
 
-    socket.emit('login', { playerId: id }, (response: { success: boolean }) => {
-      if (response.success) {
-        console.log('Player logged in as', id);
-      } else {
-        console.error('Login failed');
+    socket.emit(
+      'login',
+      name,
+      (response: { success: boolean; playerId?: string; message?: string }) => {
+        if (response.success && response.playerId) {
+          onLogin(response.playerId); // Pass the playerId to the parent component
+        } else {
+          setError(response.message || 'Login failed');
+        }
       }
-    });
+    );
   };
 
   return (
-    <div>
-      <h1>Login</h1>
+    <div className="Login">
+      <h2>Login</h2>
       <input
         type="text"
-        placeholder="Enter Player Name"
-        value={playerName}
-        onChange={e => setPlayerName(e.target.value)}
+        placeholder="Enter your name"
+        value={name}
+        onChange={e => setName(e.target.value)}
       />
       <button onClick={handleLogin}>Login</button>
+      {error && <p className="error">{error}</p>}
     </div>
   );
 };

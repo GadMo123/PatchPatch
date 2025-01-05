@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom';
 
 interface MainLobbyProps {
   joinGame: (gameId: string) => void; // Callback to pass gameId back to App
+  playerId: string;
 }
 
-const MainLobby: React.FC<MainLobbyProps> = ({ joinGame }) => {
+const MainLobby: React.FC<MainLobbyProps> = ({ joinGame, playerId }) => {
   const { socket } = useSocket();
   const [games, setGames] = useState<any[]>([]);
   const navigate = useNavigate();
@@ -37,6 +38,8 @@ const MainLobby: React.FC<MainLobbyProps> = ({ joinGame }) => {
   }, []);
 
   const handleJoinGame = (gameId: string) => {
+    if (!playerId || playerId === 'unregistered') navigate('/login'); // Redirect to login
+
     socket?.emit(
       'join-game',
       gameId,
