@@ -55,12 +55,11 @@ function createGame(
 // Socket.io communication
 io.on('connection', socket => {
   console.log('A user connected:', socket.id);
-  loginPlayerOnConnection(socket.id, socket.id); // for debug, todo: remove
 
   // Handle login
   socket.on('login', (name, callback) => {
     if (!name) return callback({ success: false, message: 'Name is required' });
-    const player = addPlayer(socket.id, name, socket.id);
+    const player = addPlayer(socket.id, name, socket.id); // For now socket is the unique id until login functions
     callback({ success: true, playerId: player.id });
   });
 

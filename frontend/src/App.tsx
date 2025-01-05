@@ -14,6 +14,7 @@ import { SocketProvider } from './components/socket/SocketContext'; // Wrap the 
 const App: React.FC = () => {
   const [playerId, setPlayerId] = useState<string>('unregistered');
   const [gameId, setGameId] = useState<string | null>(null);
+
   useEffect(() => {
     console.log('arrived in app');
   }, []);
@@ -30,7 +31,7 @@ const App: React.FC = () => {
             path="/login"
             element={
               playerId === 'unregistered' ? (
-                <Login setPlayerId={setPlayerId} />
+                <Login onLogin={setPlayerId} />
               ) : (
                 <Navigate to="/lobby" replace />
               )
@@ -40,9 +41,7 @@ const App: React.FC = () => {
           {/* Lobby Route */}
           <Route
             path="/lobby"
-            element={
-              <MainLobby joinGame={setGameId} /> // Pass the setGameId directly to MainLobby
-            }
+            element={<MainLobby joinGame={setGameId} playerId={playerId} />}
           />
 
           {/* Game Route */}
