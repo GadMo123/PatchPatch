@@ -19,9 +19,9 @@ interface GameState {
   status: string; // Game status
   playerCards: CardObject[]; // Player's private cards
   players: {
-    id: string; // Player ID
-    name: string; // Player name
-    cards: CardObject[]; // Other Player's private cards if exposed
+    id: string;
+    name: string;
+    cards: CardObject[];
   }[];
 }
 
@@ -37,6 +37,7 @@ const GameView: React.FC<{ playerId: string }> = ({ playerId }) => {
     }
 
     const handleGameState = (state: Omit<GameState, 'boards'>) => {
+      console.log(state);
       const updatedBoards =
         state.flops?.map((flop, index) => {
           const board: CardObject[] = [...flop];
@@ -45,10 +46,10 @@ const GameView: React.FC<{ playerId: string }> = ({ playerId }) => {
           return board;
         }) || [];
 
-      // Extract the current player's cards from the state
       const currentPlayer = state.players.find(
         player => player.id === playerId
       );
+      const opponents = state.players.filter(player => player.id !== playerId);
 
       setGameState({
         ...state,
@@ -83,40 +84,95 @@ const GameView: React.FC<{ playerId: string }> = ({ playerId }) => {
     });
   };
 
-  return (
-    <div className="GameView">
-      <Time limit={4 * 60} />
-      <h2>Game ID: {gameId}</h2>
-      {gameState ? (
-        <div>
-          <h3>Game Status: {gameState.status}</h3>
-          <div className="boards">
-            {gameState.boards.map((board, index) => (
-              <div key={index} className="board">
-                {board.map((card, idx) => (
-                  <Card key={idx} card={card} />
+  // Helper function to render opponent cards
+  const renderOpponentCards = () => {
+    return gameState?.players
+      .filter(opponent => opponent.id !== playerId) // Exclude the current player
+      .map((opponent, opponentIndex) => (
+        <div key={`opponent-${opponentIndex}`} className="opponent-section">
+          <div className="player-name">{opponent.name || 'Villain'}</div>
+          <div className="opponent-cards">
+            {opponent.cards?.map((card, cardIndex) => (
+              <Card
+                key={`opponent-${opponentIndex}-card-${cardIndex}`}
+                card={card}
+                className="card"
+              />
+            )) ||
+              // Show card backs if cards are not revealed
+              Array(12)
+                .fill(null)
+                .map((_, i) => (
+                  <div
+                    key={`hidden-card-${i}`}
+                    className="card card-back"
+                    style={{ backgroundImage: 'url("/assets/cards/back.png")' }}
+                  />
                 ))}
-              </div>
-            ))}
           </div>
-          {/* Display player's private cards */}
-          {gameState.playerCards && gameState.playerCards.length > 0 && (
-            <div className="player-cards">
-              <h3>Your Cards:</h3>
-              <div className="cards-container">
-                {gameState.playerCards.map((card, index) => (
-                  <Card key={index} card={card} />
-                ))}
-              </div>
-            </div>
-          )}
-          <button onClick={leaveGame}>Leave Game</button>
         </div>
-      ) : (
-        <button onClick={refreshGame}>Start Game</button>
-      )}
+      ));
+  };
+
+  // Helper function to render board cards
+  const renderBoardCards = () => {
+    return gameState?.boards.map((board, boardIndex) => (
+      <div key={`board-${boardIndex}`} className="board-section">
+        <div className="board-label">Board {boardIndex + 1}</div>
+        <div className="board">
+          {board.map((card, cardIndex) => (
+            <Card
+              key={`board-${boardIndex}-card-${cardIndex}`}
+              card={card}
+              className="card"
+            />
+          ))}
+        </div>
+      </div>
+    ));
+  };
+
+  // Helper function to render player cards
+  const renderPlayerCards = () => {
+    return Array(3) // Create 3 rows
+      .fill(null)
+      .map((_, rowIndex) => {
+        const startIndex = rowIndex * 4; // Calculate starting index for the row
+        const cardsForRow = gameState?.playerCards.slice(
+          startIndex,
+          startIndex + 4
+        ); // Get 4 cards for this row
+
+        return (
+          <div key={`player-row-${rowIndex}`} className="player-row">
+            <div className="player-board-label">
+              Your cards for Board {rowIndex + 1}
+            </div>
+            <div className="player-cards-row">
+              {cardsForRow?.map((card, cardIndex) => (
+                <Card
+                  key={`player-board-${rowIndex}-card-${cardIndex}`}
+                  card={card}
+                  className="card"
+                />
+              ))}
+            </div>
+          </div>
+        );
+      });
+  };
+
+  return (
+    <div className="game-container">
+      <Time limit={4 * 60} />
+      <div className="game-status">Game ID: {gameId}</div>
+
+      <div className="opponent-area">{renderOpponentCards()}</div>
+
+      <div className="boards-container">{renderBoardCards()}</div>
+
+      <div className="player-cards">{renderPlayerCards()}</div>
     </div>
   );
 };
-
 export default GameView;
