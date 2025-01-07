@@ -1,0 +1,52 @@
+.bet-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1vw;
+    padding: 1vh 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .bet-button {
+    padding: 0.5vh 2vw;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+  }
+  
+  .bet-button:hover {
+    transform: translateY(-2px);
+  }
+  
+  .bet-button.fold {
+    background-color: #ff4d4f;
+    color: white;
+  }
+  
+  .bet-button.call {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .bet-button.raise {
+    background-color: #2196f3;
+    color: white;
+  }
+  
+  .bet-button:active {
+    transform: translateY(0);
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+  
+  .timer {
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 1vh;
+    text-align: center;
+    font-weight: bold;
+  }
+  

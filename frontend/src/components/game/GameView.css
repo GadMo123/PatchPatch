@@ -47,7 +47,7 @@
   
   .board {
     display: flex;
-    gap: 1vw;
+    gap: 2vw;
     align-items: center;
     margin-bottom: 2vh;
   }
@@ -91,8 +91,8 @@
   }
   
   .player-cards-row .card {
-    height: 10vh;
-    width: calc(10vh * 0.618); /* Golden ratio */
+    height: 14vh;
+    width: calc(14vh * 0.618); /* Golden ratio */
   }
   
   /* Utility classes */
@@ -106,7 +106,7 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   }
-  
+
   /* Scrollbar styling */
   ::-webkit-scrollbar {
     height: 6px;
