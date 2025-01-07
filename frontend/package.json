@@ -6,6 +6,7 @@
     "cra-template": "1.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.1",
     "react-scripts": "5.0.1",
     "socket.io-client": "^4.8.1",
     "web-vitals": "^4.2.4"
@@ -17,7 +18,6 @@
     "eject": "react-scripts eject",
     "ts-check": "tsc --noEmit"
   },
-
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -35,5 +35,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2"
   }
 }

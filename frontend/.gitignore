@@ -21,3 +21,14 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Prettier specific ignores
+.prettierrc
+.prettierrc.json
+.prettierrc.yml
+.prettierrc.yaml
+.prettierrc.js
+.prettierrc.cjs
+.prettierignore
+.prettier.config.js
+.prettier.config.cjs

@@ -1,56 +1,63 @@
-// src/App.tsx
-
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
 import './App.css';
-import GameBoard from './components/GameBoard';
-import Lobby from './components/Lobby';
-import socket from './socket';
+import Login from './components/login/Login';
+import GameView from './components/game/GameView';
+import MainLobby from './components/lobby/MainLobby';
+import { SocketProvider } from './components/socket/SocketContext'; // Wrap the app with SocketProvider
 
 const App: React.FC = () => {
+  const [playerId, setPlayerId] = useState<string>('unregistered');
   const [gameId, setGameId] = useState<string | null>(null);
-  const [isJoined, setIsJoined] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log('App component mounted');
-    
-    const handleGameState = (gameState: any) => {
-      console.log('Game state updated:', gameState);
-    };
-
-    socket.on('game-state', handleGameState);
-
-    return () => {
-      socket.off('game-state', handleGameState);
-      socket.disconnect();
-    };
+    console.log('arrived in app');
   }, []);
 
-  const createGame = () => {
-    console.log('Creating game...');
-    socket.emit('create-game', (id: string) => {
-      console.log('Game created with ID:', id);
-      setGameId(id);
-      setIsJoined(true);
-    });
-  };
-
-  const joinGame = (id: string) => {
-    console.log('Joining game with ID:', id);
-    socket.emit('join-game', id, (gameState: any) => {
-      console.log('Joined game, game state:', gameState);
-      setGameId(id);
-      setIsJoined(true);
-    });
-  };
-
   return (
-    <div className="App">
-      {!isJoined ? (
-        <Lobby createGame={createGame} joinGame={joinGame} />
-      ) : (
-        <GameBoard gameId={gameId!} socket={socket} />
-      )}
-    </div>
+    <SocketProvider>
+      <Router>
+        <Routes>
+          {/* Default Route: Redirect to Lobby */}
+          <Route path="/" element={<Navigate to="/lobby" replace />} />
+
+          {/* Login Route*/}
+          <Route
+            path="/login"
+            element={
+              playerId === 'unregistered' ? (
+                <Login onLogin={setPlayerId} />
+              ) : (
+                <Navigate to="/lobby" replace />
+              )
+            }
+          />
+
+          {/* Lobby Route */}
+          <Route
+            path="/lobby"
+            element={<MainLobby joinGame={setGameId} playerId={playerId} />}
+          />
+
+          {/* Game Route */}
+          <Route
+            path="/game/:gameId"
+            element={
+              playerId && gameId ? (
+                <GameView playerId={playerId} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+        </Routes>
+      </Router>
+    </SocketProvider>
   );
 };
 
