@@ -43,7 +43,7 @@ export class SingleGameManager {
    * Sends the game state to all players in the game individually.
    */
   private sendGameStateToPlayers(io: Server) {
-    this.game.playersList.forEach(player => {
+    this.game.getPlayersList().forEach(player => {
       if (player.socketId) {
         // Emit the game state to the specific player's socket
         io.to(player.socketId).emit(
