@@ -2,56 +2,79 @@
 
 import { Server } from 'socket.io';
 import { Player } from '../player/Player';
-import { Deck } from './types/Deck';
-import { GamePhase } from './types/GameStateUtils';
+import { DetailedGameState, GamePhase, PlayerState } from './types/GameState';
 import { PlayerInGame } from '../player/PlayerInGame';
 import { GameStateBroadcaster } from './broadcasting/GameStateBroadcaster';
 import { Card } from './types/Card';
 
-interface GameState {
-  flops: Card[][];
-  turns: Card[];
-  rivers: Card[];
-  phase: GamePhase;
-  potSize: number;
-  bigBlindPlayer: PlayerInGame | null; // player on the big blind
-  smallBlindPlayer: PlayerInGame | null; // player on the small blind
-  // add more players for ring games
-}
-
 export class Game {
-  handWonWithoutShowdown() {
+  handWonWithoutShowdown(winner: PlayerInGame) {
     throw new Error('Method not implemented.');
   }
-  private io: Server;
-  private id: string;
-  private deck: Deck;
-  private observers: Player[];
-  private stakes: string;
-  private state: GameState;
-  private broadcaster: GameStateBroadcaster;
+  private state: DetailedGameState;
 
   constructor(id: string, stakes: string, server: Server) {
-    this.io = server;
-    this.id = id;
-    this.deck = new Deck();
     this.state = {
+      id,
+      stakes,
+      phase: GamePhase.Waiting,
       flops: [],
       turns: [],
       rivers: [],
-      phase: GamePhase.Waiting,
+      observers: [],
       potSize: 0,
-      bigBlindPlayer: null,
-      smallBlindPlayer: null,
+      bbPlayer: null,
+      sbPlayer: null,
+      bettingRound: null,
     };
-    this.stakes = stakes;
-    this.observers = [];
-    this.broadcaster = new GameStateBroadcaster(server);
+  }
+
+  // State update methods
+  updateGameState(updates: Partial<DetailedGameState>) {
+    this.state = { ...this.state, ...updates };
+    this.broadcastGameState();
+  }
+
+  updatePlayerState(playerId: string, updates: Partial<PlayerState>) {
+    const playerIndex = this.state.players.findIndex(p => p.id === playerId);
+    if (playerIndex === -1) return;
+
+    this.state.players[playerIndex] = {
+      ...this.state.players[playerIndex],
+      ...updates,
+    };
+    this.broadcastGameState();
+  }
+
+  // State access methods
+  getDetailedGameState(viewingPlayerId?: string): DetailedGameState {
+    // Clone state to avoid direct mutations
+    const state = JSON.parse(JSON.stringify(this.state));
+
+    // Hide private information for observers
+    if (!viewingPlayerId) {
+      state.players = state.players.map(player => ({
+        ...player,
+        cards: undefined,
+        arrangedCards: undefined,
+      }));
+      return state;
+    }
+
+    // Hide other players' private cards
+    state.players = state.players.map(player => ({
+      ...player,
+      cards: player.id === viewingPlayerId ? player.cards : undefined,
+      arrangedCards:
+        player.id === viewingPlayerId ? player.arrangedCards : undefined,
+    }));
+
+    return state;
   }
 
   // todo, turn observer into a player
   addObserver(player: Player) {
-    this.observers.push(player);
+    this.state.observers.push(player);
   }
 
   addPlayer(player: Player, buyIn: number) {
@@ -156,7 +179,7 @@ export class Game {
   }
 
   getObserversList(): Player[] {
-    return this.observers;
+    return this.state.observers;
   }
 
   getPotSize(): number {
@@ -187,9 +210,5 @@ export class Game {
   }
   getRivers(): Card[] {
     return this.state.rivers;
-  }
-
-  increasePotSize(amount: number) {
-    this.state.potSize += amount;
   }
 }

@@ -1,7 +1,7 @@
 // src/game/betting/BettingManager.ts
 import { Server } from 'socket.io';
 import { Game } from '../Game';
-import { GamePhase } from '../types/GameStateUtils';
+import { GamePhase } from '../types/GameState';
 import { Timer } from '../types/Timer';
 import { ActionHandler } from './ActionHandler';
 import { ActionValidator } from './ActionValidator';
@@ -18,8 +18,6 @@ export class BettingManager {
 
   constructor(
     private io: Server,
-    private sbPlayer: PlayerInGame,
-    private bbPlayer: PlayerInGame,
     private game: Game,
     config?: Partial<BettingConfig>
   ) {
@@ -97,6 +95,16 @@ export class BettingManager {
       this.currentPlayerToAct,
       this.bettingState
     );
+
+    const gameState = this.game.getDetailedGameState();
+    this.game.updateGameState({
+      potSize: gameState.potSize + (amount || 0),
+      bettingRound: {
+        ...gameState.bettingRound!,
+        lastAction: action,
+        currentBet: amount || gameState.bettingRound!.currentBet,
+      },
+    });
 
     if (this.isBettingRoundComplete()) {
       this.endBettingPhase();

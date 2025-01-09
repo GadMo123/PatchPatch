@@ -2,56 +2,9 @@
 
 import { Server } from 'socket.io';
 import { Game } from '../Game';
-import { GamePhase } from '../types/GameStateUtils';
-import { PlayerInGame } from '../../player/PlayerInGame';
-import { PlayerAction, BettingState } from '../betting/types';
-
-interface Card {
-  rank: string;
-  suit: string;
-}
-
-interface DetailedGameState {
-  // Game core state
-  id: string;
-  phase: GamePhase;
-  stakes: string;
-
-  // Cards state
-  flops: Card[][]; // Array of 3 flops, each with 3 cards
-  turns: Card[]; // Array of 3 turn cards
-  rivers: Card[]; // Array of 3 river cards
-
-  // Players state
-  observers: {
-    id: string;
-    name: string;
-    coins: number;
-    remainingTimeCookies: number;
-  }[];
-
-  // Active players state
-  playersInGame: {
-    id: string;
-    name: string;
-    position: 'sb' | 'bb';
-    currentStack: number;
-    isFolded: boolean;
-    cards?: Card[]; // 12 cards for Open Face Chinese poker
-    remainingTimeCookies: number;
-  }[];
-
-  // Betting state
-  potSize: number;
-  bettingRound?: {
-    currentBet: number;
-    lastAction: PlayerAction | null;
-    lastRaiseAmount: number;
-    currentPlayerToAct: string | null;
-    timeRemaining: number;
-    timeCookiesUsedThisRound: number;
-  };
-}
+import { PlayerInGame, PlayerState } from '../../player/PlayerInGame';
+import { BettingState } from '../betting/types';
+import { DetailedGameState } from '../types/GameState';
 
 export class GameStateBroadcaster {
   constructor(private io: Server) {}
@@ -119,16 +72,28 @@ export class GameStateBroadcaster {
       // Active players in game
       playersInGame: [sbPlayer, bbPlayer]
         .filter((player): player is PlayerInGame => player !== null)
-        .map(player => ({
-          id: player.id,
-          name: player.name,
-          position: player === sbPlayer ? 'sb' : 'bb',
-          currentStack: player.currentStack,
-          isFolded: player.getIsFolded(),
-          remainingTimeCookies: player.remainingTimeCookies,
-          // Only include cards for the viewing player
-          ...(player.id === viewingPlayerId && { cards: player.cards }),
-        })),
+        .map(player => {
+          //Public player's data
+          const basePlayerState: Partial<PlayerState> = {
+            id: player.playerState.id,
+            name: player.playerState.name,
+            position: player === sbPlayer ? 'sb' : 'bb',
+            currentStack: player.playerState.currentStack,
+            isFolded: player.playerState.isFolded,
+          };
+
+          // Only include private data for the viewing player
+          if (player.playerState.id === viewingPlayerId) {
+            return {
+              ...basePlayerState,
+              cards: player.playerState.cards,
+              arrangedCards: player.playerState.arrangedCards,
+              remainingTimeCookies: player.playerState.remainingTimeCookies,
+            };
+          }
+
+          return basePlayerState;
+        }) as PlayerState[],
 
       potSize: game.getPotSize(),
     };

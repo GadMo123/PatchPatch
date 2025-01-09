@@ -1,6 +1,6 @@
 // src/game/betting/types.ts
 
-import { GamePhase } from '../types/GameStateUtils';
+import { GamePhase } from '../types/GameState';
 
 export type PlayerAction = 'fold' | 'check' | 'call' | 'bet' | 'raise';
 

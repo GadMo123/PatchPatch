@@ -2,39 +2,52 @@ import { Player } from './Player';
 import { Game } from '../game/Game';
 import { Card } from '../game/types/Card';
 
+export interface PlayerState {
+  id: string;
+  name: string;
+  position: 'sb' | 'bb';
+  currentStack: number;
+  isFolded: boolean;
+  remainingTimeCookies: number;
+  cards?: Card[]; // 12 private cards
+  arrangedCards?: {
+    hand1: Card[]; // 4 cards
+    hand2: Card[]; // 4 cards
+    hand3: Card[]; // 4 cards
+  };
+}
+
 export class PlayerInGame extends Player {
-  currentStack: number; // Player's currently playing game stack (updated after last betting)
-  isFolded: boolean; // Player's currently folded status in the game
+  playerState: PlayerState;
   game: Game;
-  cards: Card[]; // Player's private cards (12 cards for each player)
 
   constructor(player: Player, game: Game) {
     super(player);
     this.game = game;
-    this.currentStack = 0; // Default stack
-    this.isFolded = false; // Default to not folded
-    this.cards = [];
+    this.playerState = {
+      id: player.id,
+      name: player.name,
+      position: 'sb', // Default position, should be set by Game class
+      currentStack: 0, // Should be set when buying in
+      isFolded: false,
+      remainingTimeCookies: player.remainingTimeCookies,
+      cards: undefined, // Will be set when cards are dealt
+      arrangedCards: undefined, // Will be set when player arranges cards
+    };
   }
 
-  getStack(): number {
-    return this.currentStack;
+  getPlayerState(): PlayerState {
+    return this.playerState;
   }
 
-  getIsFolded(): boolean {
-    return this.isFolded;
+  updatePlayerState(updates: Partial<PlayerState>) {
+    this.playerState = {
+      ...this.playerState,
+      ...updates,
+    };
   }
 
-  setFolded(fold: boolean) {
-    this.isFolded = fold;
-  }
-
-  // Player won a hand
-  addToStack(pot: number) {
-    this.currentStack += pot;
-  }
-
-  // Player call or raise
-  removeFromStack(amount: number) {
-    this.currentStack -= amount;
+  getStack() {
+    return this.playerState.currentStack;
   }
 }
