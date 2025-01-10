@@ -1,7 +1,7 @@
 // src/game/betting/ActionHandler.ts
 
 import { Game } from '../Game';
-import { PlayerInGame } from '../../player/PlayerInGame';
+import { PlayerInGame } from '../types/PlayerInGame';
 import { BettingState, PlayerAction } from './types';
 
 export class ActionHandler {
@@ -10,9 +10,12 @@ export class ActionHandler {
   handleFold(player: PlayerInGame): void {
     player.setFolded(true);
     // Find and reward the winner
-    const winner = this.game.getWinner()!; // The player who didn't fold is the winner
-    winner.addToStack(this.game.getPotSize());
-    this.game.handWonWithoutShowdown(); // Notify game that current hand is done
+    const winner = // The player who didn't fold is the winner
+      this.game.getBigBlindPlayer()!.id == player.id
+        ? this.game.getSmallBlindPlayer()!
+        : this.game.getBigBlindPlayer()!;
+
+    this.game.handWonWithoutShowdown(winner); // Notify game that current hand is won
   }
 
   processAction(
@@ -48,7 +51,6 @@ export class ActionHandler {
 
   handleCall(player: PlayerInGame, currentBet: number): void {
     player.removeFromStack(currentBet);
-    this.game.increasePotSize(currentBet);
   }
 
   handleBet(
@@ -58,7 +60,6 @@ export class ActionHandler {
   ): void {
     player.removeFromStack(amount);
     bettingState.currentBet = amount;
-    this.game.increasePotSize(amount);
     bettingState.lastRaiseAmount = amount;
   }
 
@@ -70,7 +71,6 @@ export class ActionHandler {
     this.handleCall(player, bettingState.currentBet);
     player.removeFromStack(amount);
     bettingState.currentBet = amount;
-    this.game.increasePotSize(amount);
     bettingState.lastRaiseAmount = amount;
   }
 }

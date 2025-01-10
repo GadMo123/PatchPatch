@@ -2,7 +2,7 @@
 import { Server } from 'socket.io';
 import { Timer } from '../types/Timer';
 import { BettingConfig } from './types';
-import { PlayerInGame } from '../../player/PlayerInGame';
+import { PlayerInGame } from '../types/PlayerInGame';
 
 export class TimerManager {
   private readonly MAX_TIME_COOKIES_PER_ROUND = 3;

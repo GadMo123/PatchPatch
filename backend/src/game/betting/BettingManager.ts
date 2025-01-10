@@ -1,13 +1,13 @@
 // src/game/betting/BettingManager.ts
 import { Server } from 'socket.io';
 import { Game } from '../Game';
-import { GamePhase } from '../types/GameStateUtils';
+import { GamePhase } from '../types/GameState';
 import { Timer } from '../types/Timer';
 import { ActionHandler } from './ActionHandler';
 import { ActionValidator } from './ActionValidator';
 import { TimerManager } from './TimerManager';
 import { BettingState, BettingConfig, PlayerAction } from './types';
-import { PlayerInGame } from '../../player/PlayerInGame';
+import { PlayerInGame } from '../types/PlayerInGame';
 
 export class BettingManager {
   private bettingState: BettingState;
@@ -18,8 +18,6 @@ export class BettingManager {
 
   constructor(
     private io: Server,
-    private sbPlayer: PlayerInGame,
-    private bbPlayer: PlayerInGame,
     private game: Game,
     config?: Partial<BettingConfig>
   ) {
@@ -36,7 +34,7 @@ export class BettingManager {
     this.actionValidator = new ActionValidator(finalConfig);
     this.timerManager = new TimerManager(io, new Timer(), finalConfig);
 
-    this.currentPlayerToAct = this.game.getSmallBlindPlayer()!;
+    this.currentPlayerToAct = undefined;
     this.bettingState = {
       currentBet: 0,
       lastAction: null,
@@ -97,6 +95,16 @@ export class BettingManager {
       this.currentPlayerToAct,
       this.bettingState
     );
+
+    const gameState = this.game.getDetailedGameState();
+    this.game.updateGameState({
+      potSize: gameState.potSize + (amount || 0),
+      bettingRound: {
+        ...gameState.bettingRound!,
+        lastAction: action,
+        currentBet: amount || gameState.bettingRound!.currentBet,
+      },
+    });
 
     if (this.isBettingRoundComplete()) {
       this.endBettingPhase();
