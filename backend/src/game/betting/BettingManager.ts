@@ -7,7 +7,7 @@ import { ActionHandler } from './ActionHandler';
 import { ActionValidator } from './ActionValidator';
 import { TimerManager } from './TimerManager';
 import { BettingState, BettingConfig, PlayerAction } from './types';
-import { PlayerInGame } from '../../player/PlayerInGame';
+import { PlayerInGame } from '../types/PlayerInGame';
 
 export class BettingManager {
   private bettingState: BettingState;
@@ -34,7 +34,7 @@ export class BettingManager {
     this.actionValidator = new ActionValidator(finalConfig);
     this.timerManager = new TimerManager(io, new Timer(), finalConfig);
 
-    this.currentPlayerToAct = this.game.getSmallBlindPlayer()!;
+    this.currentPlayerToAct = undefined;
     this.bettingState = {
       currentBet: 0,
       lastAction: null,

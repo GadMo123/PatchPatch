@@ -1,7 +1,7 @@
 // src/game/betting/ActionHandler.ts
 
 import { Game } from '../Game';
-import { PlayerInGame } from '../../player/PlayerInGame';
+import { PlayerInGame } from '../types/PlayerInGame';
 import { BettingState, PlayerAction } from './types';
 
 export class ActionHandler {

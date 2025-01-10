@@ -1,5 +1,5 @@
 // src/game/betting/ActionValidator.ts
-import { PlayerInGame } from '../../player/PlayerInGame';
+import { PlayerInGame } from '../types/PlayerInGame';
 import {
   PlayerAction,
   BettingState,
