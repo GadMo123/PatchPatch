@@ -1,10 +1,8 @@
 import React from 'react';
+import CardObject from '../game/gameTypes/CardObject';
 
 interface CardProps {
-  card: {
-    rank: string;
-    suit: string;
-  };
+  card: CardObject;
   className?: string;
 }
 

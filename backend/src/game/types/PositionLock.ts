@@ -1,4 +1,4 @@
-class PositionLock {
+export class PositionLock {
   private isLocked = false;
   private waiting: (() => void)[] = [];
 

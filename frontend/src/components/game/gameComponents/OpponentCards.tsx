@@ -6,6 +6,7 @@ interface OpponentCardsProps {
     id: string;
     name: string;
     cards: { rank: string; suit: string }[];
+    position: string;
   }[];
 }
 

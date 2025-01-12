@@ -1,34 +1,55 @@
 import CardObject from './CardObject';
 
-interface GameState {
-  boards: CardObject[][]; // Cards on the boards
-  flops: CardObject[][]; // Flops
-  turns: CardObject[]; // Turn cards
-  rivers: CardObject[]; // River cards
-  playerCards: CardObject[]; // Player's private cards
-  currentBettingRound: 'preflop' | 'flop' | 'turn' | 'river' | null;
-  currentPlayerToAct: string | null; // playerId of the player to act
-  pot: number;
-  phase:
-    | 'waiting'
-    | 'started'
-    | 'deal-cards'
-    | 'preflop-betting'
-    | 'flop-dealt'
-    | 'arrange-player-cards'
-    | 'flop-betting'
-    | 'turn-dealt'
-    | 'turn-betting'
-    | 'river-dealt'
-    | 'river-betting'
-    | 'showdown';
-  players: {
-    id: string;
-    name: string;
-    cards: CardObject[];
-    position: 'BB' | 'SB';
-    betOptions: 'BetOrCheck' | 'RaiseOrCallOrFold' | null;
-  }[];
+export interface Player {
+  id: string;
+  name: string;
+  cards: CardObject[];
+  position: string;
+  betOptions: String | null;
 }
 
-export default GameState;
+export interface ServerGameState {
+  // Game state as it recived from the server
+  id: string;
+  phase: string;
+  stakes: string;
+  flops: CardObject[][];
+  turns: CardObject[];
+  rivers: CardObject[];
+  potSize: number;
+  observers: any[];
+  publicPlayerDataMapByPosition: Record<string, PublicPlayerData>;
+  privatePlayerData: PrivatePlayerData | null;
+  bettingState: BettingState | null;
+  bettingConfig: {
+    timePerAction: number;
+    minBet: number;
+    maxBet: number | null;
+    timeCookieEffect: number;
+  };
+  playerPrivateState: {
+    remainingTimeCookies: number;
+    cards: CardObject[] | null;
+  };
+}
+
+export interface PublicPlayerData {
+  id: string;
+  name: string;
+  position: string;
+  cards?: CardObject[];
+}
+
+export interface PrivatePlayerData {
+  id: string;
+  cards: CardObject[];
+}
+
+export interface BettingState {
+  timeRemaining: number;
+  currentBet: number;
+  lastAction: String | null;
+  lastRaiseAmount: number;
+  timeCookiesUsedThisRound: number;
+  playerValidActions: String[];
+}

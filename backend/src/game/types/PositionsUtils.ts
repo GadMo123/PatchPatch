@@ -48,4 +48,10 @@ export class PositionsUtils {
     }
     throw new Error('No players found to act.');
   }
+
+  static getPosition(position: string): Position {
+    const positions = Object.values(Position); // Get all enum values
+    const foundPosition = positions.find(p => p === position);
+    return foundPosition as Position;
+  }
 }

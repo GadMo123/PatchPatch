@@ -10,11 +10,9 @@ import { Position } from './types/PositionsUtils';
 import { Deck } from './types/Deck';
 import { BettingConfig } from './betting/BettingTypes';
 import { BettingManager } from './betting/BettingManager';
+import { PositionLock } from './types/PositionLock';
 
 export class Game {
-  isReadyForNextHand(): boolean {
-    throw new Error('Method not implemented.');
-  }
   private state: DetailedGameState;
   private broadcaster: GameStateBroadcaster;
   private deck: Deck | null;
@@ -193,6 +191,14 @@ export class Game {
   }
 
   doShowdown() {
-    throw new Error('Method not implemented.');
+    //throw new Error('Method not implemented.');
+  }
+
+  isReadyForNextHand(): boolean {
+    //Todo
+    return (
+      this.getPlayerInPosition(Position.SB) != null &&
+      this.getPlayerInPosition(Position.BB) != null
+    );
   }
 }

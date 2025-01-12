@@ -7,32 +7,29 @@ import OpponentCards from './gameComponents/OpponentCards';
 import PlayerCards from './gameComponents/PlayerCards';
 import BoardCards from './gameComponents/BoardCards';
 import { constructBoards } from './helpers/gameHelpers';
+import { ServerGameState, BettingState } from './gameTypes/GameState';
+import CardObject from './gameTypes/CardObject';
 import BetPanel from './gameComponents/BetPanel';
-import GameState from './gameTypes/GameState';
 
-const GameView: React.FC<{ playerId: string }> = ({ playerId }) => {
-  const { gameId } = useParams<{ gameId: string }>();
-  const [gameState, setGameState] = useState<GameState | null>(null);
-  const [betOptions, setBetOptions] = useState<
-    'check-bet' | 'fold-call-raise' | null
-  >(null);
+const GameView: React.FC<{ playerId: string; gameId: string }> = ({
+  playerId,
+  gameId,
+}) => {
+  const [boards, setBoards] = useState<CardObject[][] | null>(null);
+  const [gameState, setGameState] = useState<ServerGameState | null>(null);
+  const [bettingState, setBettingState] = useState<BettingState | null>(null);
 
   useEffect(() => {
     if (!gameId) {
       console.error('Game ID is missing');
       return;
     }
-    const handleGameState = (state: Omit<GameState, 'boards'>) => {
-      const updatedBoards =
-        constructBoards(state.flops, state.turns, state.rivers) || [];
-      const currentPlayer = state.players.find(
-        player => player.id === playerId
-      );
-      setGameState({
-        ...state,
-        playerCards: currentPlayer?.cards || [],
-        boards: updatedBoards,
-      });
+    const handleGameState = (state: ServerGameState) => {
+      console.log(state);
+
+      setGameState(state);
+      setBoards(constructBoards(state.flops, state.turns, state.rivers) || []);
+      if (state.bettingState) setBettingState(state.bettingState!);
     };
 
     socket.on('game-state', handleGameState);
@@ -46,38 +43,40 @@ const GameView: React.FC<{ playerId: string }> = ({ playerId }) => {
       <Time limit={4 * 60} />
       <div className="game-status">Game ID: {gameId}</div>
       <div className="opponent-area">
-        {gameState?.players && (
+        {gameState?.publicPlayerDataMapByPosition && (
           <OpponentCards
-            opponents={gameState.players.filter(
-              player => player.id !== playerId
-            )}
+            opponents={Object.values(gameState.publicPlayerDataMapByPosition)
+              .filter(player => player.id !== playerId)
+              .map(player => ({
+                id: player.id,
+                name: player.name,
+                cards: player.cards || [],
+                position: player.position,
+              }))}
           />
         )}
       </div>
       <div className="boards-container">
-        {gameState?.boards && <BoardCards boards={gameState.boards} />}
+        {boards && <BoardCards boards={boards} />}
       </div>
       <div className="player-cards">
-        {gameState?.playerCards && (
-          <PlayerCards playerCards={gameState.playerCards} />
+        {gameState?.privatePlayerData?.cards && (
+          <PlayerCards playerCards={gameState.privatePlayerData.cards} />
         )}
       </div>
-      {betOptions && (
+      {bettingState && (
         <div className="bet-panel">
           <BetPanel
-            options={betOptions}
+            bettingState={bettingState}
             onAction={(action, amount) => console.log(action, amount)}
-            timeLimit={10}
-            defaultAction="fold"
+            defaultAction={
+              bettingState.playerValidActions.includes('check')
+                ? 'check'
+                : 'fold'
+            }
           />
         </div>
       )}
-
-      {/* Example button to show the panel for testing */}
-      <button onClick={() => setBetOptions('check-bet')}>Show Check/Bet</button>
-      <button onClick={() => setBetOptions('fold-call-raise')}>
-        Show Fold/Call/Raise
-      </button>
     </div>
   );
 };

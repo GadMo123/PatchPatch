@@ -49,7 +49,7 @@ const App: React.FC = () => {
             path="/game/:gameId"
             element={
               playerId && gameId ? (
-                <GameView playerId={playerId} />
+                <GameView playerId={playerId} gameId={gameId} />
               ) : (
                 <Navigate to="/" replace />
               )
