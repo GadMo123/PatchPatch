@@ -8,10 +8,10 @@ export class Player {
 
   socketId: any; // Player's socket instance
 
-  constructor(player: Player | { id: string; name: string; socketId: any }) {
-    this.id = player.id;
-    this.name = player.name;
-    this.socketId = player.socketId;
+  constructor(id: string, name: string, socketId: any) {
+    this.id = id;
+    this.name = name;
+    this.socketId = socketId;
     this.remainingTimeCookies = 1; // Todo - sync with Database.
     this.coins = 500; // Todo - sync with Database.
   }

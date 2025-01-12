@@ -1,58 +1,53 @@
 // src/server/singleGameManager.ts
 
-import { Server } from 'socket.io';
 import { Game } from '../game/Game';
+
+enum ROUNDS {
+  PREFLOP,
+  FLOP,
+  TURN,
+  RIVER,
+}
+
 export class SingleGameManager {
   game: Game;
   constructor(game: Game) {
     this.game = game;
   }
 
-  startGame(io: Server) {
+  startGame() {
     console.log('starting game: ' + this.game.getId());
-    try {
-      this.game.startGame();
-      this.sendGameStateToPlayers(io);
+    this.game.startGame();
+    this.startBettingRound(ROUNDS.PREFLOP); // Preflop betting started
+  }
 
-      // Deal flops after 5 seconds
-      setTimeout(() => {
+  startBettingRound(round: ROUNDS) {
+    switch (round) {
+      case ROUNDS.PREFLOP:
+        this.game.startGame();
+        break;
+      case ROUNDS.FLOP:
         this.game.dealFlops();
-        this.sendGameStateToPlayers(io);
-
-        // Deal turns after another 5 seconds
-        setTimeout(() => {
-          this.game.dealTurn();
-          this.sendGameStateToPlayers(io);
-
-          // Deal rivers after another 5 seconds
-          setTimeout(() => {
-            this.game.dealRiver();
-            this.sendGameStateToPlayers(io);
-
-            // Mark the game as completed
-            this.game.endGame();
-            this.sendGameStateToPlayers(io);
-          }, 1000);
-        }, 1000);
-      }, 1000);
-    } catch (error: any) {
-      console.error(error.message);
+        break;
+      case ROUNDS.TURN:
+        this.game.dealTurn();
+        break;
+      case ROUNDS.RIVER:
+        this.game.dealRiver();
+        break;
+    }
+    this.game.startBettingRound();
+    if (this.game.isHandWonWithoutShowdown()) {
+      if (this.game.isReadyForNextHand()) this.startGame();
+      // else wait for players
+    } else {
+      if (round == ROUNDS.RIVER) this.showdown();
+      else this.startBettingRound(round + 1);
     }
   }
-  /**
-   * Sends the game state to all players in the game individually.
-   */
-  private sendGameStateToPlayers(io: Server) {
-    this.game.getPlayersList().forEach(player => {
-      if (player.socketId) {
-        // Emit the game state to the specific player's socket
-        io.to(player.socketId).emit(
-          'game-state',
-          this.game.getPersonalizedGameState(player.id)
-        );
-      } else {
-        console.error(`Player ${player.id} does not have a valid socket ID.`);
-      }
-    });
+
+  showdown() {
+    this.game.doShowdown();
+    if (this.game.isReadyForNextHand()) this.startGame();
   }
 }

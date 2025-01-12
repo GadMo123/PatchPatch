@@ -7,6 +7,7 @@ import { Game } from '../game/Game';
 import { Player } from '../player/Player';
 import { handleJoinGame, handleLobbyStatus } from '../lobby/LobbyManager';
 import { SingleGameManager } from '../gameFlowManager/SingleGameManager';
+import { BettingConfig, getBettingConfig } from '../game/betting/BettingTypes';
 
 let gameCounter = 0;
 
@@ -38,17 +39,12 @@ function removePlayer(socketId: string) {
 function createGame(
   creatorId: string,
   blindLevel: string,
-  server: Server
+  server: Server,
+  config: BettingConfig
 ): Game {
   const gameId = (gameCounter++).toString();
-  const newGame = new Game(gameId, blindLevel, server);
+  const newGame = new Game(gameId, blindLevel, server, config);
   games[gameId] = newGame;
-
-  // Add the creator as the first player
-  if (players[creatorId]) {
-    newGame.addPlayer(players[creatorId]);
-  }
-
   return newGame;
 }
 
@@ -76,7 +72,12 @@ io.on('connection', socket => {
       return callback({ success: false, message: 'Player not logged in' });
     }
 
-    const game = createGame(socket.id, blindLevel, io);
+    const game = createGame(
+      socket.id,
+      blindLevel,
+      io,
+      getBettingConfig(10, 2, Infinity, 10)
+    );
     callback({ success: true, gameId: game.getId() });
   });
 
@@ -85,13 +86,9 @@ io.on('connection', socket => {
     const result = handleJoinGame(games[gameId], socket.id, players);
 
     if (result.success) {
-      io.to(gameId).emit(
-        'game-state',
-        games[gameId]?.getPersonalizedGameState(socket.id)
-      );
+      if (games[gameId].isReadyForNextHand())
+        new SingleGameManager(games[gameId]).startGame();
     }
-    //assuming for now start on single player join
-    new SingleGameManager(games[gameId]).startGame(io);
     callback(result);
   });
 
@@ -106,15 +103,8 @@ io.on('connection', socket => {
     callback(result);
   });
 
-  // Server-side: Handle game-state-request from a client
-  socket.on('game-state', (gameId, callback) => {
-    const game = games[gameId];
-    if (game) {
-      const gameState = game.getPersonalizedGameState(socket.id);
-      callback({ success: true, gameState });
-    } else {
-      callback({ success: false, message: 'Game not found' });
-    }
+  socket.on('reconnect', () => {
+    console.log(`Client reconnected: ${socket.id}`);
   });
 });
 
@@ -124,11 +114,21 @@ server.listen(5000, () => console.log('Server running on port 5000'));
 createDummyGames(io);
 //create few games for testing, romove later
 function createDummyGames(server: Server) {
-  createGame('admin', '5-10', server);
-  createGame('admin', '5-10', server);
-  createGame('admin', '25-50', server);
-  createGame('admin', '25-50', server);
-  createGame('admin', '10-20', server);
+  createGame('admin', '5-10', server, getBettingConfig(10, 10, Infinity, 10));
+  createGame(
+    'admin',
+    '5-10-fast',
+    server,
+    getBettingConfig(6, 10, Infinity, 8)
+  );
+  createGame('admin', '25-50', server, getBettingConfig(10, 50, Infinity, 10));
+  createGame(
+    'admin',
+    '25-50-slow',
+    server,
+    getBettingConfig(14, 50, Infinity, 12)
+  );
+  createGame('admin', '10-20', server, getBettingConfig(10, 20, Infinity, 10));
 }
 
 function loginPlayerOnConnection(playerId: string, socketId: string) {

@@ -5,7 +5,7 @@ import {
   BettingState,
   ActionValidationResult,
   BettingConfig,
-} from './types';
+} from './BettingTypes';
 
 export class ActionValidator {
   constructor(private config: BettingConfig) {}

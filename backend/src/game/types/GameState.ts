@@ -1,11 +1,11 @@
 // src/utils/GameStateUtils.ts
 
-import { PlayerInGame, PlayerPublicState } from './PlayerInGame';
-import { BettingConfig, BettingState, PlayerAction } from '../betting/types';
+import { PlayerInGame } from './PlayerInGame';
 import { Card } from './Card';
-import { Position } from './Positions';
+import { Position } from './PositionsUtils';
 import { Game } from '../Game';
 import { Player } from '../../player/Player';
+import { BettingConfig, BettingState } from '../betting/BettingTypes';
 
 export enum GamePhase {
   Waiting = 'waiting',
@@ -72,7 +72,7 @@ export class GameStateUtils {
       publicPlayerDataMapByPosition: publicPlayerByPositions,
       privatePlayerData: null,
       bettingState: game.getBettingState(),
-      bettingCongig: game.getBettingConfig(),
+      bettingConfig: game.getBettingConfig(),
     };
   }
 

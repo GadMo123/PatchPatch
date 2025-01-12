@@ -1,51 +1,43 @@
 // src/game/betting/TimerManager.ts
 import { Server } from 'socket.io';
 import { Timer } from '../types/Timer';
-import { BettingConfig } from './types';
+import { BettingConfig, BettingState } from './BettingTypes';
 import { PlayerInGame } from '../types/PlayerInGame';
+import { Game } from '../Game';
+import { BettingManager } from './BettingManager';
 
 export class TimerManager {
   private readonly MAX_TIME_COOKIES_PER_ROUND = 3;
   private timeRemaining: number;
   private timeCookiesUsedThisRound: number = 0;
+  private bettingManager: BettingManager;
 
   constructor(
-    private io: Server,
     private timer: Timer,
-    private config: BettingConfig
+    private config: BettingConfig,
+    private theBettingManager: BettingManager
   ) {
     this.timeRemaining = config.timePerAction;
+    this.bettingManager = theBettingManager;
   }
 
   startTimer(player: PlayerInGame, onTimeout: () => void): void {
-    this.timeRemaining = this.config.timePerAction;
     this.timer.start(this.timeRemaining, onTimeout);
+    this.bettingManager.updateBettingState({
+      timeRemaining: this.timeRemaining,
+    });
   }
 
   handleTimeCookie(player: PlayerInGame): boolean {
-    if (!player.hasTimeCookies()) {
-      this.emitError(player, 'No time cookies available');
+    if (!player.hasTimeCookies()) return false;
+    if (this.timeCookiesUsedThisRound > this.MAX_TIME_COOKIES_PER_ROUND)
       return false;
-    }
-
-    if (this.timeCookiesUsedThisRound > this.MAX_TIME_COOKIES_PER_ROUND) {
-      this.emitError(
-        player,
-        'Maximum time cookies for this round already used'
-      );
-      return false;
-    }
-
     player.useTimeCookie();
     this.timeCookiesUsedThisRound++;
     this.timeRemaining += this.config.timeCookieEffect;
-
-    this.io.emit('time-cookie-used', {
-      playerId: player.id,
+    this.bettingManager.updateBettingState({
       timeRemaining: this.timeRemaining,
-      timeCookiesUsed: this.timeCookiesUsedThisRound,
     });
-
     return true;
   }
 
@@ -59,9 +51,5 @@ export class TimerManager {
 
   getTimeRemaining(): number {
     return this.timeRemaining;
-  }
-
-  private emitError(player: PlayerInGame, message: string): void {
-    this.io.to(player.socketId).emit('time-cookie-error', { message });
   }
 }

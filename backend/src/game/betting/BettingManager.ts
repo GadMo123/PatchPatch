@@ -1,13 +1,12 @@
 // src/game/betting/BettingManager.ts
-import { Server } from 'socket.io';
 import { Game } from '../Game';
-import { GamePhase } from '../types/GameState';
 import { Timer } from '../types/Timer';
 import { ActionHandler } from './ActionHandler';
 import { ActionValidator } from './ActionValidator';
 import { TimerManager } from './TimerManager';
-import { BettingState, BettingConfig, PlayerAction } from './types';
+import { BettingState, BettingConfig, PlayerAction } from './BettingTypes';
 import { PlayerInGame } from '../types/PlayerInGame';
+import { PositionsUtils } from '../types/PositionsUtils';
 
 export class BettingManager {
   private bettingState: BettingState;
@@ -15,54 +14,33 @@ export class BettingManager {
   private actionHandler: ActionHandler;
   private actionValidator: ActionValidator;
   private timerManager: TimerManager;
+  private game: Game;
 
   constructor(
-    private io: Server,
-    private game: Game,
-    config?: Partial<BettingConfig>
+    private theGame: Game,
+    private bettingConfig: BettingConfig
   ) {
-    const finalConfig = {
-      timePerAction: 15000,
-      bettingRound: game.getPhase(),
-      minBet: game.getPotSize(),
-      maxBet: game.getPotSize(),
-      timeCookieEffect: 10000,
-      ...config,
-    };
-
-    this.actionHandler = new ActionHandler(game);
-    this.actionValidator = new ActionValidator(finalConfig);
-    this.timerManager = new TimerManager(io, new Timer(), finalConfig);
-
-    this.currentPlayerToAct = undefined;
     this.bettingState = {
-      currentBet: 0,
+      timeRemaining: 0,
+      currentBet: 0, // Todo : count preflop blinds as a bet
       lastAction: null,
       lastRaiseAmount: 0,
       timeCookiesUsedThisRound: 0,
     };
-  }
+    this.game = theGame;
+    this.actionHandler = new ActionHandler(this.game);
+    this.actionValidator = new ActionValidator(bettingConfig);
+    this.timerManager = new TimerManager(new Timer(), bettingConfig, this);
+    this.currentPlayerToAct = PositionsUtils.findFirstPlayerToAct(this.game);
 
-  startBettingPhase(round: GamePhase): void {
-    this.currentPlayerToAct =
-      round === GamePhase.PreflopBetting
-        ? this.game.getSmallBlindPlayer()!
-        : this.game.getBigBlindPlayer()!;
-
-    this.startNextPlayerTurn();
+    this.startNextPlayerTurn(); // start betting round
   }
 
   startNextPlayerTurn(): void {
     this.timerManager.resetRoundCookies();
-    this.game
-      .getBroadcaster()
-      .broadcastGameState(
-        this.game,
-        this.currentPlayerToAct,
-        this.bettingState,
-        this.timerManager.getTimeRemaining()
-      );
+    this.game.updateGameState({ bettingState: this.bettingState }); // update betting state
     this.setupTimerAndListeners();
+    this.game.broadcastGameState();
   }
 
   handlePlayerAction(
@@ -70,7 +48,7 @@ export class BettingManager {
     action: PlayerAction,
     amount?: number
   ): void {
-    if (this.currentPlayerToAct.id !== playerId) return;
+    if (this.currentPlayerToAct!.id !== playerId) return;
 
     const validActions = this.actionValidator.getValidActions(
       this.bettingState,
@@ -85,7 +63,7 @@ export class BettingManager {
 
     if (!validation.isValid) {
       console.log(`Invalid action: ${validation.error}`);
-      action = validActions.includes('check') ? 'check' : 'fold';
+      action = validActions.includes('check') ? 'check' : 'fold'; // take default action
     }
 
     this.timerManager.clear();
@@ -96,18 +74,8 @@ export class BettingManager {
       this.bettingState
     );
 
-    const gameState = this.game.getDetailedGameState();
-    this.game.updateGameState({
-      potSize: gameState.potSize + (amount || 0),
-      bettingRound: {
-        ...gameState.bettingRound!,
-        lastAction: action,
-        currentBet: amount || gameState.bettingRound!.currentBet,
-      },
-    });
-
     if (this.isBettingRoundComplete()) {
-      this.endBettingPhase();
+      this.game.updateGameState({ bettingState: null });
     } else {
       this.switchToNextPlayer();
       this.startNextPlayerTurn();
@@ -129,25 +97,38 @@ export class BettingManager {
   }
 
   private isBettingRoundComplete(): boolean {
+    // if only one player standing => hand won without showdown.
+    if (
+      this.bettingState.lastAction === 'fold' &&
+      PositionsUtils.findNextPlayerToAct(
+        this.currentPlayerToAct.getPosition(),
+        this.game
+      ) === this.currentPlayerToAct
+    ) {
+      this.switchToNextPlayer(); //
+      this.game.handleHandWonWithoutShowdown(this.currentPlayerToAct);
+      return true;
+    }
     // Round is complete if both players checked, or after a call or after a fold.
     return (
       (this.bettingState.currentBet === 0 && // check - check
         this.bettingState.lastAction === 'check') ||
-      this.bettingState.lastAction === 'call' || // bet called
-      this.bettingState.lastAction === 'fold'
+      this.bettingState.lastAction === 'call' // bet called
     );
   }
 
   private switchToNextPlayer() {
-    this.currentPlayerToAct =
-      this.currentPlayerToAct === this.game.getSmallBlindPlayer()!
-        ? this.game.getBigBlindPlayer()!
-        : this.game.getSmallBlindPlayer()!;
+    this.currentPlayerToAct = PositionsUtils.findNextPlayerToAct(
+      this.currentPlayerToAct.getPosition(),
+      this.game
+    );
   }
 
-  endBettingPhase() {
-    this.io.emit('betting-phase-ended', {
-      lastAction: this.bettingState.lastAction,
-    });
+  updateBettingState(partialUpdate: Partial<BettingState>) {
+    this.bettingState = {
+      ...this.bettingState,
+      ...partialUpdate,
+    };
+    this.game.updateGameState({ bettingState: this.bettingState });
   }
 }

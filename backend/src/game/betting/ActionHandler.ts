@@ -2,20 +2,13 @@
 
 import { Game } from '../Game';
 import { PlayerInGame } from '../types/PlayerInGame';
-import { BettingState, PlayerAction } from './types';
+import { Position, PositionsUtils } from '../types/PositionsUtils';
+import { BettingState, PlayerAction } from './BettingTypes';
 
 export class ActionHandler {
-  constructor(private game: Game) {}
-
-  handleFold(player: PlayerInGame): void {
-    player.setFolded(true);
-    // Find and reward the winner
-    const winner = // The player who didn't fold is the winner
-      this.game.getBigBlindPlayer()!.id == player.id
-        ? this.game.getSmallBlindPlayer()!
-        : this.game.getBigBlindPlayer()!;
-
-    this.game.handWonWithoutShowdown(winner); // Notify game that current hand is won
+  private game: Game;
+  constructor(private theGame: Game) {
+    this.game = theGame;
   }
 
   processAction(
@@ -43,6 +36,14 @@ export class ActionHandler {
       default:
         throw new Error(`Unknown action: ${action}`);
     }
+    this.game.updateGameState({
+      potSize: this.game.getPotSize() + (amount || 0),
+      bettingState: bettingState,
+    });
+  }
+
+  handleFold(player: PlayerInGame): void {
+    player.updatePlayerPublicState({ isFolded: true }); // If game won without showdown, it will be handled in betting manager
   }
 
   handleCheck(): void {
@@ -50,7 +51,9 @@ export class ActionHandler {
   }
 
   handleCall(player: PlayerInGame, currentBet: number): void {
-    player.removeFromStack(currentBet);
+    player.updatePlayerPublicState({
+      currentStack: player.getStack() - currentBet,
+    });
   }
 
   handleBet(
@@ -58,7 +61,9 @@ export class ActionHandler {
     amount: number,
     bettingState: BettingState
   ): void {
-    player.removeFromStack(amount);
+    player.updatePlayerPublicState({
+      currentStack: player.getStack() - amount,
+    });
     bettingState.currentBet = amount;
     bettingState.lastRaiseAmount = amount;
   }
@@ -69,7 +74,9 @@ export class ActionHandler {
     bettingState: BettingState
   ): void {
     this.handleCall(player, bettingState.currentBet);
-    player.removeFromStack(amount);
+    player.updatePlayerPublicState({
+      currentStack: player.getStack() - amount,
+    });
     bettingState.currentBet = amount;
     bettingState.lastRaiseAmount = amount;
   }
