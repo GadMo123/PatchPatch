@@ -8,6 +8,7 @@ import { Player } from '../player/Player';
 import { handleJoinGame, handleLobbyStatus } from '../lobby/LobbyManager';
 import { SingleGameManager } from '../gameFlowManager/SingleGameManager';
 import { BettingConfig, getBettingConfig } from '../game/betting/BettingTypes';
+import { Position, PositionsUtils } from '../game/types/PositionsUtils';
 
 let gameCounter = 0;
 
@@ -83,7 +84,16 @@ io.on('connection', socket => {
 
   // Handle joining a game
   socket.on('join-game', (gameId, callback) => {
-    const result = handleJoinGame(games[gameId], socket.id, players);
+    const position = games[gameId].getPlayerInPosition(Position.SB)
+      ? Position.BB
+      : Position.SB; //Todo
+    const result = handleJoinGame(
+      games[gameId],
+      socket.id,
+      100,
+      position,
+      players
+    );
 
     if (result.success) {
       if (games[gameId].isReadyForNextHand())

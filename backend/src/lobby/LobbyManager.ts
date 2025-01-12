@@ -3,10 +3,13 @@
 import { Socket } from 'socket.io';
 import { Game } from '../game/Game';
 import { Player } from '../player/Player';
+import { Position, PositionsUtils } from '../game/types/PositionsUtils';
 
 export function handleJoinGame(
   game: Game,
   socketId: string,
+  buyIn: number,
+  position: string,
   players: { [socketId: string]: any }
 ): { success: boolean; message?: string } {
   if (!game) {
@@ -19,9 +22,8 @@ export function handleJoinGame(
   }
 
   try {
-    if (!game.playersList.some(p => p.id === player.id)) {
-      game.addPlayer(player);
-    }
+    const p = PositionsUtils.getPosition(position);
+    game.addPlayer(player, buyIn, p);
     return { success: true };
   } catch (error: any) {
     return { success: false, message: error.message };
@@ -35,7 +37,9 @@ export function handleLobbyStatus(games: Record<string, Game>): {
   const gameList = Object.values(games).map(game => ({
     id: game.getId(),
     blindLevel: game.getStakes(),
-    players: game.playersList.map((player: Player) => player.name),
+    players: Array.from(game.getPlayersInGame()?.values() || []).map(
+      player => player?.name || 'empty'
+    ),
     status: game.getStatus(),
   }));
   return { success: true, games: gameList };

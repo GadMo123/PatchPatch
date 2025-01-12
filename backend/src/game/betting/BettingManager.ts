@@ -20,23 +20,27 @@ export class BettingManager {
     private theGame: Game,
     private bettingConfig: BettingConfig
   ) {
+    this.actionValidator = new ActionValidator(bettingConfig);
+    this.game = theGame;
+    this.actionHandler = new ActionHandler(this.game);
+    this.timerManager = new TimerManager(new Timer(), bettingConfig, this);
+    this.currentPlayerToAct = PositionsUtils.findFirstPlayerToAct(this.game);
     this.bettingState = {
       timeRemaining: 0,
       currentBet: 0, // Todo : count preflop blinds as a bet
       lastAction: null,
       lastRaiseAmount: 0,
       timeCookiesUsedThisRound: 0,
+      playerValidActions: [],
     };
-    this.game = theGame;
-    this.actionHandler = new ActionHandler(this.game);
-    this.actionValidator = new ActionValidator(bettingConfig);
-    this.timerManager = new TimerManager(new Timer(), bettingConfig, this);
-    this.currentPlayerToAct = PositionsUtils.findFirstPlayerToAct(this.game);
-
     this.startNextPlayerTurn(); // start betting round
   }
 
   startNextPlayerTurn(): void {
+    this.bettingState.playerValidActions = this.actionValidator.getValidActions(
+      this.bettingState,
+      this.currentPlayerToAct
+    );
     this.timerManager.resetRoundCookies();
     this.game.updateGameState({ bettingState: this.bettingState }); // update betting state
     this.setupTimerAndListeners();

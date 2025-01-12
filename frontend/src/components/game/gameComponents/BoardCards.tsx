@@ -1,8 +1,9 @@
 import React from 'react';
 import Card from '../../utils/Card';
+import CardObject from '../gameTypes/CardObject';
 
 interface BoardCardsProps {
-  boards: { rank: string; suit: string }[][];
+  boards: CardObject[][];
 }
 
 const BoardCards: React.FC<BoardCardsProps> = ({ boards }) => {
