@@ -1,7 +1,7 @@
 import { Player } from '../../player/Player';
 import { Game } from '../Game';
 import { Card } from './Card';
-import { Position } from './Positions';
+import { Position } from './PositionsUtils';
 
 export interface PlayerPublicState {
   id: string;
@@ -28,10 +28,9 @@ export class PlayerInGame extends Player {
   game: Game;
 
   constructor(player: Player, game: Game, position: Position, buyIn: number) {
-    super(player);
+    super(player.id, player.name, player.socketId);
     this.game = game;
     this.playerPublicState = {
-      //public info
       id: player.id,
       name: player.name,
       position: position,
@@ -40,7 +39,6 @@ export class PlayerInGame extends Player {
     };
 
     this.playerPrivateState = {
-      //private info
       remainingTimeCookies: player.remainingTimeCookies,
       cards: null,
       arrangedCards: undefined, // Will be set when player arranges cards
@@ -69,7 +67,15 @@ export class PlayerInGame extends Player {
     };
   }
 
-  getStack() {
+  isFolded(): boolean {
+    return this.playerPublicState.isFolded;
+  }
+
+  getStack(): number {
     return this.playerPublicState.currentStack;
+  }
+
+  getPosition(): Position {
+    return this.playerPublicState.position;
   }
 }

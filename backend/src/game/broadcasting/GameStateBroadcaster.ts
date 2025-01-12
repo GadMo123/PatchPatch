@@ -13,12 +13,11 @@ export class GameStateBroadcaster {
     // Broadcast to players in game
     game.getPlayersInGame()?.forEach((player, position) => {
       if (player) {
-        const gameState = GameStateUtils.addPlayerPersonalData(
-          baseState,
-          position,
-          game
-        );
-        this.io.to(player.socketId).emit('game-state', gameState);
+        const playerGameState = {
+          ...baseState,
+          playerPrivateState: player.getPlayerPrivateState(),
+        };
+        this.io.to(player.socketId).emit('game-state', playerGameState);
       }
     });
 
