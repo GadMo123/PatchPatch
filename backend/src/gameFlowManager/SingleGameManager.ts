@@ -17,7 +17,6 @@ export class SingleGameManager {
 
   startGame() {
     console.log('starting game: ' + this.game.getId());
-    this.game.startGame();
     this.startBettingRound(ROUNDS.PREFLOP); // Preflop betting started
   }
 

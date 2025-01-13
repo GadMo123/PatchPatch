@@ -1,24 +1,30 @@
 // src/server/server.ts
 
 import express from 'express';
-import http from 'http';
+import http, { createServer } from 'http';
 import { Server } from 'socket.io';
 import { Game } from '../game/Game';
 import { Player } from '../player/Player';
 import { handleJoinGame, handleLobbyStatus } from '../lobby/LobbyManager';
 import { SingleGameManager } from '../gameFlowManager/SingleGameManager';
 import { BettingConfig, getBettingConfig } from '../game/betting/BettingTypes';
-import { Position, PositionsUtils } from '../game/types/PositionsUtils';
+import { Position } from '../game/types/PositionsUtils';
 
 let gameCounter = 0;
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: { origin: 'http://localhost:3000', methods: ['GET', 'POST'] },
-});
 
+// Create HTTP server using Express app
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+  },
+});
+// Enable JSON parsing middleware
 app.use(express.json());
+// app.use(corsModule());
 
 // Data storage
 const players: Record<string, Player> = {};
