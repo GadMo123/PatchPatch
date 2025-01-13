@@ -2,7 +2,6 @@
 
 import { Game } from '../Game';
 import { PlayerInGame } from '../types/PlayerInGame';
-import { Position, PositionsUtils } from '../types/PositionsUtils';
 import { BettingState, PlayerAction } from './BettingTypes';
 
 export class ActionHandler {
