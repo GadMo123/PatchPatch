@@ -5,7 +5,7 @@
 Run server:
 
 ```bash
-    npm run start
+ npm run start
 ```
 
 <br />
@@ -21,5 +21,5 @@ serve and build clent:
 Access clinet at
 
 `````bash
-localhost:3000/````
+ localhost:3000/
 `````
