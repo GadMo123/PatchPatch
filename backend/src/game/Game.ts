@@ -67,6 +67,7 @@ export class Game {
 
       const playerInGame = new PlayerInGame(player, this, position, buyIn);
       this.state.playerInPosition!.set(position, playerInGame);
+
       //Remove player as an observers
       this.state.observers = this.state.observers.filter(
         obs => obs.id !== player.id

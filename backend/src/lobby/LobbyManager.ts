@@ -1,9 +1,7 @@
 // src/lobby/LobbyManager.ts
 
-import { Socket } from 'socket.io';
 import { Game } from '../game/Game';
-import { Player } from '../player/Player';
-import { Position, PositionsUtils } from '../game/types/PositionsUtils';
+import { PositionsUtils } from '../game/types/PositionsUtils';
 
 export function handleJoinGame(
   game: Game,

@@ -1,11 +1,29 @@
 // src/socket.ts
 
+// src/socket.ts
 import { io, Socket } from 'socket.io-client';
 
-// Connect to the server (make sure to use the correct URL)
-const socket: Socket = io('http://localhost:5000', {
-  transports: ['websocket'], // Use WebSocket transport
-  withCredentials: true, // Ensure credentials are passed correctly
+const SOCKET_URL = 'http://localhost:5000';
+// process.env.NODE_ENV === 'production'
+//   ? 'http://your-production-url'
+//   : 'http://localhost:5000';
+
+const socket: Socket = io(SOCKET_URL, {
+  transports: ['websocket', 'polling'], // Allow fallback to polling
+  withCredentials: true,
+  autoConnect: true, // Automatically connect on initialization
+  reconnection: true, // Enable reconnection
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
+});
+
+// Add error handling
+socket.on('connect_error', error => {
+  console.error('Socket connection error:', error);
+});
+
+socket.on('connect', () => {
+  console.log('Socket connected successfully');
 });
 
 export default socket;

@@ -20,11 +20,21 @@ const io = new Server(server, {
   cors: {
     origin: 'http://localhost:3000',
     methods: ['GET', 'POST'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
   },
+  transports: ['websocket', 'polling'],
+  allowEIO3: true,
+  pingTimeout: 60000,
+  pingInterval: 25000,
 });
+
 // Enable JSON parsing middleware
 app.use(express.json());
-// app.use(corsModule());
+
+app.get('/health', (req, res) => {
+  res.send('Server is healthy');
+});
 
 // Data storage
 const players: Record<string, Player> = {};
@@ -90,20 +100,15 @@ io.on('connection', socket => {
 
   // Handle joining a game
   socket.on('join-game', (gameId, callback) => {
-    const position = games[gameId].getPlayerInPosition(Position.SB)
+    const game = games[gameId];
+    const position = game.getPlayerInPosition(Position.SB)
       ? Position.BB
       : Position.SB; //Todo
-    const result = handleJoinGame(
-      games[gameId],
-      socket.id,
-      100,
-      position,
-      players
-    );
 
-    if (result.success) {
-      if (games[gameId].isReadyForNextHand())
-        new SingleGameManager(games[gameId]).startGame();
+    const result = handleJoinGame(game, socket.id, 100, position, players);
+
+    if (result.success && game.isReadyForNextHand()) {
+      new SingleGameManager(game).startGame();
     }
     callback(result);
   });
@@ -121,6 +126,15 @@ io.on('connection', socket => {
 
   socket.on('reconnect', () => {
     console.log(`Client reconnected: ${socket.id}`);
+  });
+
+  // Proper cleanup on server shutdown
+  process.on('SIGTERM', () => {
+    io.close(() => {
+      server.close(() => {
+        process.exit(0);
+      });
+    });
   });
 });
 
