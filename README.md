@@ -1,4 +1,7 @@
 # PatchPatch
-Server : npm run start \n
-Client build + serve : npm run serve
+Server : 
+```npm run start. 
+<br />
+Client build + serve :  <br />
+```npm run serve <br />
  access localhost:3000/
