@@ -1,7 +1,25 @@
 # PatchPatch
-Server : 
-```npm run start. 
+
+### Server
+
+Run server:
+
+```bash
+    npm run start
+```
+
 <br />
-Client build + serve :  <br />
-```npm run serve <br />
- access localhost:3000/
+
+serve and build clent:
+
+```bash
+ npm run serve
+```
+
+<br />
+
+Access clinet at
+
+`````bash
+localhost:3000/````
+`````
