@@ -1,7 +1,7 @@
 // src/server/server.ts
 
 import express from 'express';
-import http, { createServer } from 'http';
+import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { Game } from '../game/Game';
 import { Player } from '../player/Player';
@@ -9,8 +9,11 @@ import { handleJoinGame, handleLobbyStatus } from '../lobby/LobbyManager';
 import { SingleGameManager } from '../gameFlowManager/SingleGameManager';
 import { BettingConfig, getBettingConfig } from '../game/betting/BettingTypes';
 import { Position } from '../game/types/PositionsUtils';
+import { ServerStateManager } from './ServerStatManager';
 
 let gameCounter = 0;
+
+const stateManager = ServerStateManager.getInstance();
 
 const app = express();
 
@@ -36,20 +39,16 @@ app.get('/health', (req, res) => {
   res.send('Server is healthy');
 });
 
-// Data storage
-const players: Record<string, Player> = {};
-const games: Record<string, Game> = {};
-
 // Add a new player
 function addPlayer(playerId: string, name: string, socketId: string): Player {
   const player = new Player(playerId, name, socketId);
-  players[playerId] = player;
+  stateManager.addPlayer(player);
   return player;
 }
 
 // Remove a player
-function removePlayer(socketId: string) {
-  delete players[socketId];
+function removePlayer(playerId: string) {
+  stateManager.removePlayer(playerId);
 }
 
 // Create a new game
@@ -61,7 +60,7 @@ function createGame(
 ): Game {
   const gameId = (gameCounter++).toString();
   const newGame = new Game(gameId, blindLevel, server, config);
-  games[gameId] = newGame;
+  stateManager.addGame(newGame);
   return newGame;
 }
 
@@ -71,7 +70,10 @@ io.on('connection', socket => {
 
   // Handle login
   socket.on('login', (name, callback) => {
-    if (!name) return callback({ success: false, message: 'Name is required' });
+    if (!name) {
+      callback({ success: false, message: 'Name is required' });
+      return;
+    }
     const player = addPlayer(socket.id, name, socket.id); // For now socket is the unique id until login functions
     callback({ success: true, playerId: player.id });
   });
@@ -85,8 +87,10 @@ io.on('connection', socket => {
   // Handle game creation
   // Todo: handle permissions, should player be able to create a game? or admin premission?
   socket.on('create-game', (blindLevel, callback) => {
-    if (!players[socket.id]) {
-      return callback({ success: false, message: 'Player not logged in' });
+    if (!stateManager.getPlayer(socket.id)) {
+      // assume playerID is socketID.
+      callback({ success: false, message: 'Player not logged in' });
+      return;
     }
 
     const game = createGame(
@@ -99,15 +103,28 @@ io.on('connection', socket => {
   });
 
   // Handle joining a game
-  socket.on('join-game', (gameId, callback) => {
-    const game = games[gameId];
-    const position = game.getPlayerInPosition(Position.SB)
-      ? Position.BB
-      : Position.SB; //Todo
+  socket.on('join-game', async (gameId, callback) => {
+    const game = stateManager.getGame(gameId);
 
-    const result = handleJoinGame(game, socket.id, 100, position, players);
+    if (game == null) {
+      callback({ success: false, message: "Game id desn't exist" });
+      return;
+    }
 
-    if (result.success && game.isReadyForNextHand()) {
+    const position =
+      game?.getPlayerInPosition(Position.SB) != null
+        ? Position.BB
+        : Position.SB; //Todo choose position in game view
+
+    const result = await handleJoinGame(
+      game!,
+      socket.id,
+      100,
+      position,
+      ServerStateManager.getInstance()
+    );
+
+    if (result.success && game?.isReadyForNextHand()) {
       new SingleGameManager(game).startGame();
     }
     callback(result);
@@ -115,7 +132,7 @@ io.on('connection', socket => {
 
   // Handle send lobby status to player
   socket.on('lobby-status', (gameId, callback) => {
-    const result = handleLobbyStatus(games);
+    const result = handleLobbyStatus(stateManager.getGames());
 
     if (result.success) {
       io.to(gameId).emit('lobby-status', result.games);
@@ -144,21 +161,36 @@ server.listen(5000, () => console.log('Server running on port 5000'));
 createDummyGames(io);
 //create few games for testing, romove later
 function createDummyGames(server: Server) {
-  createGame('admin', '5-10', server, getBettingConfig(10, 10, Infinity, 10));
+  createGame(
+    'admin',
+    '5-10',
+    server,
+    getBettingConfig(10000, 10, Infinity, 10)
+  );
   createGame(
     'admin',
     '5-10-fast',
     server,
-    getBettingConfig(6, 10, Infinity, 8)
+    getBettingConfig(10000, 10, Infinity, 8)
   );
-  createGame('admin', '25-50', server, getBettingConfig(10, 50, Infinity, 10));
+  createGame(
+    'admin',
+    '25-50',
+    server,
+    getBettingConfig(10000, 50, Infinity, 10)
+  );
   createGame(
     'admin',
     '25-50-slow',
     server,
-    getBettingConfig(14, 50, Infinity, 12)
+    getBettingConfig(10000, 50, Infinity, 12)
   );
-  createGame('admin', '10-20', server, getBettingConfig(10, 20, Infinity, 10));
+  createGame(
+    'admin',
+    '10-20',
+    server,
+    getBettingConfig(10000, 20, Infinity, 10)
+  );
 }
 
 function loginPlayerOnConnection(playerId: string, socketId: string) {
