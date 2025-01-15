@@ -9,6 +9,7 @@ import { PlayerInGame } from '../types/PlayerInGame';
 import { PositionsUtils } from '../types/PositionsUtils';
 
 export class BettingManager {
+  private onRoundComplete: () => void;
   private bettingState: BettingState;
   private currentPlayerToAct: PlayerInGame;
   private actionHandler: ActionHandler;
@@ -17,11 +18,13 @@ export class BettingManager {
   private game: Game;
 
   constructor(
-    private theGame: Game,
-    private bettingConfig: BettingConfig
+    game: Game,
+    bettingConfig: BettingConfig,
+    onRoundComplete: () => void
   ) {
+    this.onRoundComplete = onRoundComplete;
     this.actionValidator = new ActionValidator(bettingConfig);
-    this.game = theGame;
+    this.game = game;
     this.actionHandler = new ActionHandler(this.game);
     this.timerManager = new TimerManager(new Timer(), bettingConfig, this);
     this.currentPlayerToAct = PositionsUtils.findFirstPlayerToAct(this.game);
@@ -36,13 +39,13 @@ export class BettingManager {
     this.startNextPlayerTurn(); // start betting round
   }
 
-  startNextPlayerTurn(): void {
+  startNextPlayerTurn() {
     this.bettingState.playerValidActions = this.actionValidator.getValidActions(
       this.bettingState,
       this.currentPlayerToAct
     );
     this.timerManager.resetRoundCookies();
-    this.game.updateGameState({ bettingState: this.bettingState }); // update betting state
+    this.game.updateGameStateAndBroadcast({ bettingState: this.bettingState }); // update betting state
     this.setupTimerAndListeners();
     this.game.broadcastGameState();
   }
@@ -79,7 +82,7 @@ export class BettingManager {
     );
 
     if (this.isBettingRoundComplete()) {
-      this.game.updateGameState({ bettingState: null });
+      this.onRoundComplete();
     } else {
       this.switchToNextPlayer();
       this.startNextPlayerTurn();
@@ -133,6 +136,6 @@ export class BettingManager {
       ...this.bettingState,
       ...partialUpdate,
     };
-    this.game.updateGameState({ bettingState: this.bettingState });
+    this.game.updateGameStateAndBroadcast({ bettingState: this.bettingState });
   }
 }

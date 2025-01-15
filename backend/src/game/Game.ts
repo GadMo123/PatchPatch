@@ -11,8 +11,18 @@ import { Deck } from './types/Deck';
 import { BettingConfig } from './betting/BettingTypes';
 import { BettingManager } from './betting/BettingManager';
 import { PositionLock } from './types/PositionLock';
+import { SingleGameManager } from '../gameFlowManager/SingleGameManager';
 
 export class Game {
+  setGameFlowManager(manager: SingleGameManager) {
+    this.gameFlowManager = manager;
+  }
+  onBettingRoundComplete() {
+    this.updateGameStateAndBroadcast({ bettingState: null });
+    this.gameFlowManager!.onBettingRoundComplete();
+  }
+
+  private gameFlowManager: SingleGameManager | null;
   private state: DetailedGameState;
   private broadcaster: GameStateBroadcaster;
   private deck: Deck | null;
@@ -25,6 +35,7 @@ export class Game {
     server: Server,
     tableBettingConfig: BettingConfig
   ) {
+    this.gameFlowManager = null;
     this.broadcaster = new GameStateBroadcaster(server);
     this.deck = null;
     this.positionLock = new PositionLock();
@@ -44,7 +55,7 @@ export class Game {
     };
   }
 
-  updateGameState(updates: Partial<DetailedGameState>) {
+  updateGameStateAndBroadcast(updates: Partial<DetailedGameState>) {
     this.state = { ...this.state, ...updates };
     this.broadcastGameState();
   }
@@ -55,69 +66,66 @@ export class Game {
     }
   }
 
-  async addPlayer(
-    player: Player,
-    buyIn: number,
-    position: Position
-  ): Promise<boolean> {
-    await this.positionLock.acquire(); // Acquire the lock
-    try {
-      // Check if the position is available
-      if (this.state.playerInPosition!.has(position)) return false;
+  addPlayer(player: Player, buyIn: number, position: Position): boolean {
+    // Check if the position is available
+    if (
+      this.state.playerInPosition!.has(position) ||
+      this.state.playerInPosition!.get(position) != null
+    )
+      return false;
 
-      const playerInGame = new PlayerInGame(player, this, position, buyIn);
-      this.state.playerInPosition!.set(position, playerInGame);
+    const playerInGame = new PlayerInGame(player, this, position, buyIn);
+    this.state.playerInPosition!.set(position, playerInGame);
 
-      //Remove player as an observers
-      this.state.observers = this.state.observers.filter(
-        obs => obs.id !== player.id
-      );
-      this.broadcastGameState();
-    } catch (error) {
-    } finally {
-      this.positionLock.release(); // Release the lock
-    }
+    //Remove player as an observers
+    this.state.observers = this.state.observers.filter(
+      obs => obs.id !== player.id
+    );
+
+    this.broadcastGameState();
     return true;
   }
 
   startGame() {
-    if (this.state.playerInPosition!.size < 2)
-      throw new Error('Not enough players to start a game');
-
     // Todo check and rearrange positions if needed
+    this.state.phase = GamePhase.PreflopBetting;
     this.handWonWithoutShowdown = false;
     this.deck = new Deck();
-    this.state.phase = GamePhase.PreflopBetting;
     this.state.playerInPosition!.forEach(player => {
       if (player) {
         const cards = this.deck!.getPlayerCards(); // deal player's cards
         player.updatePlayerPrivateState({ cards }); // update
       }
     });
+    this.broadcastGameState();
   }
 
-  startBettingRound() {
-    const bettingManager = new BettingManager(this, this.state.bettingConfig);
+  startBettingRound(onRoundComplete: () => void) {
+    const bettingManager = new BettingManager(
+      this,
+      this.state.bettingConfig,
+      onRoundComplete
+    );
   }
 
   dealFlops() {
-    this.updateGameState({
+    this.updateGameStateAndBroadcast({
       flops: this.deck!.getFlops(),
-      phase: GamePhase.FlopDealt,
+      phase: GamePhase.FlopBetting,
     });
   }
 
   dealTurn() {
-    this.updateGameState({
+    this.updateGameStateAndBroadcast({
       turns: this.deck!.getTurns(),
-      phase: GamePhase.TurnDealt,
+      phase: GamePhase.TurnBetting,
     });
   }
 
   dealRiver() {
-    this.updateGameState({
+    this.updateGameStateAndBroadcast({
       rivers: this.deck!.getRivers(),
-      phase: GamePhase.RiverDealt,
+      phase: GamePhase.RiverBetting,
     });
     // Todo : start cacl winner right here as a microservice to find the winner by the time of showdown
   }
@@ -136,6 +144,10 @@ export class Game {
 
   getStakes() {
     return this.state.stakes;
+  }
+
+  getPositionLock(): PositionLock {
+    return this.positionLock;
   }
 
   getObserversNames(): String[] {
@@ -188,11 +200,11 @@ export class Game {
   }
 
   isHandWonWithoutShowdown() {
-    return this.isHandWonWithoutShowdown;
+    return this.handWonWithoutShowdown;
   }
 
-  doShowdown() {
-    //throw new Error('Method not implemented.');
+  doShowdown(afterShowdown: () => void) {
+    this.state.phase = GamePhase.Showdown;
   }
 
   isReadyForNextHand(): boolean {
