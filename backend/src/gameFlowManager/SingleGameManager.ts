@@ -13,10 +13,10 @@ export class SingleGameManager {
 
   startGame() {
     console.log('starting hand: ' + this.game.getId());
-    this.prepareNextRound(); // Preflop betting started
+    this.startNextStreet(); // Preflop betting started
   }
 
-  prepareNextRound() {
+  startNextStreet() {
     switch (this.game.getPhase()) {
       case GamePhase.Showdown:
       case GamePhase.Waiting:
@@ -40,7 +40,7 @@ export class SingleGameManager {
       // else wait for players
     } else {
       if (this.game!.getPhase() == GamePhase.RiverBetting) this.showdown();
-      else this.prepareNextRound();
+      else this.startNextStreet();
     }
   }
 

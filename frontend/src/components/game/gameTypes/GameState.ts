@@ -19,7 +19,6 @@ export interface ServerGameState {
   potSize: number;
   observers: any[];
   publicPlayerDataMapByPosition: Record<string, PublicPlayerData>;
-  privatePlayerData: PrivatePlayerData | null;
   bettingState: BettingState | null;
   bettingConfig: {
     timePerAction: number;
@@ -52,4 +51,5 @@ export interface BettingState {
   lastRaiseAmount: number;
   timeCookiesUsedThisRound: number;
   playerValidActions: String[];
+  playerToAct: string;
 }

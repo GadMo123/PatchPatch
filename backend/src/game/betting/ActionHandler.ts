@@ -36,6 +36,7 @@ export class ActionHandler {
       default:
         throw new Error(`Unknown action: ${action}`);
     }
+    bettingState.lastAction = action;
     this.game.updateGameStateAndBroadcast(
       {
         potSize: this.game.getPotSize() + (amount || 0),

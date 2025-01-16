@@ -38,7 +38,10 @@ const MainLobby: React.FC<MainLobbyProps> = ({ joinGame, playerId }) => {
   }, []);
 
   const handleJoinGame = (gameId: string) => {
-    if (!playerId || playerId === 'unregistered') navigate('/login'); // Redirect to login
+    if (!playerId || playerId === 'unregistered') {
+      navigate('/login'); // Redirect to login
+      return;
+    }
 
     socket?.emit(
       'join-game',

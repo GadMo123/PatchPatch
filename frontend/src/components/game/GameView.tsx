@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import socket from '../socket/socket';
 import './GameView.css';
 import Time from '../utils/Time';
@@ -24,12 +23,13 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
       console.error('Game ID is missing');
       return;
     }
+    console.log(playerId);
     const handleGameState = (state: ServerGameState) => {
       console.log(state);
 
       setGameState(state);
       setBoards(constructBoards(state.flops, state.turns, state.rivers) || []);
-      if (state.bettingState) setBettingState(state.bettingState!);
+      if (state.bettingState) setBettingState(state.bettingState);
     };
 
     socket.on('game-state', handleGameState);
@@ -64,11 +64,12 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
           <PlayerCards playerCards={gameState.playerPrivateState.cards} />
         )}
       </div>
-      {bettingState && (
+      {bettingState && bettingState.playerToAct === playerId && (
         <div className="bet-panel">
           <BetPanel
+            gameId={gameId}
+            playerId={playerId}
             bettingState={bettingState}
-            onAction={(action, amount) => console.log(action, amount)}
             defaultAction={
               bettingState.playerValidActions.includes('check')
                 ? 'check'

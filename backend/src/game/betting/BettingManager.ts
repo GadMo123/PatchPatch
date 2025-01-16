@@ -35,8 +35,8 @@ export class BettingManager {
       lastRaiseAmount: 0,
       timeCookiesUsedThisRound: 0,
       playerValidActions: [],
+      playerToAct: this.currentPlayerToAct.id,
     };
-    this.startNextPlayerTurn(); // start betting round
   }
 
   startNextPlayerTurn() {
@@ -46,10 +46,7 @@ export class BettingManager {
     );
     this.timerManager.resetRoundCookies();
     this.setupTimerAndListeners();
-    this.game.updateGameStateAndBroadcast(
-      { bettingState: this.bettingState },
-      null
-    );
+    this.broadcastBettingState();
   }
 
   handlePlayerAction(
@@ -58,7 +55,14 @@ export class BettingManager {
     amount?: number
   ): void {
     if (this.currentPlayerToAct!.id !== playerId) return;
-
+    console.log(
+      'player action recived: from : ' +
+        playerId +
+        ' action : ' +
+        action +
+        ' ' +
+        amount
+    );
     const validActions = this.actionValidator.getValidActions(
       this.bettingState,
       this.currentPlayerToAct
@@ -86,6 +90,7 @@ export class BettingManager {
   }
 
   private onPlayerActionCallback() {
+    console.log('betting manager onPlayerActionCallback');
     if (this.isBettingRoundComplete()) {
       this.onRoundComplete();
     } else {
@@ -101,6 +106,7 @@ export class BettingManager {
         .includes('check')
         ? 'check'
         : 'fold';
+      // todo lock player from sending action
       this.handlePlayerAction(this.currentPlayerToAct.id, defaultAction);
     };
 
@@ -115,9 +121,8 @@ export class BettingManager {
       PositionsUtils.findNextPlayerToAct(
         this.currentPlayerToAct.getPosition(),
         this.game
-      ) === this.currentPlayerToAct
+      ) === this.currentPlayerToAct // last player standing is current player
     ) {
-      this.switchToNextPlayer(); //
       this.game.handleHandWonWithoutShowdown(this.currentPlayerToAct);
       return true;
     }
@@ -134,6 +139,8 @@ export class BettingManager {
       this.currentPlayerToAct.getPosition(),
       this.game
     );
+    console.log('player to act : ' + this.currentPlayerToAct.id);
+    this.updateBettingState({ playerToAct: this.currentPlayerToAct.id });
   }
 
   updateBettingState(partialUpdate: Partial<BettingState>) {
@@ -141,6 +148,9 @@ export class BettingManager {
       ...this.bettingState,
       ...partialUpdate,
     };
+  }
+
+  broadcastBettingState() {
     this.game.updateGameStateAndBroadcast(
       { bettingState: this.bettingState },
       null

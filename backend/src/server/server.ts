@@ -10,6 +10,8 @@ import { SingleGameManager } from '../gameFlowManager/SingleGameManager';
 import { BettingConfig, getBettingConfig } from '../game/betting/BettingTypes';
 import { Position } from '../game/types/PositionsUtils';
 import { ServerStateManager } from './ServerStatManager';
+import { ActionValidator } from '../game/betting/ActionValidator';
+import { ActionHandler } from '../game/betting/ActionHandler';
 
 let gameCounter = 0;
 
@@ -151,9 +153,13 @@ io.on('connection', socket => {
         callback({ success: false, error: 'Game not found' });
         return;
       }
+      if (!game.getBettingState() || !game.getBettingManager()) {
+        callback({ success: false, error: 'No betting action needed' });
+        return;
+      }
 
       try {
-        game.handlePlayerAction(playerId, action, amount);
+        game.getBettingManager()?.handlePlayerAction(playerId, action, amount);
         callback({ success: true });
       } catch (error) {
         console.error('Error handling player action:', error);
