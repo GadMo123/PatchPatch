@@ -1,24 +1,20 @@
 // src/game/betting/TimerManager.ts
-import { Server } from 'socket.io';
 import { Timer } from '../types/Timer';
 import { BettingConfig, BettingState } from './BettingTypes';
 import { PlayerInGame } from '../types/PlayerInGame';
-import { Game } from '../Game';
 import { BettingManager } from './BettingManager';
 
 export class TimerManager {
   private readonly MAX_TIME_COOKIES_PER_ROUND = 3;
   private timeRemaining: number;
   private timeCookiesUsedThisRound: number = 0;
-  private bettingManager: BettingManager;
 
   constructor(
     private timer: Timer,
     private config: BettingConfig,
-    private theBettingManager: BettingManager
+    private bettingManager: BettingManager
   ) {
     this.timeRemaining = config.timePerAction;
-    this.bettingManager = theBettingManager;
   }
 
   startTimer(player: PlayerInGame, onTimeout: () => void): void {

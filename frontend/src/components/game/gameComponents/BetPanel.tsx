@@ -1,28 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import './BetPanel.css';
 import { BettingState } from '../gameTypes/GameState';
+import { useBettingActions } from '../../../hooks/UseBettingActions';
 
 export type PlayerAction = 'fold' | 'check' | 'call' | 'bet' | 'raise';
 
 interface BetPanelProps {
   bettingState: BettingState;
-  onAction: (action: PlayerAction, amount?: number) => void;
   defaultAction: PlayerAction;
+  gameId: string;
+  playerId: string;
 }
 
 const BetPanel: React.FC<BetPanelProps> = ({
   bettingState,
-  onAction,
   defaultAction,
+  gameId,
+  playerId,
 }) => {
   const [timeLeft, setTimeLeft] = useState(bettingState.timeRemaining);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { sendAction } = useBettingActions(gameId, playerId);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(timer);
-          onAction(defaultAction); // todo : read action
           return 0;
         }
         return prev - 1;
@@ -30,12 +36,30 @@ const BetPanel: React.FC<BetPanelProps> = ({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [defaultAction, onAction]);
+  }, [bettingState.timeRemaining]);
 
-  const handleRaise = () => {
+  const onAction = async (action: PlayerAction, amount?: number) => {
+    if (isProcessing) return;
+
+    setIsProcessing(true);
+    setError(null);
+
+    try {
+      const response = await sendAction(action, amount);
+      if (!response.success) {
+        setError(response.error || 'Action failed');
+      }
+    } catch (err) {
+      setError('Failed to send action');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleBerOrRaise = (action: PlayerAction) => {
     const amount = prompt('Enter your raise amount:'); // Example for a raise input
     if (amount && !isNaN(Number(amount))) {
-      onAction('raise', Number(amount));
+      onAction(action, Number(amount));
     }
   };
 
@@ -57,12 +81,20 @@ const BetPanel: React.FC<BetPanelProps> = ({
       return (
         <>
           {hasCheck && (
-            <button onClick={() => onAction('check')} className="bet-button">
+            <button
+              onClick={() => onAction('check')}
+              className="bet-button"
+              disabled={isProcessing}
+            >
               Check
             </button>
           )}
           {hasBet && (
-            <button onClick={() => onAction('bet')} className="bet-button">
+            <button
+              onClick={() => handleBerOrRaise('bet')}
+              className="bet-button"
+              disabled={isProcessing}
+            >
               Bet
             </button>
           )}
@@ -74,17 +106,29 @@ const BetPanel: React.FC<BetPanelProps> = ({
       // Facing a bet
       <>
         {hasFold && (
-          <button onClick={() => onAction('fold')} className="bet-button fold">
+          <button
+            onClick={() => onAction('fold')}
+            className="bet-button fold"
+            disabled={isProcessing}
+          >
             Fold
           </button>
         )}
         {hasCall && (
-          <button onClick={() => onAction('call')} className="bet-button call">
+          <button
+            onClick={() => onAction('call')}
+            className="bet-button call"
+            disabled={isProcessing}
+          >
             Call
           </button>
         )}
         {hasRaise && (
-          <button onClick={handleRaise} className="bet-button raise">
+          <button
+            onClick={() => handleBerOrRaise('raise')}
+            className="bet-button raise"
+            disabled={isProcessing}
+          >
             Raise
           </button>
         )}
@@ -95,6 +139,7 @@ const BetPanel: React.FC<BetPanelProps> = ({
   return (
     <div className="bet-panel">
       <div className="timer">Time left: {timeLeft}s</div>
+      {error && <div className="error-message">{error}</div>}
       {renderButtons()}
     </div>
   );

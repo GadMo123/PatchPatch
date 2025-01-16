@@ -14,15 +14,7 @@ import { PositionLock } from './types/PositionLock';
 import { SingleGameManager } from '../gameFlowManager/SingleGameManager';
 
 export class Game {
-  setGameFlowManager(manager: SingleGameManager) {
-    this.gameFlowManager = manager;
-  }
-
-  onBettingRoundComplete() {
-    this.updateGameStateAndBroadcast({ bettingState: null }, null);
-    this.gameFlowManager!.onBettingRoundComplete();
-  }
-
+  private bettingManager: BettingManager | null;
   private gameFlowManager: SingleGameManager | null;
   private state: DetailedGameState;
   private broadcaster: GameStateBroadcaster;
@@ -41,6 +33,7 @@ export class Game {
     this.deck = null;
     this.positionLock = new PositionLock();
     this.handWonWithoutShowdown = false;
+    this.bettingManager = null;
     this.state = {
       id,
       stakes,
@@ -61,6 +54,10 @@ export class Game {
     afterFunction: (() => void) | null
   ) {
     this.state = { ...this.state, ...updates };
+    console.log(
+      'braodcasting betting state updates: ' +
+        this.state.bettingState?.playerToAct
+    );
     this.broadcastGameState(afterFunction);
   }
 
@@ -110,6 +107,9 @@ export class Game {
       this.state.bettingConfig,
       this.gameFlowManager!.onBettingRoundComplete
     );
+    this.bettingManager = bettingManager;
+
+    bettingManager.startNextPlayerTurn();
   }
 
   dealFlops() {
@@ -147,6 +147,15 @@ export class Game {
     this.broadcaster.broadcastGameState(this, afterFunction);
   }
 
+  setGameFlowManager(manager: SingleGameManager) {
+    this.gameFlowManager = manager;
+  }
+
+  onBettingRoundComplete() {
+    this.updateGameStateAndBroadcast({ bettingState: null }, null);
+    this.gameFlowManager!.onBettingRoundComplete();
+  }
+
   getStatus() {
     return this.state.phase;
   }
@@ -177,6 +186,10 @@ export class Game {
 
   getPotSize(): number {
     return this.state.potSize;
+  }
+
+  getBettingManager() {
+    return this.bettingManager;
   }
 
   getPhase(): GamePhase {
@@ -218,6 +231,7 @@ export class Game {
 
   doShowdown(afterShowdown: () => void) {
     this.state.phase = GamePhase.Showdown;
+    //todo
   }
 
   isReadyForNextHand(): boolean {

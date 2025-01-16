@@ -9,6 +9,7 @@ export interface BettingState {
   lastRaiseAmount: number;
   timeCookiesUsedThisRound: number;
   playerValidActions: PlayerAction[];
+  playerToAct: string;
 }
 
 export interface BettingConfig {

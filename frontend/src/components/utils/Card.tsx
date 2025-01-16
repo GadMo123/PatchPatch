@@ -8,7 +8,6 @@ interface CardProps {
 
 const Card: React.FC<CardProps> = ({ card, className = '' }) => {
   let imageName = `${card.rank}${card.suit}.png`;
-  console.log('Card received:', card);
 
   return (
     <div className={`card ${className}`}>
