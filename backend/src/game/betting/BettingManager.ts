@@ -6,23 +6,19 @@ import { ActionValidator } from './ActionValidator';
 import { TimerManager } from './TimerManager';
 import { BettingState, BettingConfig, PlayerAction } from './BettingTypes';
 import { PlayerInGame } from '../types/PlayerInGame';
-import { PositionsUtils } from '../types/PositionsUtils';
+import { Position, PositionsUtils } from '../types/PositionsUtils';
+import { GamePhase } from '../types/GameState';
 
 export class BettingManager {
-  private onRoundComplete: () => void;
   private bettingState: BettingState;
   private currentPlayerToAct: PlayerInGame;
   private actionHandler: ActionHandler;
   private actionValidator: ActionValidator;
   private timerManager: TimerManager;
   private game: Game;
+  private lastToBetOrRaise: PlayerInGame;
 
-  constructor(
-    game: Game,
-    bettingConfig: BettingConfig,
-    onRoundComplete: () => void
-  ) {
-    this.onRoundComplete = onRoundComplete;
+  constructor(game: Game, bettingConfig: BettingConfig) {
     this.actionValidator = new ActionValidator(bettingConfig);
     this.game = game;
     this.actionHandler = new ActionHandler(this.game);
@@ -37,6 +33,7 @@ export class BettingManager {
       playerValidActions: [],
       playerToAct: this.currentPlayerToAct.id,
     };
+    this.lastToBetOrRaise = this.currentPlayerToAct; // A hook to detect when the action returns back to the aggresor/first to talk without any further raise.
   }
 
   startNextPlayerTurn() {
@@ -55,14 +52,7 @@ export class BettingManager {
     amount?: number
   ): void {
     if (this.currentPlayerToAct!.id !== playerId) return;
-    console.log(
-      'player action recived: from : ' +
-        playerId +
-        ' action : ' +
-        action +
-        ' ' +
-        amount
-    );
+
     const validActions = this.actionValidator.getValidActions(
       this.bettingState,
       this.currentPlayerToAct
@@ -91,12 +81,13 @@ export class BettingManager {
 
   private onPlayerActionCallback() {
     console.log('betting manager onPlayerActionCallback');
-    if (this.isBettingRoundComplete()) {
-      this.onRoundComplete();
-    } else {
-      this.switchToNextPlayer();
-      this.startNextPlayerTurn();
-    }
+    const lastPlayer = this.currentPlayerToAct;
+    this.switchToNextPlayer();
+    if (this.isBettingRoundComplete())
+      this.game.onBettingRoundComplete(
+        this.currentPlayerToAct === lastPlayer ? lastPlayer : null
+      );
+    else this.startNextPlayerTurn();
   }
 
   private setupTimerAndListeners(): void {
@@ -115,23 +106,7 @@ export class BettingManager {
   }
 
   private isBettingRoundComplete(): boolean {
-    // if only one player standing => hand won without showdown.
-    if (
-      this.bettingState.lastAction === 'fold' &&
-      PositionsUtils.findNextPlayerToAct(
-        this.currentPlayerToAct.getPosition(),
-        this.game
-      ) === this.currentPlayerToAct // last player standing is current player
-    ) {
-      this.game.handleHandWonWithoutShowdown(this.currentPlayerToAct);
-      return true;
-    }
-    // Round is complete if both players checked, or after a call or after a fold.
-    return (
-      (this.bettingState.currentBet === 0 && // check - check
-        this.bettingState.lastAction === 'check') ||
-      this.bettingState.lastAction === 'call' // bet called
-    );
+    return this.lastToBetOrRaise === this.currentPlayerToAct;
   }
 
   private switchToNextPlayer() {
@@ -155,5 +130,9 @@ export class BettingManager {
       { bettingState: this.bettingState },
       null
     );
+  }
+
+  setLastToBetOrRaise(player: PlayerInGame) {
+    this.lastToBetOrRaise = player;
   }
 }
