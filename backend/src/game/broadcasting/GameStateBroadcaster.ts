@@ -7,7 +7,7 @@ import { GameStateUtils } from '../types/GameState';
 export class GameStateBroadcaster {
   constructor(private io: Server) {}
 
-  broadcastGameState(game: Game) {
+  broadcastGameState(game: Game, afterFunction: (() => void) | null) {
     const baseState = GameStateUtils.getBaseGameState(game);
 
     // Broadcast to players in game
@@ -25,5 +25,12 @@ export class GameStateBroadcaster {
     game.getObserversList().forEach(observer => {
       this.io.to(observer.socketId).emit('game-state', baseState);
     });
+
+    // Call afterFunction with a delay to let players recive the state
+    if (afterFunction) {
+      setTimeout(() => {
+        afterFunction();
+      }, 10); // Adjust/delete delay
+    }
   }
 }

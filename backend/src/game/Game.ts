@@ -17,8 +17,9 @@ export class Game {
   setGameFlowManager(manager: SingleGameManager) {
     this.gameFlowManager = manager;
   }
+
   onBettingRoundComplete() {
-    this.updateGameStateAndBroadcast({ bettingState: null });
+    this.updateGameStateAndBroadcast({ bettingState: null }, null);
     this.gameFlowManager!.onBettingRoundComplete();
   }
 
@@ -55,9 +56,12 @@ export class Game {
     };
   }
 
-  updateGameStateAndBroadcast(updates: Partial<DetailedGameState>) {
+  updateGameStateAndBroadcast(
+    updates: Partial<DetailedGameState>,
+    afterFunction: (() => void) | null
+  ) {
     this.state = { ...this.state, ...updates };
-    this.broadcastGameState();
+    this.broadcastGameState(afterFunction);
   }
 
   addObserver(player: Player) {
@@ -82,56 +86,65 @@ export class Game {
       obs => obs.id !== player.id
     );
 
-    this.broadcastGameState();
+    this.broadcastGameState(null);
     return true;
   }
 
   startGame() {
     // Todo check and rearrange positions if needed
-    this.state.phase = GamePhase.PreflopBetting;
     this.handWonWithoutShowdown = false;
     this.deck = new Deck();
+    this.state.phase = GamePhase.PreflopBetting;
     this.state.playerInPosition!.forEach(player => {
       if (player) {
         const cards = this.deck!.getPlayerCards(); // deal player's cards
         player.updatePlayerPrivateState({ cards }); // update
       }
     });
-    this.broadcastGameState();
+    this.broadcastGameState(this.startBettingRound.bind(this)); // Start betting round once players recived cards
   }
 
-  startBettingRound(onRoundComplete: () => void) {
+  startBettingRound() {
     const bettingManager = new BettingManager(
       this,
       this.state.bettingConfig,
-      onRoundComplete
+      this.gameFlowManager!.onBettingRoundComplete
     );
   }
 
   dealFlops() {
-    this.updateGameStateAndBroadcast({
-      flops: this.deck!.getFlops(),
-      phase: GamePhase.FlopBetting,
-    });
+    this.updateGameStateAndBroadcast(
+      {
+        flops: this.deck!.getFlops(),
+        phase: GamePhase.FlopBetting,
+      },
+      this.startBettingRound.bind(this)
+    );
   }
 
   dealTurn() {
-    this.updateGameStateAndBroadcast({
-      turns: this.deck!.getTurns(),
-      phase: GamePhase.TurnBetting,
-    });
+    this.updateGameStateAndBroadcast(
+      {
+        turns: this.deck!.getTurns(),
+        phase: GamePhase.TurnBetting,
+      },
+      this.startBettingRound.bind(this)
+    );
   }
 
   dealRiver() {
-    this.updateGameStateAndBroadcast({
-      rivers: this.deck!.getRivers(),
-      phase: GamePhase.RiverBetting,
-    });
+    this.updateGameStateAndBroadcast(
+      {
+        rivers: this.deck!.getRivers(),
+        phase: GamePhase.RiverBetting,
+      },
+      this.startBettingRound.bind(this)
+    );
     // Todo : start cacl winner right here as a microservice to find the winner by the time of showdown
   }
 
-  broadcastGameState() {
-    this.broadcaster.broadcastGameState(this);
+  broadcastGameState(afterFunction: (() => void) | null) {
+    this.broadcaster.broadcastGameState(this, afterFunction);
   }
 
   getStatus() {

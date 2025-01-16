@@ -13,12 +13,13 @@ export class SingleGameManager {
 
   startGame() {
     console.log('starting hand: ' + this.game.getId());
-    this.startBettingRound(); // Preflop betting started
+    this.prepareNextRound(); // Preflop betting started
   }
 
-  startBettingRound() {
+  prepareNextRound() {
     switch (this.game.getPhase()) {
-      case GamePhase.Showdown || GamePhase.Waiting: //Either start running the game from waiting state or starting the next hand after showdown
+      case GamePhase.Showdown:
+      case GamePhase.Waiting:
         this.game.startGame();
         break;
       case GamePhase.PreflopBetting:
@@ -31,7 +32,6 @@ export class SingleGameManager {
         this.game.dealRiver();
         break;
     }
-    this.game.startBettingRound(this.onBettingRoundComplete);
   }
 
   onBettingRoundComplete() {
@@ -40,11 +40,11 @@ export class SingleGameManager {
       // else wait for players
     } else {
       if (this.game!.getPhase() == GamePhase.RiverBetting) this.showdown();
-      else this.startBettingRound();
+      else this.prepareNextRound();
     }
   }
 
   showdown() {
-    this.game.doShowdown(this.startGame);
+    this.game.doShowdown(this.startGame.bind(this));
   }
 }
