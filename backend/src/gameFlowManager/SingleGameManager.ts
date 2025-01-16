@@ -37,7 +37,7 @@ export class SingleGameManager {
   onBettingRoundComplete() {
     if (this.game.isHandWonWithoutShowdown()) {
       if (this.game.isReadyForNextHand()) this.startGame();
-      // else wait for players
+      // else wait for players to join, the server will create a new game manager once ready
     } else {
       if (this.game!.getPhase() == GamePhase.RiverBetting) this.showdown();
       else this.startNextStreet();

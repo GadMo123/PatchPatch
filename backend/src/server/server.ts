@@ -173,6 +173,7 @@ io.on('connection', socket => {
 
   socket.on('reconnect', () => {
     console.log(`Client reconnected: ${socket.id}`);
+    //todo send games states
   });
 
   // Proper cleanup on server shutdown

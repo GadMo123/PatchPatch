@@ -102,11 +102,7 @@ export class Game {
   }
 
   startBettingRound() {
-    const bettingManager = new BettingManager(
-      this,
-      this.state.bettingConfig,
-      this.gameFlowManager!.onBettingRoundComplete
-    );
+    const bettingManager = new BettingManager(this, this.state.bettingConfig);
     this.bettingManager = bettingManager;
 
     bettingManager.startNextPlayerTurn();
@@ -151,7 +147,8 @@ export class Game {
     this.gameFlowManager = manager;
   }
 
-  onBettingRoundComplete() {
+  onBettingRoundComplete(winner: PlayerInGame | null) {
+    if (winner) this.handleHandWonWithoutShowdown(winner);
     this.updateGameStateAndBroadcast({ bettingState: null }, null);
     this.gameFlowManager!.onBettingRoundComplete();
   }
