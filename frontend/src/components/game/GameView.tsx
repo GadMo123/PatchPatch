@@ -60,8 +60,8 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
         {boards && <BoardCards boards={boards} />}
       </div>
       <div className="player-cards">
-        {gameState?.privatePlayerData?.cards && (
-          <PlayerCards playerCards={gameState.privatePlayerData.cards} />
+        {gameState?.playerPrivateState?.cards && (
+          <PlayerCards playerCards={gameState.playerPrivateState.cards} />
         )}
       </div>
       {bettingState && (

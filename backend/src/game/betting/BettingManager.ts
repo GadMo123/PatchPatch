@@ -45,9 +45,11 @@ export class BettingManager {
       this.currentPlayerToAct
     );
     this.timerManager.resetRoundCookies();
-    this.game.updateGameStateAndBroadcast({ bettingState: this.bettingState }); // update betting state
     this.setupTimerAndListeners();
-    this.game.broadcastGameState();
+    this.game.updateGameStateAndBroadcast(
+      { bettingState: this.bettingState },
+      null
+    );
   }
 
   handlePlayerAction(
@@ -78,9 +80,12 @@ export class BettingManager {
       action,
       amount,
       this.currentPlayerToAct,
-      this.bettingState
+      this.bettingState,
+      this.onPlayerActionCallback.bind(this)
     );
+  }
 
+  private onPlayerActionCallback() {
     if (this.isBettingRoundComplete()) {
       this.onRoundComplete();
     } else {
@@ -136,6 +141,9 @@ export class BettingManager {
       ...this.bettingState,
       ...partialUpdate,
     };
-    this.game.updateGameStateAndBroadcast({ bettingState: this.bettingState });
+    this.game.updateGameStateAndBroadcast(
+      { bettingState: this.bettingState },
+      null
+    );
   }
 }

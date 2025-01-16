@@ -97,7 +97,7 @@ io.on('connection', socket => {
       socket.id,
       blindLevel,
       io,
-      getBettingConfig(10, 2, Infinity, 10)
+      getBettingConfig(10000, 2, Infinity, 10)
     );
     callback({ success: true, gameId: game.getId() });
   });
@@ -140,6 +140,30 @@ io.on('connection', socket => {
 
     callback(result);
   });
+
+  // Handle player betting actions
+  socket.on(
+    'player-action',
+    ({ gameId, playerId, action, amount }, callback) => {
+      const game = stateManager.getGame(gameId);
+      // Todo validate player input class
+      if (!game) {
+        callback({ success: false, error: 'Game not found' });
+        return;
+      }
+
+      try {
+        game.handlePlayerAction(playerId, action, amount);
+        callback({ success: true });
+      } catch (error) {
+        console.error('Error handling player action:', error);
+        callback({
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    }
+  );
 
   socket.on('reconnect', () => {
     console.log(`Client reconnected: ${socket.id}`);

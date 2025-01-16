@@ -14,7 +14,8 @@ export class ActionHandler {
     action: PlayerAction,
     amount: number | undefined,
     player: PlayerInGame,
-    bettingState: BettingState
+    bettingState: BettingState,
+    afterFunction: (() => void) | null
   ): void {
     switch (action) {
       case 'fold':
@@ -35,10 +36,13 @@ export class ActionHandler {
       default:
         throw new Error(`Unknown action: ${action}`);
     }
-    this.game.updateGameStateAndBroadcast({
-      potSize: this.game.getPotSize() + (amount || 0),
-      bettingState: bettingState,
-    });
+    this.game.updateGameStateAndBroadcast(
+      {
+        potSize: this.game.getPotSize() + (amount || 0),
+        bettingState: bettingState,
+      },
+      afterFunction
+    );
   }
 
   handleFold(player: PlayerInGame): void {
