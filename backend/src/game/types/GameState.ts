@@ -2,10 +2,11 @@
 
 import { PlayerInGame } from './PlayerInGame';
 import { Card } from './Card';
-import { Position } from './PositionsUtils';
+import { Position } from '../utils/PositionsUtils';
 import { Game } from '../Game';
 import { Player } from '../../player/Player';
 import { BettingConfig, BettingState } from '../betting/BettingTypes';
+import { ArrangePlayerCardsState } from '../arrangeCards/ArrangePlayerCardsManager';
 
 export enum GamePhase {
   Waiting = 'waiting',
@@ -38,6 +39,7 @@ export interface DetailedGameState {
   // Betting state
   bettingState: BettingState | null;
   bettingConfig: BettingConfig;
+  arrangePlayerCardsState: ArrangePlayerCardsState | null;
 }
 
 export class GameStateUtils {
@@ -68,6 +70,7 @@ export class GameStateUtils {
       privatePlayerData: null,
       bettingState: game.getBettingState(),
       bettingConfig: game.getBettingConfig(),
+      arrangePlayerCardsState: game.getArrangePlayerCardsState(),
     };
   }
 

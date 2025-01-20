@@ -9,10 +9,8 @@ export class ServerStateManager {
   private players: Record<string, Player> = {};
   private games: Record<string, Game> = {};
 
-  // Private constructor to prevent direct instantiation
   private constructor() {}
 
-  // Public method to access the singleton instance
   public static getInstance(): ServerStateManager {
     if (!ServerStateManager.instance) {
       ServerStateManager.instance = new ServerStateManager();
@@ -20,7 +18,6 @@ export class ServerStateManager {
     return ServerStateManager.instance;
   }
 
-  // Getter and setter methods for players
   public getPlayers(): Record<string, Player> {
     return this.players;
   }
@@ -37,7 +34,6 @@ export class ServerStateManager {
     delete this.players[playerId];
   }
 
-  // Getter and setter methods for games
   public getGames(): Record<string, Game> {
     return this.games;
   }

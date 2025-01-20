@@ -14,12 +14,12 @@ export class Deck {
     '7',
     '8',
     '9',
-    'T',
+    'T', // T for Ten
     'J',
     'Q',
     'K',
     'A',
-  ]; // T for Ten
+  ];
 
   constructor() {
     this.initializeDeck();

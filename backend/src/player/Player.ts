@@ -16,7 +16,7 @@ export class Player {
     this.coins = 500; // Todo - sync with Database.
   }
 
-  useTimeCookie() {
+  useTimebankCookie() {
     this.remainingTimeCookies -= 1;
   }
 

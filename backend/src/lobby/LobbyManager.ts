@@ -1,9 +1,9 @@
 // src/lobby/LobbyManager.ts
 
 import { Game } from '../game/Game';
-import { PositionsUtils } from '../game/types/PositionsUtils';
+import { PositionsUtils } from '../game/utils/PositionsUtils';
 import { Player } from '../player/Player';
-import { ServerStateManager } from '../server/ServerStatManager';
+import { ServerStateManager } from '../server/ServerStateManager';
 
 interface JoinGameResult {
   success: boolean;

@@ -34,16 +34,19 @@ const BetPanel: React.FC<BetPanelProps> = ({
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(timer);
   }, [bettingState.timeRemaining]);
+
+  useEffect(() => {
+    console.log('isProcessing changed to:', isProcessing);
+  }, [isProcessing]);
 
   const onAction = async (action: PlayerAction, amount?: number) => {
     if (isProcessing) return;
 
     setIsProcessing(true);
     setError(null);
-
+    console.log(action);
     try {
       const response = await sendAction(action, amount);
       if (!response.success) {
@@ -53,6 +56,7 @@ const BetPanel: React.FC<BetPanelProps> = ({
       setError('Failed to send action');
     } finally {
       setIsProcessing(false);
+      setTimeLeft(0);
     }
   };
 
@@ -83,7 +87,7 @@ const BetPanel: React.FC<BetPanelProps> = ({
           {hasCheck && (
             <button
               onClick={() => onAction('check')}
-              className="bet-button"
+              className="bet-button check"
               disabled={isProcessing}
             >
               Check
@@ -92,7 +96,7 @@ const BetPanel: React.FC<BetPanelProps> = ({
           {hasBet && (
             <button
               onClick={() => handleBerOrRaise('bet')}
-              className="bet-button"
+              className="bet-button bet"
               disabled={isProcessing}
             >
               Bet
@@ -138,7 +142,7 @@ const BetPanel: React.FC<BetPanelProps> = ({
 
   return (
     <div className="bet-panel">
-      <div className="timer">Time left: {timeLeft}s</div>
+      {timeLeft > 0 && <div className="timer">Time left: {timeLeft}s</div>}
       {error && <div className="error-message">{error}</div>}
       {renderButtons()}
     </div>
