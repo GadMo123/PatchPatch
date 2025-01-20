@@ -1,26 +1,12 @@
 # PatchPatch
 
-### Server
+1. Run server
 
-Run server:
-
-```bash
- npm run start
-```
-
-<br />
-
-serve and build clent:
-
-```bash
- npm run serve
-```
-
-<br />
-
-Access clinet at
-
+2. Access clinet at
 `````bash
  localhost:3000/
 `````
 
+3. Join the same game with two players to start playing.
+
+ 
