@@ -1,5 +1,5 @@
 import React from 'react';
-import Card from '../../utils/Card';
+import Card from './Card';
 
 interface OpponentCardsProps {
   opponents: {

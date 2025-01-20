@@ -1,8 +1,8 @@
 //\src\game\types\PositionsUtils.ts
 
 import { Game } from '../Game';
-import { GamePhase } from './GameState';
-import { PlayerInGame } from './PlayerInGame';
+import { GamePhase } from '../types/GameState';
+import { PlayerInGame } from '../types/PlayerInGame';
 
 export enum Position {
   BB = 'bb',

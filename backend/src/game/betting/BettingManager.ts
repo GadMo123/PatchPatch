@@ -1,13 +1,12 @@
 // src/game/betting/BettingManager.ts
 import { Game } from '../Game';
-import { Timer } from '../types/Timer';
+import { Timer } from '../utils/Timer';
 import { ActionHandler } from './ActionHandler';
 import { ActionValidator } from './ActionValidator';
 import { TimerManager } from './TimerManager';
 import { BettingState, BettingConfig, PlayerAction } from './BettingTypes';
 import { PlayerInGame } from '../types/PlayerInGame';
-import { Position, PositionsUtils } from '../types/PositionsUtils';
-import { GamePhase } from '../types/GameState';
+import { PositionsUtils } from '../utils/PositionsUtils';
 
 export class BettingManager {
   private bettingState: BettingState;
@@ -17,8 +16,13 @@ export class BettingManager {
   private timerManager: TimerManager;
   private game: Game;
   private lastToBetOrRaise: PlayerInGame;
+  onBettingRoundComplete: (winner: PlayerInGame | null) => void;
 
-  constructor(game: Game, bettingConfig: BettingConfig) {
+  constructor(
+    game: Game,
+    bettingConfig: BettingConfig,
+    onBettingRoundComplete: (winner: PlayerInGame | null) => void
+  ) {
     this.actionValidator = new ActionValidator(bettingConfig);
     this.game = game;
     this.actionHandler = new ActionHandler(this.game);
@@ -33,15 +37,17 @@ export class BettingManager {
       playerValidActions: [],
       playerToAct: this.currentPlayerToAct.id,
     };
+    this.onBettingRoundComplete = onBettingRoundComplete;
     this.lastToBetOrRaise = this.currentPlayerToAct; // A hook to detect when the action returns back to the aggresor/first to talk without any further raise.
   }
 
   startNextPlayerTurn() {
+    console.log('3');
     this.bettingState.playerValidActions = this.actionValidator.getValidActions(
       this.bettingState,
       this.currentPlayerToAct
     );
-    this.timerManager.resetRoundCookies();
+    this.timerManager.resetRoundTimebankCookies();
     this.setupTimerAndListeners();
     this.broadcastBettingState();
   }
@@ -64,6 +70,7 @@ export class BettingManager {
       validActions
     );
 
+    console.log('1 ' + action);
     if (!validation.isValid) {
       console.log(`Invalid action: ${validation.error}`);
       action = validActions.includes('check') ? 'check' : 'fold'; // take default action
@@ -80,14 +87,14 @@ export class BettingManager {
   }
 
   private onPlayerActionCallback() {
-    console.log('betting manager onPlayerActionCallback');
+    console.log('2 ');
     const lastPlayer = this.currentPlayerToAct;
     this.switchToNextPlayer();
-    if (this.isBettingRoundComplete())
-      this.game.onBettingRoundComplete(
-        this.currentPlayerToAct === lastPlayer ? lastPlayer : null
-      );
-    else this.startNextPlayerTurn();
+    if (this.isBettingRoundComplete()) {
+      console.log('4');
+      const winner = this.currentPlayerToAct === lastPlayer ? lastPlayer : null;
+      this.onBettingRoundComplete(winner);
+    } else this.startNextPlayerTurn();
   }
 
   private setupTimerAndListeners(): void {
@@ -114,7 +121,6 @@ export class BettingManager {
       this.currentPlayerToAct.getPosition(),
       this.game
     );
-    console.log('player to act : ' + this.currentPlayerToAct.id);
     this.updateBettingState({ playerToAct: this.currentPlayerToAct.id });
   }
 

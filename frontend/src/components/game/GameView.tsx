@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import socket from '../socket/socket';
 import './GameView.css';
-import Time from '../utils/Time';
+import Time from './gameComponents/Time';
 import OpponentCards from './gameComponents/OpponentCards';
 import PlayerCards from './gameComponents/PlayerCards';
 import BoardCards from './gameComponents/BoardCards';
@@ -26,7 +26,6 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     console.log(playerId);
     const handleGameState = (state: ServerGameState) => {
       console.log(state);
-
       setGameState(state);
       setBoards(constructBoards(state.flops, state.turns, state.rivers) || []);
       if (state.bettingState) setBettingState(state.bettingState);
@@ -37,6 +36,13 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
       socket.off('game-state', handleGameState);
     };
   }, [gameId]);
+
+  function getDisplayCards(): CardObject[] {
+    return (
+      gameState!.playerPrivateState!.arrangedCards ??
+      gameState?.playerPrivateState.cards!
+    );
+  }
 
   return (
     <div className="game-container">
@@ -59,25 +65,38 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
       <div className="boards-container">
         {boards && <BoardCards boards={boards} />}
       </div>
-      <div className="player-cards">
-        {gameState?.playerPrivateState?.cards && (
-          <PlayerCards playerCards={gameState.playerPrivateState.cards} />
+      <div className="player-area">
+        <div className="player-cards">
+          {gameState?.playerPrivateState?.cards && (
+            <PlayerCards
+              playerCards={getDisplayCards()}
+              gamePhaseArrangeCards={gameState.phase === 'arrange-player-cards'}
+              arrangeCardsTimeLeft={gameState.arrangeCardsTimeLeft ?? 0}
+              onArrangementComplete={arrangement => {
+                socket.emit('cards-arrangement-complete', {
+                  gameId,
+                  playerId,
+                  arrangement,
+                });
+              }}
+            />
+          )}
+        </div>
+        {bettingState && bettingState.playerToAct === playerId && (
+          <div className="bet-panel">
+            <BetPanel
+              gameId={gameId}
+              playerId={playerId}
+              bettingState={bettingState}
+              defaultAction={
+                bettingState.playerValidActions.includes('check')
+                  ? 'check'
+                  : 'fold'
+              }
+            />
+          </div>
         )}
       </div>
-      {bettingState && bettingState.playerToAct === playerId && (
-        <div className="bet-panel">
-          <BetPanel
-            gameId={gameId}
-            playerId={playerId}
-            bettingState={bettingState}
-            defaultAction={
-              bettingState.playerValidActions.includes('check')
-                ? 'check'
-                : 'fold'
-            }
-          />
-        </div>
-      )}
     </div>
   );
 };

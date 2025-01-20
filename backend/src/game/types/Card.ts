@@ -21,7 +21,6 @@ export interface Card {
   suit: Suit;
 }
 
-// Optional helper functions
 export const isValidSuit = (suit: string): suit is Suit =>
   ['c', 'd', 'h', 's'].includes(suit);
 

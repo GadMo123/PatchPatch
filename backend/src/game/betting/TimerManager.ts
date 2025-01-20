@@ -1,5 +1,5 @@
 // src/game/betting/TimerManager.ts
-import { Timer } from '../types/Timer';
+import { Timer } from '../utils/Timer';
 import { BettingConfig, BettingState } from './BettingTypes';
 import { PlayerInGame } from '../types/PlayerInGame';
 import { BettingManager } from './BettingManager';
@@ -24,11 +24,11 @@ export class TimerManager {
     });
   }
 
-  handleTimeCookie(player: PlayerInGame): boolean {
+  handleTimebankCookie(player: PlayerInGame): boolean {
     if (!player.hasTimeCookies()) return false;
     if (this.timeCookiesUsedThisRound > this.MAX_TIME_COOKIES_PER_ROUND)
       return false;
-    player.useTimeCookie();
+    player.useTimebankCookie();
     this.timeCookiesUsedThisRound++;
     this.timeRemaining += this.config.timeCookieEffect;
     this.bettingManager.updateBettingState({
@@ -37,7 +37,7 @@ export class TimerManager {
     return true;
   }
 
-  resetRoundCookies(): void {
+  resetRoundTimebankCookies(): void {
     this.timeCookiesUsedThisRound = 0;
   }
 

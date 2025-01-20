@@ -1,7 +1,7 @@
 .bet-panel {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: end;
     gap: 1vw;
     padding: 1vh 0;
     background-color: rgba(0, 0, 0, 0.7);
@@ -23,7 +23,7 @@
   }
   
   .bet-button.fold {
-    background-color: #ff4d4f;
+    background-color: #2196f3;
     color: white;
   }
   
@@ -33,7 +33,17 @@
   }
   
   .bet-button.raise {
-    background-color: #2196f3;
+    background-color: #ff4d4f;
+    color: white;
+  }
+  
+  .bet-button.bet {
+    background-color: #ff4d4f;
+    color: white;
+  }
+  
+  .bet-button.check {
+    background-color: #4caf50;
     color: white;
   }
   

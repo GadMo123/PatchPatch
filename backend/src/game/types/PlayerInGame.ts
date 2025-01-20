@@ -1,7 +1,8 @@
 import { Player } from '../../player/Player';
+import { PlayerCardArrangement } from '../arrangeCards/ArrangePlayerCardsManager';
 import { Game } from '../Game';
 import { Card } from './Card';
-import { Position } from './PositionsUtils';
+import { Position } from '../utils/PositionsUtils';
 
 export interface PlayerPublicState {
   id: string;
@@ -9,16 +10,13 @@ export interface PlayerPublicState {
   position: Position;
   currentStack: number;
   isFolded: boolean;
+  arrangedCardsReady?: boolean;
 }
 
 export interface PlayerPrivateState {
+  cards: Card[] | null;
+  arrangedCards?: PlayerCardArrangement;
   remainingTimeCookies: number;
-  cards: Card[] | null; // 12 private cards
-  arrangedCards?: {
-    hand1: Card[]; // 4 cards
-    hand2: Card[]; // 4 cards
-    hand3: Card[]; // 4 cards
-  };
 }
 
 // Represents player data in a single game
@@ -65,6 +63,9 @@ export class PlayerInGame extends Player {
       ...this.playerPrivateState,
       ...updates,
     };
+    if (updates.arrangedCards) {
+      this.playerPublicState.arrangedCardsReady = true;
+    }
   }
 
   isFolded(): boolean {

@@ -1,0 +1,58 @@
+.container{
+    border: 0.5px solid #3d3d3d;
+    border-radius: 4px; 
+    background-color: black;
+    padding: 8px;
+    border: 0.5px solid #3d3d3d;
+    background-color: #f3f3f3;
+    display: flex;
+    cursor: pointer;
+}
+
+.container.d{
+    background-color :rgb(51, 51, 107);
+}
+.container.s{
+    background-color :rgb(92, 92, 92);
+}
+.container.h{
+    background-color :rgb(128, 64, 79);
+}
+.container.c{
+    background-color :rgb(100, 201, 100);
+}
+
+.upper-rank{
+    display: flex;
+    align-items: center; /* Align text and image */
+    justify-content: center; /* Center content horizontally */
+    gap: 4px; /* Space between rank and image */
+}
+
+.rank{
+    color: black;
+    font-size: 21;
+}
+
+.suit{
+    color: black;
+    font-size: 21;
+}
+
+.upper{
+    display: flex;
+    flex-direction: column; /* Stack the rank and image vertically */
+    align-items: center; /* Center-align both elements horizontally */
+}
+
+.lower{
+    align-self: self-end;
+    justify-self: end;
+    margin-left: auto;
+}
+
+.suit-icon {
+    width: 1em; /* Match the font size of the rank */
+    height: 1em; /* Match the font size of the rank */
+    margin-top: 4px; /* Add a small gap between the rank and the image */
+  }

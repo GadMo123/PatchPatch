@@ -27,7 +27,7 @@ export const useBettingActions = (gameId: string, playerId: string) => {
         );
       });
     },
-    [gameId, playerId]
+    []
   );
 
   return { sendAction };

@@ -6,21 +6,22 @@ import { DetailedGameState, GamePhase } from './types/GameState';
 import { PlayerInGame } from './types/PlayerInGame';
 import { GameStateBroadcaster } from './broadcasting/GameStateBroadcaster';
 import { Card } from './types/Card';
-import { Position } from './types/PositionsUtils';
+import { Position } from './utils/PositionsUtils';
 import { Deck } from './types/Deck';
 import { BettingConfig } from './betting/BettingTypes';
-import { BettingManager } from './betting/BettingManager';
 import { PositionLock } from './types/PositionLock';
-import { SingleGameManager } from '../gameFlowManager/SingleGameManager';
+import { ArrangePlayerCardsState } from './arrangeCards/ArrangePlayerCardsManager';
+import { SingleGameFlowManager } from './utils/SingleGameFlowManager';
+import { BettingManager } from './betting/BettingManager';
 
 export class Game {
-  private bettingManager: BettingManager | null;
-  private gameFlowManager: SingleGameManager | null;
+  private deck: Deck | null;
   private state: DetailedGameState;
   private broadcaster: GameStateBroadcaster;
-  private deck: Deck | null;
   private positionLock: PositionLock;
   private handWonWithoutShowdown: boolean;
+  private server: Server;
+  private gameFlowManager: SingleGameFlowManager | null;
 
   constructor(
     id: string,
@@ -28,12 +29,10 @@ export class Game {
     server: Server,
     tableBettingConfig: BettingConfig
   ) {
-    this.gameFlowManager = null;
+    this.server = server;
     this.broadcaster = new GameStateBroadcaster(server);
-    this.deck = null;
     this.positionLock = new PositionLock();
     this.handWonWithoutShowdown = false;
-    this.bettingManager = null;
     this.state = {
       id,
       stakes,
@@ -46,19 +45,36 @@ export class Game {
       playerInPosition: new Map<Position, PlayerInGame | null>(),
       bettingConfig: tableBettingConfig,
       bettingState: null,
+      arrangePlayerCardsState: null,
     };
+    this.deck = null;
+    this.gameFlowManager = null;
+  }
+
+  dealNewHand() {
+    this.handWonWithoutShowdown = false;
+    this.deck = new Deck();
+    this.state.phase = GamePhase.PreflopBetting;
+    this.state.potSize = 0; //todo take blinds
+    this.state.playerInPosition!.forEach(player => {
+      if (player) {
+        const cards = this.deck!.getPlayerCards(); // deal player's cards
+        player.updatePlayerPrivateState({ cards }); // update
+      }
+    });
   }
 
   updateGameStateAndBroadcast(
     updates: Partial<DetailedGameState>,
     afterFunction: (() => void) | null
   ) {
-    this.state = { ...this.state, ...updates };
-    console.log(
-      'braodcasting betting state updates: ' +
-        this.state.bettingState?.playerToAct
-    );
-    this.broadcastGameState(afterFunction);
+    if (updates) this.state = { ...this.state, ...updates };
+    this.broadcaster.broadcastGameState(this, afterFunction);
+  }
+
+  startGame() {
+    this.gameFlowManager = new SingleGameFlowManager(this);
+    this.gameFlowManager.startNextStreet();
   }
 
   addObserver(player: Player) {
@@ -83,74 +99,18 @@ export class Game {
       obs => obs.id !== player.id
     );
 
-    this.broadcastGameState(null);
+    this.updateGameStateAndBroadcast({}, null);
     return true;
   }
 
-  startGame() {
-    // Todo check and rearrange positions if needed
-    this.handWonWithoutShowdown = false;
-    this.deck = new Deck();
-    this.state.phase = GamePhase.PreflopBetting;
-    this.state.playerInPosition!.forEach(player => {
-      if (player) {
-        const cards = this.deck!.getPlayerCards(); // deal player's cards
-        player.updatePlayerPrivateState({ cards }); // update
-      }
-    });
-    this.broadcastGameState(this.startBettingRound.bind(this)); // Start betting round once players recived cards
+  dealRivers(): Card[] | undefined {
+    return this.deck?.getRivers();
   }
-
-  startBettingRound() {
-    const bettingManager = new BettingManager(this, this.state.bettingConfig);
-    this.bettingManager = bettingManager;
-
-    bettingManager.startNextPlayerTurn();
+  dealTurns(): Card[] | undefined {
+    return this.deck?.getTurns();
   }
-
-  dealFlops() {
-    this.updateGameStateAndBroadcast(
-      {
-        flops: this.deck!.getFlops(),
-        phase: GamePhase.FlopBetting,
-      },
-      this.startBettingRound.bind(this)
-    );
-  }
-
-  dealTurn() {
-    this.updateGameStateAndBroadcast(
-      {
-        turns: this.deck!.getTurns(),
-        phase: GamePhase.TurnBetting,
-      },
-      this.startBettingRound.bind(this)
-    );
-  }
-
-  dealRiver() {
-    this.updateGameStateAndBroadcast(
-      {
-        rivers: this.deck!.getRivers(),
-        phase: GamePhase.RiverBetting,
-      },
-      this.startBettingRound.bind(this)
-    );
-    // Todo : start cacl winner right here as a microservice to find the winner by the time of showdown
-  }
-
-  broadcastGameState(afterFunction: (() => void) | null) {
-    this.broadcaster.broadcastGameState(this, afterFunction);
-  }
-
-  setGameFlowManager(manager: SingleGameManager) {
-    this.gameFlowManager = manager;
-  }
-
-  onBettingRoundComplete(winner: PlayerInGame | null) {
-    if (winner) this.handleHandWonWithoutShowdown(winner);
-    this.updateGameStateAndBroadcast({ bettingState: null }, null);
-    this.gameFlowManager!.onBettingRoundComplete();
+  dealFlops(): Card[][] | undefined {
+    return this.deck?.getFlops();
   }
 
   getStatus() {
@@ -185,10 +145,6 @@ export class Game {
     return this.state.potSize;
   }
 
-  getBettingManager() {
-    return this.bettingManager;
-  }
-
   getPhase(): GamePhase {
     return this.state?.phase;
   }
@@ -220,15 +176,29 @@ export class Game {
       currentStack: winner.getStack() + this.state.potSize,
     });
     this.state.potSize = 0;
+    //todo update stacks, pot, ect
   }
 
   isHandWonWithoutShowdown() {
     return this.handWonWithoutShowdown;
   }
 
-  doShowdown(afterShowdown: () => void) {
+  getArrangePlayerCardsState(): ArrangePlayerCardsState | null {
+    return this.state.arrangePlayerCardsState;
+  }
+
+  doShowdown() {
     this.state.phase = GamePhase.Showdown;
     //todo
+  }
+
+  getServer() {
+    return this.server;
+  }
+
+  getGameFlowManager(): SingleGameFlowManager {
+    if (!this.gameFlowManager) throw new Error('Game is not running');
+    return this.gameFlowManager;
   }
 
   isReadyForNextHand(): boolean {

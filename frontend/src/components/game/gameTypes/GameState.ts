@@ -9,6 +9,7 @@ export interface Player {
 }
 
 export interface ServerGameState {
+  arrangeCardsTimeLeft: number | null;
   // Game state as it recived from the server
   id: string;
   phase: string;
@@ -29,6 +30,7 @@ export interface ServerGameState {
   playerPrivateState: {
     remainingTimeCookies: number;
     cards: CardObject[] | null;
+    arrangedCards?: CardObject[] | null;
   };
 }
 

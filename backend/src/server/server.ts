@@ -6,12 +6,10 @@ import { Server } from 'socket.io';
 import { Game } from '../game/Game';
 import { Player } from '../player/Player';
 import { handleJoinGame, handleLobbyStatus } from '../lobby/LobbyManager';
-import { SingleGameManager } from '../gameFlowManager/SingleGameManager';
 import { BettingConfig, getBettingConfig } from '../game/betting/BettingTypes';
-import { Position } from '../game/types/PositionsUtils';
-import { ServerStateManager } from './ServerStatManager';
-import { ActionValidator } from '../game/betting/ActionValidator';
-import { ActionHandler } from '../game/betting/ActionHandler';
+import { Position } from '../game/utils/PositionsUtils';
+import { ServerStateManager } from './ServerStateManager';
+import { GamePhase } from '../game/types/GameState';
 
 let gameCounter = 0;
 
@@ -127,7 +125,7 @@ io.on('connection', socket => {
     );
 
     if (result.success && game?.isReadyForNextHand()) {
-      new SingleGameManager(game).startGame();
+      game.startGame();
     }
     callback(result);
   });
@@ -153,16 +151,45 @@ io.on('connection', socket => {
         callback({ success: false, error: 'Game not found' });
         return;
       }
-      if (!game.getBettingState() || !game.getBettingManager()) {
+      if (!game.getBettingState()) {
         callback({ success: false, error: 'No betting action needed' });
         return;
       }
 
       try {
-        game.getBettingManager()?.handlePlayerAction(playerId, action, amount);
+        game.getGameFlowManager().handlePlayerAction(playerId, action, amount);
         callback({ success: true });
       } catch (error) {
         console.error('Error handling player action:', error);
+        callback({
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    }
+  );
+
+  socket.on(
+    'cards-arrangement',
+    ({ gameId, playerId, arrangement }, callback) => {
+      const game = stateManager.getGame(gameId);
+
+      if (!game) {
+        callback({ success: false, error: 'Game not found' });
+        return;
+      }
+
+      if (game.getPhase() !== GamePhase.ArrangePlayerCards) {
+        callback({ success: false, error: 'Not in card arrangement phase' });
+        return;
+      }
+
+      try {
+        // Emit to the ArrangePlayerCardsManager
+        io.emit('cards-arrangement', { playerId, arrangement });
+        callback({ success: true });
+      } catch (error) {
+        console.error('Error handling card arrangement:', error);
         callback({
           success: false,
           error: error instanceof Error ? error.message : 'Unknown error',
@@ -202,26 +229,16 @@ function createDummyGames(server: Server) {
     'admin',
     '5-10-fast',
     server,
-    getBettingConfig(10000, 10, Infinity, 8)
+    getBettingConfig(10, 10, Infinity, 8)
   );
-  createGame(
-    'admin',
-    '25-50',
-    server,
-    getBettingConfig(10000, 50, Infinity, 10)
-  );
+  createGame('admin', '25-50', server, getBettingConfig(10, 50, Infinity, 10));
   createGame(
     'admin',
     '25-50-slow',
     server,
-    getBettingConfig(10000, 50, Infinity, 12)
+    getBettingConfig(10, 50, Infinity, 12)
   );
-  createGame(
-    'admin',
-    '10-20',
-    server,
-    getBettingConfig(10000, 20, Infinity, 10)
-  );
+  createGame('admin', '10-20', server, getBettingConfig(10, 20, Infinity, 10));
 }
 
 function loginPlayerOnConnection(playerId: string, socketId: string) {
