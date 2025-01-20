@@ -2,7 +2,6 @@
 
 import { Game } from '../game/Game';
 import { PositionsUtils } from '../game/utils/PositionsUtils';
-import { Player } from '../player/Player';
 import { ServerStateManager } from '../server/ServerStateManager';
 
 interface JoinGameResult {
@@ -20,7 +19,6 @@ export async function handleJoinGame(
   const player = serverStateManager.getPlayer(socketId);
   if (player == null)
     return { success: false, message: 'Player not logged in' };
-  console.log('Player found, acquiring lock...');
   await game.getPositionLock().acquire(); // Acquire the lock
   try {
     const added = await game.addPlayer(
