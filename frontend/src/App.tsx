@@ -6,10 +6,12 @@ import {
   Navigate,
 } from 'react-router-dom';
 import './App.css';
-import Login from './components/login/Login';
+
 import GameView from './components/game/GameView';
-import MainLobby from './components/lobby/MainLobby';
+
 import { SocketProvider } from './components/socket/SocketContext'; // Wrap the app with SocketProvider
+import Login from './components/login/login';
+import MainLobby from './components/lobby/mainLobby';
 
 const App: React.FC = () => {
   const [playerId, setPlayerId] = useState<string>('unregistered');

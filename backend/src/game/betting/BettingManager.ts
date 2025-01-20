@@ -42,7 +42,6 @@ export class BettingManager {
   }
 
   startNextPlayerTurn() {
-    console.log('3');
     this.bettingState.playerValidActions = this.actionValidator.getValidActions(
       this.bettingState,
       this.currentPlayerToAct
@@ -70,7 +69,6 @@ export class BettingManager {
       validActions
     );
 
-    console.log('1 ' + action);
     if (!validation.isValid) {
       console.log(`Invalid action: ${validation.error}`);
       action = validActions.includes('check') ? 'check' : 'fold'; // take default action
@@ -87,11 +85,9 @@ export class BettingManager {
   }
 
   private onPlayerActionCallback() {
-    console.log('2 ');
     const lastPlayer = this.currentPlayerToAct;
     this.switchToNextPlayer();
     if (this.isBettingRoundComplete()) {
-      console.log('4');
       const winner = this.currentPlayerToAct === lastPlayer ? lastPlayer : null;
       this.onBettingRoundComplete(winner);
     } else this.startNextPlayerTurn();

@@ -37,10 +37,6 @@ const BetPanel: React.FC<BetPanelProps> = ({
     return () => clearInterval(timer);
   }, [bettingState.timeRemaining]);
 
-  useEffect(() => {
-    console.log('isProcessing changed to:', isProcessing);
-  }, [isProcessing]);
-
   const onAction = async (action: PlayerAction, amount?: number) => {
     if (isProcessing) return;
 

@@ -24,14 +24,15 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
 
   // Only initialize arranged cards when first receiving cards or when not in arrangement phase
   useEffect(() => {
-    if (gamePhaseArrangeCards || arrangedCards.length === 0) {
+    setSelectedCards([]);
+    if (gamePhaseArrangeCards) {
       setArrangedCards([...playerCards]);
+      setIsArrangementComplete(false);
+    } else {
+      setArrangedCards([]);
+      setIsArrangementComplete(true);
     }
-  }, [playerCards, gamePhaseArrangeCards]);
-
-  useEffect(() => {
-    setArrangedCards([...playerCards]);
-  }, [playerCards]);
+  }, [gamePhaseArrangeCards]);
 
   // Handle timeout
   useEffect(() => {
@@ -42,35 +43,54 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
 
   const handleCardClick = (index: number) => {
     if (isArrangementComplete || !gamePhaseArrangeCards) return;
-
-    setSelectedCards(prev => {
-      if (prev.includes(index)) {
-        return prev.filter(i => i !== index);
-      }
-      if (prev.length < 2) {
-        return [...prev, index];
-      }
-      return prev;
-    });
-  };
-
-  useEffect(() => {
-    if (selectedCards.length === 2) {
-      const newArrangement = [...arrangedCards];
-      const [firstIndex, secondIndex] = selectedCards;
-      [newArrangement[firstIndex], newArrangement[secondIndex]] = [
-        newArrangement[secondIndex],
-        newArrangement[firstIndex],
-      ];
-
-      setArrangedCards(newArrangement);
+    if (selectedCards.includes(index)) {
+      // If clicking the same card, deselect it
       setSelectedCards([]);
+      return;
     }
-  }, [selectedCards]);
+    const newSelection = [...selectedCards, index];
+
+    if (newSelection.length === 2) {
+      const [firstIndex, secondIndex] = newSelection;
+      console.log('Swapping cards:', firstIndex, secondIndex);
+
+      // First perform the swap
+      setArrangedCards(prev => {
+        const newArrangement = [...prev];
+        [newArrangement[firstIndex], newArrangement[secondIndex]] = [
+          newArrangement[secondIndex],
+          newArrangement[firstIndex],
+        ];
+        console.log('New arrangement:', newArrangement);
+        return newArrangement;
+      });
+
+      // Then clear the selection
+      setSelectedCards([]);
+    } else {
+      // Just add the new card to selection
+      setSelectedCards(newSelection);
+    }
+  };
 
   const handleArrangementComplete = () => {
     setIsArrangementComplete(true);
     onArrangementComplete?.(arrangedCards);
+  };
+
+  const getCardWrapperClassName = (absoluteIndex: number) => {
+    const classes = ['card-wrapper'];
+
+    if (gamePhaseArrangeCards && !isArrangementComplete) {
+      classes.push('arrangeable');
+      if (selectedCards.includes(absoluteIndex)) {
+        classes.push('selected');
+      }
+    } else {
+      classes.push('non-arrangeable');
+    }
+
+    return classes.join(' ');
   };
 
   return (
@@ -78,12 +98,9 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
       {gamePhaseArrangeCards && !isArrangementComplete && (
         <div className="arrangement-controls">
           <div className="time-remaining">
-            Time remaining: {Math.max(0, arrangeCardsTimeLeft)}s
+            Time remaining: {Math.max(0, arrangeCardsTimeLeft - 0.5)}s
           </div>
-          <button
-            onClick={handleArrangementComplete}
-            className="ready-button" // bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600
-          >
+          <button onClick={handleArrangementComplete} className="ready-button">
             I'm Ready
           </button>
         </div>
@@ -92,7 +109,10 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
         .fill(null)
         .map((_, rowIndex) => {
           const startIndex = rowIndex * 4;
-          const cardsForRow = playerCards.slice(startIndex, startIndex + 4);
+          const cardSource = isArrangementComplete
+            ? playerCards
+            : arrangedCards;
+          const cardsForRow = cardSource.slice(startIndex, startIndex + 4);
 
           return (
             <div key={`player-row-${rowIndex}`} className="player-row">
@@ -103,13 +123,11 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
                 {cardsForRow.map((card, cardIndex) => {
                   const absoluteIndex = startIndex + cardIndex;
                   const isSelected = selectedCards.includes(absoluteIndex);
-
                   return (
                     <div
                       key={`player-board-${rowIndex}-card-${cardIndex}`}
                       onClick={() => handleCardClick(absoluteIndex)}
-                      className={`card-wrapper ${isSelected ? 'selected' : ''} 
-                        ${gamePhaseArrangeCards && !isArrangementComplete ? 'cursor-pointer' : ''}`}
+                      className={getCardWrapperClassName(absoluteIndex)}
                     >
                       <Card
                         card={card}

@@ -25,7 +25,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     }
     console.log(playerId);
     const handleGameState = (state: ServerGameState) => {
-      console.log(state);
+      if (state.arrangeCardsTimeLeft == 0) console.log(state);
       setGameState(state);
       setBoards(constructBoards(state.flops, state.turns, state.rivers) || []);
       if (state.bettingState) setBettingState(state.bettingState);
