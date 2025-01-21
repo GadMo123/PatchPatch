@@ -1,8 +1,8 @@
 // src/hooks/useBettingActions.ts
 import { useCallback } from 'react';
 
-import { PlayerAction } from '../components/game/gameComponents/BetPanel';
-import socket from '../components/socket/socket';
+import { PlayerAction } from '../screens/game/gameComponents/BetPanel';
+import socket from '../socket/Socket';
 
 interface BettingResponse {
   success: boolean;

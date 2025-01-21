@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSocket } from '../socket/SocketContext';
+import { useSocket } from '../../socket/SocketContext';
 import { useNavigate } from 'react-router-dom';
 
 interface MainLobbyProps {

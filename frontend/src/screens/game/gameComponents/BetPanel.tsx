@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './BetPanel.css';
-import { BettingState } from '../gameTypes/GameState';
+import { BettingState } from '../types/GameState';
 import { useBettingActions } from '../../../hooks/UseBettingActions';
 
 export type PlayerAction = 'fold' | 'check' | 'call' | 'bet' | 'raise';

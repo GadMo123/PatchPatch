@@ -1,6 +1,6 @@
 import React from 'react';
 import Card from './Card';
-import CardObject from '../gameTypes/CardObject';
+import CardObject from '../types/CardObject';
 
 interface BoardCardsProps {
   boards: CardObject[][];
