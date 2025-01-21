@@ -1,32 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import Card from './Card';
 import './PlayerCards.css';
+import { useArrangedCardActions } from '../playerActions/SendPlayerActions';
+import { useGameContext } from '../types/GameContext';
+import socket from '../../../socket/Socket';
 import CardObject from '../types/CardObject';
 
 interface PlayerCardsProps {
   playerCards: CardObject[];
   gamePhaseArrangeCards: boolean;
   arrangeCardsTimeLeft: number;
-  onArrangementComplete?: (
-    arrangement: { rank: string; suit: string }[]
-  ) => void;
 }
 
 const PlayerCards: React.FC<PlayerCardsProps> = ({
   playerCards,
   gamePhaseArrangeCards,
   arrangeCardsTimeLeft,
-  onArrangementComplete,
 }) => {
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
-  const [arrangedCards, setArrangedCards] = useState<typeof playerCards>([]);
+  const [arrangedCards, setArrangedCards] = useState<CardObject[]>([]);
   const [isArrangementComplete, setIsArrangementComplete] = useState(false);
+
+  const { playerId, gameId } = useGameContext();
+  const { sendAarrangement: sendAarrangement } = useArrangedCardActions(
+    gameId,
+    playerId,
+    socket
+  );
 
   // Only initialize arranged cards when first receiving cards or when not in arrangement phase
   useEffect(() => {
     setSelectedCards([]);
     if (gamePhaseArrangeCards) {
-      setArrangedCards([...playerCards]);
+      setArrangedCards(playerCards.map(card => ({ ...card })));
       setIsArrangementComplete(false);
     } else {
       setArrangedCards([]);
@@ -52,15 +58,12 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
 
     if (newSelection.length === 2) {
       const [firstIndex, secondIndex] = newSelection;
-      console.log('Swapping cards:', firstIndex, secondIndex);
-
       // First perform the swap
       setArrangedCards(prev => {
         const newArrangement = [...prev];
-        [newArrangement[firstIndex], newArrangement[secondIndex]] = [
-          newArrangement[secondIndex],
-          newArrangement[firstIndex],
-        ];
+        // Make sure to create new object references when swapping
+        newArrangement[firstIndex] = { ...prev[secondIndex] };
+        newArrangement[secondIndex] = { ...prev[firstIndex] };
         console.log('New arrangement:', newArrangement);
         return newArrangement;
       });
@@ -74,8 +77,10 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
   };
 
   const handleArrangementComplete = () => {
+    const response = sendAarrangement(
+      arrangedCards.map(card => `${card.rank}${card.suit}`)
+    );
     setIsArrangementComplete(true);
-    onArrangementComplete?.(arrangedCards);
   };
 
   const getCardWrapperClassName = (absoluteIndex: number) => {

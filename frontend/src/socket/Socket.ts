@@ -1,6 +1,4 @@
-// src/socket.ts
-
-// src/socket.ts
+// src/Socket.ts
 import { io, Socket } from 'socket.io-client';
 
 const SOCKET_URL = 'http://localhost:5000';

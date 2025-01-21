@@ -25,7 +25,7 @@ export async function handleJoinGame(
       player,
       buyIn,
       PositionsUtils.getPosition(position)
-    ); // Await the addPlayer Promise
+    );
     if (added)
       return { success: true }; // Player successfully added
     else return { success: false, message: 'Failed to join game' };
