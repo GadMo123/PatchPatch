@@ -1,5 +1,4 @@
 import { Player } from '../../player/Player';
-import { PlayerCardArrangement } from '../arrangeCards/ArrangePlayerCardsManager';
 import { Game } from '../Game';
 import { Card } from './Card';
 import { Position } from '../utils/PositionsUtils';
@@ -15,7 +14,6 @@ export interface PlayerPublicState {
 
 export interface PlayerPrivateState {
   cards: Card[] | null;
-  arrangedCards?: PlayerCardArrangement;
   remainingTimeCookies: number;
 }
 
@@ -39,7 +37,6 @@ export class PlayerInGame extends Player {
     this.playerPrivateState = {
       remainingTimeCookies: player.remainingTimeCookies,
       cards: null,
-      arrangedCards: undefined, // Will be set when player arranges cards
     };
   }
 
@@ -63,9 +60,6 @@ export class PlayerInGame extends Player {
       ...this.playerPrivateState,
       ...updates,
     };
-    if (updates.arrangedCards) {
-      this.playerPublicState.arrangedCardsReady = true;
-    }
   }
 
   isFolded(): boolean {

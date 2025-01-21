@@ -1,5 +1,5 @@
 import React from 'react';
-import CardObject from '../gameTypes/CardObject';
+import CardObject from '../types/CardObject';
 import './Card.css';
 
 interface CardProps {

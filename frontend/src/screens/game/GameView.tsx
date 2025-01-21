@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import socket from '../socket/socket';
+import socket from '../../socket/Socket';
 import './GameView.css';
 import Time from './gameComponents/Time';
 import OpponentCards from './gameComponents/OpponentCards';
 import PlayerCards from './gameComponents/PlayerCards';
 import BoardCards from './gameComponents/BoardCards';
 import { constructBoards } from './helpers/gameHelpers';
-import { ServerGameState, BettingState } from './gameTypes/GameState';
-import CardObject from './gameTypes/CardObject';
+import { ServerGameState, BettingState } from './types/GameState';
+import CardObject from './types/CardObject';
 import BetPanel from './gameComponents/BetPanel';
 
 const GameView: React.FC<{ playerId: string; gameId: string }> = ({

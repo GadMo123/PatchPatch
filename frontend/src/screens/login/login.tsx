@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import socket from '../socket/socket';
+import socket from '../../socket/Socket';
 
 interface LoginProps {
   onLogin: (playerId: string) => void;

@@ -1,17 +1,16 @@
 import { Game } from '../Game';
 import { Position } from '../utils/PositionsUtils';
-import { Card } from '../types/Card';
 import { Timer } from '../utils/Timer';
+import { validateCardsArrangement } from './PlayerArrangementValidator';
 
 export interface ArrangePlayerCardsState {
   timeRemaining: number;
   playerDoneMap: Map<Position, boolean>;
 }
 
-export interface PlayerCardArrangement {
-  hand1: Card[];
-  hand2: Card[];
-  hand3: Card[];
+export interface ArrangeCardsResult {
+  success: boolean;
+  error?: string;
 }
 
 export class ArrangePlayerCardsManager {
@@ -20,12 +19,13 @@ export class ArrangePlayerCardsManager {
   private playersRemaining: number;
   private timer: Timer;
   private updateInterval: NodeJS.Timeout | null;
+  private timeIsUpCallback: () => void;
 
-  constructor(game: Game) {
+  constructor(game: Game, OnTimerUp: () => void) {
     this.game = game;
     this.timer = new Timer();
     this.updateInterval = null;
-
+    this.timeIsUpCallback = OnTimerUp;
     // Initialize player done map and count
     const playerDoneMap = new Map<Position, boolean>();
     let activePlayerCount = 0;
@@ -45,54 +45,57 @@ export class ArrangePlayerCardsManager {
       timeRemaining: 60000, // todo table config
       playerDoneMap: playerDoneMap,
     };
+    this.startTimer();
   }
 
-  startTimerAndListeners(onComplete: () => void) {
-    // Set up socket listener for card arrangements
-    this.game
-      .getServer()
-      .on(
-        'cards-arrangement',
-        ({
-          playerId,
-          arrangement,
-        }: {
-          playerId: string;
-          arrangement: PlayerCardArrangement;
-        }) => {
-          const player = Array.from(
-            this.game.getPlayersInGame()?.entries() || []
-          ).find(([_, p]) => p?.id === playerId)?.[1];
+  handlePlayerArrangedCardsRecived(
+    playerId: any,
+    arrangement: Object[]
+  ): ArrangeCardsResult {
+    const player = Array.from(
+      this.game.getPlayersInGame()?.entries() || []
+    ).find(([_, p]) => p?.id === playerId)?.[1];
 
-          if (player) {
-            // Update player's arranged cards
-            player.updatePlayerPrivateState({
-              arrangedCards: arrangement,
-            });
+    if (!player) {
+      return { success: false, error: 'Player not found' };
+    }
 
-            // Mark player as done
-            this.markPlayerDone(player.getPosition());
+    if (this.state.playerDoneMap.get(player.getPosition()) === true) {
+      return { success: false, error: 'Player already submitted arrangement' };
+    }
 
-            // Check if all players are done
-            if (this.isAllPlayersDone()) {
-              this.cleanup();
-              onComplete();
-            }
-          }
-        }
-      );
+    const validationResult = validateCardsArrangement(arrangement, player);
 
+    if (!validationResult.isValid) {
+      return { success: false, error: validationResult.error };
+    }
+
+    // Update player's arranged cards
+    player.updatePlayerPrivateState({
+      cards: validationResult.cards,
+    });
+
+    // Mark player as done
+    this.markPlayerDone(player.getPosition());
+    if (this.isAllPlayersDone()) {
+      this.cleanup();
+      this.timeIsUpCallback();
+    }
+    return { success: true };
+  }
+
+  startTimer() {
     // Start countdown timer
     this.timer.start(this.state.timeRemaining, () => {
       this.cleanup();
-      onComplete();
+      this.timeIsUpCallback();
     });
 
     // Update time remaining every second
     this.updateInterval = setInterval(() => {
       this.state.timeRemaining = Math.max(0, this.state.timeRemaining - 1000);
 
-      // Update game state to broadcast time remaining to clients
+      // Update game state to broadcast time remaining and players done to clients every second
       this.game.updateGameStateAndBroadcast(
         {
           arrangePlayerCardsState: this.getState(),
@@ -109,9 +112,6 @@ export class ArrangePlayerCardsManager {
       clearInterval(this.updateInterval);
       this.updateInterval = null;
     }
-
-    // Remove socket listener
-    this.game.getServer().removeAllListeners('cards-arrangement');
   }
 
   markPlayerDone(position: Position) {

@@ -185,9 +185,10 @@ io.on('connection', socket => {
       }
 
       try {
-        // Emit to the ArrangePlayerCardsManager
-        io.emit('cards-arrangement', { playerId, arrangement });
-        callback({ success: true });
+        game
+          .getGameFlowManager()
+          ?.handlePlayerArrangedCards(playerId, arrangement);
+        callback({ seccuss: true });
       } catch (error) {
         console.error('Error handling card arrangement:', error);
         callback({

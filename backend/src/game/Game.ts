@@ -10,9 +10,11 @@ import { Position } from './utils/PositionsUtils';
 import { Deck } from './types/Deck';
 import { BettingConfig } from './betting/BettingTypes';
 import { PositionLock } from './types/PositionLock';
-import { ArrangePlayerCardsState } from './arrangeCards/ArrangePlayerCardsManager';
+import {
+  ArrangePlayerCardsManager,
+  ArrangePlayerCardsState,
+} from './arrangeCards/ArrangePlayerCardsManager';
 import { SingleGameFlowManager } from './utils/SingleGameFlowManager';
-import { BettingManager } from './betting/BettingManager';
 
 export class Game {
   private deck: Deck | null;

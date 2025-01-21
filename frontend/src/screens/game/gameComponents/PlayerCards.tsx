@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Card from './Card';
 import './PlayerCards.css';
-import CardObject from '../gameTypes/CardObject';
+import CardObject from '../types/CardObject';
 
 interface PlayerCardsProps {
   playerCards: CardObject[];

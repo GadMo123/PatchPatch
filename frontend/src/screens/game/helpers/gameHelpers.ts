@@ -1,4 +1,4 @@
-import CardObject from '../gameTypes/CardObject';
+import CardObject from '../types/CardObject';
 
 export const constructBoards = (
   flops: CardObject[][],

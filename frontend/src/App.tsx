@@ -7,11 +7,11 @@ import {
 } from 'react-router-dom';
 import './App.css';
 
-import GameView from './components/game/GameView';
+import GameView from './screens/game/GameView';
 
-import { SocketProvider } from './components/socket/SocketContext'; // Wrap the app with SocketProvider
-import Login from './components/login/login';
-import MainLobby from './components/lobby/mainLobby';
+import { SocketProvider } from './socket/SocketContext'; // Wrap the app with SocketProvider
+import Login from './screens/login/login';
+import MainLobby from './screens/lobby/mainLobby';
 
 const App: React.FC = () => {
   const [playerId, setPlayerId] = useState<string>('unregistered');
