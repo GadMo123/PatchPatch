@@ -1,5 +1,5 @@
 import { Game } from '../Game';
-import { Card } from '../types/Card';
+import { Card, isValidRank, isValidSuit } from '../types/Card';
 import { PlayerInGame } from '../types/PlayerInGame';
 
 interface ValidationResult {
@@ -16,23 +16,31 @@ export function validateCardsArrangement(
     return { isValid: false, error: 'Invalid arrangement format' };
   }
 
-  const { cards } = arrangement;
-  if (!cards || !Array.isArray(cards) || cards.length != 12)
+  if (arrangement.length != 12)
     return {
       isValid: false,
       error: 'Invalid input',
     };
 
   // Check if all cards are valid Card objects
-  if (!cards.every(card => isValidCard(card))) {
-    return { isValid: false, error: 'Invalid card format' };
+  const parsedCards: Card[] = [];
+  for (const cardStr of arrangement) {
+    if (typeof cardStr !== 'string') {
+      return { isValid: false, error: 'Invalid card format - expected string' };
+    }
+
+    const card = parseCardString(cardStr);
+    if (!card) {
+      return { isValid: false, error: `Invalid card format: ${cardStr}` };
+    }
+    parsedCards.push(card);
   }
 
   // Verify all cards belong to the player
   const playerCardSet = new Set(
     player.getPlayerPrivateState().cards?.map(card => cardToString(card))
   );
-  if (!cards.every(card => playerCardSet.has(cardToString(card)))) {
+  if (!parsedCards.every(card => playerCardSet.has(cardToString(card)))) {
     return {
       isValid: false,
       error: 'Arrangement contains cards not dealt to player',
@@ -41,7 +49,7 @@ export function validateCardsArrangement(
 
   // Verify no duplicate cards
   const seenCards = new Set<string>();
-  for (const card of cards) {
+  for (const card of parsedCards) {
     const cardStr = cardToString(card);
     if (seenCards.has(cardStr)) {
       return { isValid: false, error: 'Duplicate cards in arrangement' };
@@ -51,21 +59,26 @@ export function validateCardsArrangement(
 
   return {
     isValid: true,
-    cards: cards as Card[],
+    cards: parsedCards,
   };
 }
 
-function isValidCard(card: any): card is Card {
-  return (
-    card &&
-    typeof card === 'object' &&
-    'suit' in card &&
-    'rank' in card &&
-    typeof card.suit === 'string' &&
-    typeof card.rank === 'number'
-  );
+function parseCardString(cardStr: string): Card | null {
+  if (cardStr.length < 2) return null;
+
+  const rank = cardStr.slice(0, -1);
+  const suit = cardStr.slice(-1);
+
+  if (!isValidRank(rank) || !isValidSuit(suit)) {
+    return null;
+  }
+
+  return {
+    rank,
+    suit,
+  };
 }
 
 function cardToString(card: Card): string {
-  return `${card.suit}-${card.rank}`;
+  return `${card.suit}${card.rank}`;
 }

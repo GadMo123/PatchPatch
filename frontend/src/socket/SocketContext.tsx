@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
-import socket from './Socket'; // Direct import of socket instance
+import socket from './Socket';
 
 interface SocketContextType {
   socket: typeof socket | null;

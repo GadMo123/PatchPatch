@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import './BetPanel.css';
 import { BettingState } from '../types/GameState';
-import { useBettingActions } from '../../../hooks/UseBettingActions';
+import { useBettingActions } from '../playerActions/SendPlayerActions';
+import { useGameContext } from '../types/GameContext';
+import socket from '../../../socket/Socket';
 
 export type PlayerAction = 'fold' | 'check' | 'call' | 'bet' | 'raise';
 
@@ -12,17 +14,13 @@ interface BetPanelProps {
   playerId: string;
 }
 
-const BetPanel: React.FC<BetPanelProps> = ({
-  bettingState,
-  defaultAction,
-  gameId,
-  playerId,
-}) => {
+const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
   const [timeLeft, setTimeLeft] = useState(bettingState.timeRemaining);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { sendAction } = useBettingActions(gameId, playerId);
+  const { playerId, gameId } = useGameContext();
+  const { sendAction } = useBettingActions(gameId, playerId, socket);
 
   useEffect(() => {
     const timer = setInterval(() => {

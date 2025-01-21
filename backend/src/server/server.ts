@@ -173,7 +173,7 @@ io.on('connection', socket => {
     'cards-arrangement',
     ({ gameId, playerId, arrangement }, callback) => {
       const game = stateManager.getGame(gameId);
-
+      console.log('cards: ' + arrangement);
       if (!game) {
         callback({ success: false, error: 'Game not found' });
         return;
@@ -184,6 +184,7 @@ io.on('connection', socket => {
         return;
       }
 
+      console.log(arrangement);
       try {
         game
           .getGameFlowManager()

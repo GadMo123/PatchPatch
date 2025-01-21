@@ -55,7 +55,7 @@ export class ArrangePlayerCardsManager {
     const player = Array.from(
       this.game.getPlayersInGame()?.entries() || []
     ).find(([_, p]) => p?.id === playerId)?.[1];
-
+    console.log('2');
     if (!player) {
       return { success: false, error: 'Player not found' };
     }
@@ -65,6 +65,8 @@ export class ArrangePlayerCardsManager {
     }
 
     const validationResult = validateCardsArrangement(arrangement, player);
+
+    console.log(validationResult.cards);
 
     if (!validationResult.isValid) {
       return { success: false, error: validationResult.error };
@@ -77,10 +79,12 @@ export class ArrangePlayerCardsManager {
 
     // Mark player as done
     this.markPlayerDone(player.getPosition());
+
     if (this.isAllPlayersDone()) {
       this.cleanup();
       this.timeIsUpCallback();
     }
+
     return { success: true };
   }
 
