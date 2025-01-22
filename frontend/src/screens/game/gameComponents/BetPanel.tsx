@@ -20,14 +20,14 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
   const { playerId, gameId } = useGameContext();
   const { sendAction } = useBettingActions(gameId, playerId, socket);
 
-  const timeLeft = useCountdownTimer({
+  const [timeLeft, cancelTimer] = useCountdownTimer({
     serverTimeRemaining: bettingState.timeRemaining,
     onComplete: () => onAction(defaultAction),
   });
 
   const onAction = async (action: PlayerAction, amount?: number) => {
     if (isProcessing) return;
-
+    cancelTimer(); // Cancel timer when manual action is taken
     setIsProcessing(true);
     setError(null);
     try {
@@ -124,9 +124,7 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
 
   return (
     <div className="bet-panel">
-      {timeLeft > 0 && (
-        <div className="timer">Time left: {timeLeft / 1000}s</div>
-      )}
+      {<div className="timer">Time left: {timeLeft / 1000}s</div>}
       {error && <div className="error-message">{error}</div>}
       {renderButtons()}
     </div>

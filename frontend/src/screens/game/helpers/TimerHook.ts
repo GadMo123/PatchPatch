@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface TimerConfig {
   // Time remaining in seconds, updated from server
@@ -9,9 +9,10 @@ interface TimerConfig {
 export function useCountdownTimer({
   serverTimeRemaining,
   onComplete,
-}: TimerConfig) {
+}: TimerConfig): [number, () => void] {
   const [timeLeft, setTimeLeft] = useState(serverTimeRemaining);
   const timerRef = useRef<NodeJS.Timeout>(null);
+  const isManuallyCancelled = useRef(false);
 
   // Handle server time updates
   useEffect(() => {
@@ -24,8 +25,10 @@ export function useCountdownTimer({
       clearInterval(timerRef.current);
     }
 
-    if (timeLeft <= 0) {
-      onComplete?.();
+    if (timeLeft <= 0 || isManuallyCancelled.current) {
+      if (!isManuallyCancelled.current) {
+        onComplete?.();
+      }
       return;
     }
 
@@ -34,7 +37,9 @@ export function useCountdownTimer({
         const newTime = prev - 1;
         if (newTime <= 0) {
           clearInterval(timerRef.current as NodeJS.Timeout);
-          onComplete?.();
+          if (!isManuallyCancelled.current) {
+            onComplete?.();
+          }
           return 0;
         }
         return newTime;
@@ -48,5 +53,13 @@ export function useCountdownTimer({
     };
   }, [timeLeft]);
 
-  return timeLeft;
+  const cancelTimer = useCallback(() => {
+    isManuallyCancelled.current = true;
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    setTimeLeft(0);
+  }, []);
+
+  return [timeLeft, cancelTimer];
 }
