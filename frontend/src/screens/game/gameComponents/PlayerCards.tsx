@@ -5,6 +5,7 @@ import { useArrangedCardActions } from '../playerActions/SendPlayerActions';
 import { useGameContext } from '../types/GameContext';
 import socket from '../../../socket/Socket';
 import CardObject from '../types/CardObject';
+import { useCountdownTimer } from '../helpers/TimerHook';
 
 interface PlayerCardsProps {
   playerCards: CardObject[];
@@ -28,6 +29,15 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
     socket
   );
 
+  const timeLeft = useCountdownTimer({
+    serverTimeRemaining: arrangeCardsTimeLeft,
+    onComplete: () => {
+      if (gamePhaseArrangeCards && !isArrangementComplete) {
+        handleArrangementComplete();
+      }
+    },
+  });
+
   // Only initialize arranged cards when first receiving cards or when not in arrangement phase
   useEffect(() => {
     setSelectedCards([]);
@@ -39,13 +49,6 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
       setIsArrangementComplete(true);
     }
   }, [gamePhaseArrangeCards]);
-
-  // Handle timeout
-  useEffect(() => {
-    if (gamePhaseArrangeCards && arrangeCardsTimeLeft <= 0) {
-      handleArrangementComplete();
-    }
-  }, [arrangeCardsTimeLeft]);
 
   const handleCardClick = (index: number) => {
     if (isArrangementComplete || !gamePhaseArrangeCards) return;
@@ -77,6 +80,7 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
   };
 
   const handleArrangementComplete = () => {
+    if (isArrangementComplete) return;
     const response = sendAarrangement(
       arrangedCards.map(card => `${card.rank}${card.suit}`)
     );
@@ -102,9 +106,9 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
     <div className="player-cards-container">
       {gamePhaseArrangeCards && !isArrangementComplete && (
         <div className="arrangement-controls">
-          <div className="time-remaining">
-            Time remaining: {Math.max(0, arrangeCardsTimeLeft - 0.5)}s
-          </div>
+          {timeLeft > 0 && (
+            <div className="timer">Time left: {timeLeft / 1000}s</div>
+          )}
           <button onClick={handleArrangementComplete} className="ready-button">
             I'm Ready
           </button>
@@ -136,7 +140,7 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
                     >
                       <Card
                         card={card}
-                        className={`card ${isSelected ? 'ring-2 ring-blue-500' : ''}`}
+                        className={`card ${isSelected ? 'selected' : ''}`}
                       />
                     </div>
                   );

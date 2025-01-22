@@ -32,6 +32,10 @@ export interface ServerGameState {
     cards: CardObject[] | null;
     arrangedCards?: CardObject[] | null;
   };
+  arrangePlayerCardsState: {
+    timeRemaining: number;
+    playerDoneMap: Map<string, boolean>;
+  };
 }
 
 export interface PublicPlayerData {

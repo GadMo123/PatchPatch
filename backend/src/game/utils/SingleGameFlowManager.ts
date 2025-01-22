@@ -94,19 +94,19 @@ export class SingleGameFlowManager {
     this.bettingManager?.handlePlayerAction(playerId, action, amount);
   }
 
-  handlePlayerArrangedCards(playerId: any, arrangement: any) {
-    if (!this.arrangePlayerCardsManager) {
-      throw new Error('Not in card arrangement phase');
-    }
+  async handlePlayerArrangedCards(
+    playerId: any,
+    arrangement: any,
+    callback: any
+  ) {
+    if (!this.arrangePlayerCardsManager) return;
 
     const result =
       this.arrangePlayerCardsManager.handlePlayerArrangedCardsRecived(
         playerId,
         arrangement
       );
-    if (!result.success) {
-      throw new Error(result.error);
-    }
+    //Callback clinet
   }
 
   startArrangePlayerCards() {

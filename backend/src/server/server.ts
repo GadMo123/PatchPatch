@@ -185,18 +185,9 @@ io.on('connection', socket => {
       }
 
       console.log(arrangement);
-      try {
-        game
-          .getGameFlowManager()
-          ?.handlePlayerArrangedCards(playerId, arrangement);
-        callback({ seccuss: true });
-      } catch (error) {
-        console.error('Error handling card arrangement:', error);
-        callback({
-          success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
-      }
+      game
+        .getGameFlowManager()
+        ?.handlePlayerArrangedCards(playerId, arrangement, callback);
     }
   );
 
@@ -221,12 +212,7 @@ server.listen(5000, () => console.log('Server running on port 5000'));
 createDummyGames(io);
 //create few games for testing, romove later
 function createDummyGames(server: Server) {
-  createGame(
-    'admin',
-    '5-10',
-    server,
-    getBettingConfig(10000, 10, Infinity, 10)
-  );
+  createGame('admin', '5-10', server, getBettingConfig(10, 10, Infinity, 10));
   createGame(
     'admin',
     '5-10-fast',
