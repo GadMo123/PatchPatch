@@ -3,11 +3,17 @@
   }
   
   .arrangement-controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
-    margin-bottom: 1rem;
     padding: 0.5rem;
+    gap: 20px; /* Adds consistent spacing between timer and button */
+    background-color: rgba(255, 255, 255, 0.9); /* Optional: adds slight background */
+    border-radius: 4px;
+    z-index: 10; /* Ensures controls stay on top */
   }
   
   .time-remaining {

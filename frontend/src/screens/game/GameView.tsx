@@ -26,7 +26,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     }
     console.log(playerId);
     const handleGameState = (state: ServerGameState) => {
-      if (state.arrangeCardsTimeLeft == 0) console.log(state);
+      console.log(state);
       setGameState(state);
       setBoards(constructBoards(state.flops, state.turns, state.rivers) || []);
       if (state.bettingState) setBettingState(state.bettingState);
@@ -75,15 +75,15 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
                 gamePhaseArrangeCards={
                   gameState.phase === 'arrange-player-cards'
                 }
-                arrangeCardsTimeLeft={gameState.arrangeCardsTimeLeft ?? 0}
+                arrangeCardsTimeLeft={
+                  gameState?.arrangePlayerCardsState?.timeRemaining ?? 0
+                }
               />
             )}
           </div>
           {bettingState && bettingState.playerToAct === playerId && (
             <div className="bet-panel">
               <BetPanel
-                gameId={gameId}
-                playerId={playerId}
                 bettingState={bettingState}
                 defaultAction={
                   bettingState.playerValidActions.includes('check')

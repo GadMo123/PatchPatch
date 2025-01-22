@@ -4,43 +4,32 @@ import { BettingState } from '../types/GameState';
 import { useBettingActions } from '../playerActions/SendPlayerActions';
 import { useGameContext } from '../types/GameContext';
 import socket from '../../../socket/Socket';
+import { useCountdownTimer } from '../helpers/TimerHook';
 
 export type PlayerAction = 'fold' | 'check' | 'call' | 'bet' | 'raise';
 
 interface BetPanelProps {
   bettingState: BettingState;
   defaultAction: PlayerAction;
-  gameId: string;
-  playerId: string;
 }
 
 const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
-  const [timeLeft, setTimeLeft] = useState(bettingState.timeRemaining);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { playerId, gameId } = useGameContext();
   const { sendAction } = useBettingActions(gameId, playerId, socket);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [bettingState.timeRemaining]);
+  const timeLeft = useCountdownTimer({
+    serverTimeRemaining: bettingState.timeRemaining,
+    onComplete: () => onAction(defaultAction),
+  });
 
   const onAction = async (action: PlayerAction, amount?: number) => {
     if (isProcessing) return;
 
     setIsProcessing(true);
     setError(null);
-    console.log(action);
     try {
       const response = await sendAction(action, amount);
       if (!response.success) {
@@ -50,7 +39,6 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
       setError('Failed to send action');
     } finally {
       setIsProcessing(false);
-      setTimeLeft(0);
     }
   };
 
@@ -136,7 +124,9 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
 
   return (
     <div className="bet-panel">
-      {timeLeft > 0 && <div className="timer">Time left: {timeLeft}s</div>}
+      {timeLeft > 0 && (
+        <div className="timer">Time left: {timeLeft / 1000}s</div>
+      )}
       {error && <div className="error-message">{error}</div>}
       {renderButtons()}
     </div>
