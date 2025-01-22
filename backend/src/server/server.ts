@@ -212,21 +212,36 @@ server.listen(5000, () => console.log('Server running on port 5000'));
 createDummyGames(io);
 //create few games for testing, romove later
 function createDummyGames(server: Server) {
-  createGame('admin', '5-10', server, getBettingConfig(10, 10, Infinity, 10));
+  createGame(
+    'admin',
+    '5-10',
+    server,
+    getBettingConfig(10000, 10, Infinity, 10)
+  );
   createGame(
     'admin',
     '5-10-fast',
     server,
-    getBettingConfig(10, 10, Infinity, 8)
+    getBettingConfig(10000, 10, Infinity, 8)
   );
-  createGame('admin', '25-50', server, getBettingConfig(10, 50, Infinity, 10));
+  createGame(
+    'admin',
+    '25-50',
+    server,
+    getBettingConfig(10000, 50, Infinity, 10)
+  );
   createGame(
     'admin',
     '25-50-slow',
     server,
-    getBettingConfig(10, 50, Infinity, 12)
+    getBettingConfig(10000, 50, Infinity, 12)
   );
-  createGame('admin', '10-20', server, getBettingConfig(10, 20, Infinity, 10));
+  createGame(
+    'admin',
+    '10-20',
+    server,
+    getBettingConfig(10000, 20, Infinity, 10)
+  );
 }
 
 function loginPlayerOnConnection(playerId: string, socketId: string) {

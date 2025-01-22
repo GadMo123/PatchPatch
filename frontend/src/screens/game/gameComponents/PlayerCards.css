@@ -1,7 +1,7 @@
 .player-cards-container {
     position: relative;
   }
-  
+
   .arrangement-controls {
     position: fixed;
     bottom: 20px;
@@ -10,9 +10,10 @@
     justify-content: flex-end;
     align-items: center;
     padding: 0.5rem;
-    gap: 20px; /* Adds consistent spacing between timer and button */
-    background-color: rgba(255, 255, 255, 0.9); /* Optional: adds slight background */
-    border-radius: 4px;
+    gap: 1vw; /* Adds consistent spacing between timer and button */
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     z-index: 10; /* Ensures controls stay on top */
   }
   
@@ -45,4 +46,13 @@
     border-style: solid;
     border-width: 1px;
     border-color: black;
+}
+
+  
+.timer {
+  font-size: 1rem;
+  color: #fff;
+  margin-bottom: 1vh;
+  text-align: center;
+  font-weight: bold;
 }

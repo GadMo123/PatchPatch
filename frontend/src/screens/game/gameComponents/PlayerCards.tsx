@@ -29,7 +29,7 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
     socket
   );
 
-  const timeLeft = useCountdownTimer({
+  const [timeLeft, cancelTimer] = useCountdownTimer({
     serverTimeRemaining: arrangeCardsTimeLeft,
     onComplete: () => {
       if (gamePhaseArrangeCards && !isArrangementComplete) {
@@ -81,6 +81,7 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
 
   const handleArrangementComplete = () => {
     if (isArrangementComplete) return;
+    cancelTimer(); // Cancel timer when manual action is taken
     const response = sendAarrangement(
       arrangedCards.map(card => `${card.rank}${card.suit}`)
     );
