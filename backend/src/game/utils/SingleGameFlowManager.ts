@@ -106,7 +106,7 @@ export class SingleGameFlowManager {
         arrangePlayerCardsState: null,
         phase: GamePhase.FlopBetting,
       },
-      this.startNextStreet.bind(this)
+      this.startBettingRound.bind(this)
     );
   }
 

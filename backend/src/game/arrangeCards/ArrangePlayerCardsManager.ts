@@ -86,7 +86,7 @@ export class ArrangePlayerCardsManager {
     this.markPlayerDone(player.getPosition());
 
     if (this.isAllPlayersDone()) {
-      this.timer.handleAction(); // Signal that we received valid action, cancel timout action
+      this.timer.handleAction(); // Signal that we received valid actions, cancel timout action
     }
 
     return { success: true };
@@ -100,7 +100,7 @@ export class ArrangePlayerCardsManager {
       // Update game state to broadcast progress
       this.game.updateGameStateAndBroadcast(
         {
-          arrangePlayerCardsState: this.getState(),
+          arrangePlayerCardsState: this.state,
         },
         null
       );
@@ -119,9 +119,5 @@ export class ArrangePlayerCardsManager {
 
   isAllPlayersDone(): boolean {
     return this.playersRemaining === 0;
-  }
-
-  getState(): ArrangePlayerCardsState {
-    return this.state;
   }
 }
