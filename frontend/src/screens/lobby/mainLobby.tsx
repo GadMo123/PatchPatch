@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSocket } from '../../socket/SocketContext';
 import { useNavigate } from 'react-router-dom';
+import PotDisplay from '../game/gameComponents/PotDisplay';
 
 interface MainLobbyProps {
   joinGame: (gameId: string) => void; // Callback to pass gameId back to App

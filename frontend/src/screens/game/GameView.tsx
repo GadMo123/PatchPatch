@@ -10,6 +10,7 @@ import CardObject from './types/CardObject';
 import BetPanel from './gameComponents/BetPanel';
 import { GameContextProvider } from './types/GameContext';
 import socket from '../../socket/Socket';
+import PotDisplay from './gameComponents/PotDisplay';
 
 const GameView: React.FC<{ playerId: string; gameId: string }> = ({
   playerId,
@@ -62,6 +63,11 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
                   position: player.position,
                 }))}
             />
+          )}
+        </div>
+        <div className="pot-display-container">
+          {gameState?.potSize && gameState?.potSize > 0 && (
+            <PotDisplay potSize={gameState?.potSize || 0} />
           )}
         </div>
         <div className="boards-container">
