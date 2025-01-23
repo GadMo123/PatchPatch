@@ -157,7 +157,11 @@ io.on('connection', socket => {
       }
 
       try {
-        game.getGameFlowManager().handlePlayerAction(playerId, action, amount);
+        console.log('server recived action: ' + action);
+        game
+          .getGameFlowManager()
+          ?.getBettingManager()
+          ?.handlePlayerAction(playerId, action, amount);
         callback({ success: true });
       } catch (error) {
         console.error('Error handling player action:', error);
@@ -187,7 +191,8 @@ io.on('connection', socket => {
       console.log(arrangement);
       game
         .getGameFlowManager()
-        ?.handlePlayerArrangedCards(playerId, arrangement, callback);
+        ?.getArrangeCardManager()
+        ?.handlePlayerArrangedCardsRecived(playerId, arrangement);
     }
   );
 

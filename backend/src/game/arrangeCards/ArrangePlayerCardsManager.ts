@@ -1,6 +1,6 @@
 import { Game } from '../Game';
+import { GameActionTimerManager } from '../utils/GameActionTimerManager';
 import { Position } from '../utils/PositionsUtils';
-import { Timer } from '../utils/Timer';
 import { validateCardsArrangement } from './PlayerArrangementValidator';
 
 export interface ArrangePlayerCardsState {
@@ -17,15 +17,10 @@ export class ArrangePlayerCardsManager {
   private state: ArrangePlayerCardsState;
   private game: Game;
   private playersRemaining: number;
-  private timer: Timer;
-  private updateInterval: NodeJS.Timeout | null;
-  private timeIsUpCallback: () => void;
+  private timer: GameActionTimerManager;
 
-  constructor(game: Game, OnTimerUp: () => void) {
+  constructor(game: Game, OnArrangeDone: () => void) {
     this.game = game;
-    this.timer = new Timer();
-    this.updateInterval = null;
-    this.timeIsUpCallback = OnTimerUp;
     // Initialize player done map and count
     const playerDoneMap = new Map<Position, boolean>();
     let activePlayerCount = 0;
@@ -45,7 +40,17 @@ export class ArrangePlayerCardsManager {
       timeRemaining: 60000, // todo table config
       playerDoneMap: playerDoneMap,
     };
-    this.startTimer();
+    this.timer = new GameActionTimerManager({
+      duration: this.state.timeRemaining,
+      networkBuffer: 1000,
+      timeCookieEffect: game.getBettingConfig().timeCookieEffect,
+      maxCookiesPerRound: 3,
+      updateTimeRemianing: (timeRemaining: number) =>
+        this.updateTimeRemianing(timeRemaining),
+      onTimeout: OnArrangeDone,
+      onComplete: OnArrangeDone,
+    });
+    this.timer.start();
   }
 
   handlePlayerArrangedCardsRecived(
@@ -55,7 +60,7 @@ export class ArrangePlayerCardsManager {
     const player = Array.from(
       this.game.getPlayersInGame()?.entries() || []
     ).find(([_, p]) => p?.id === playerId)?.[1];
-    console.log('2');
+
     if (!player) {
       return { success: false, error: 'Player not found' };
     }
@@ -81,41 +86,10 @@ export class ArrangePlayerCardsManager {
     this.markPlayerDone(player.getPosition());
 
     if (this.isAllPlayersDone()) {
-      this.cleanup();
-      this.timeIsUpCallback();
+      this.timer.handleAction(); // Signal that we received valid action, cancel timout action
     }
 
     return { success: true };
-  }
-
-  startTimer() {
-    // Start countdown timer
-    this.timer.start(this.state.timeRemaining, () => {
-      this.cleanup();
-      this.timeIsUpCallback();
-    });
-
-    // Update time remaining every second
-    this.updateInterval = setInterval(() => {
-      this.state.timeRemaining = Math.max(0, this.state.timeRemaining - 1000);
-
-      // Update game state to broadcast time remaining and players done to clients every second
-      this.game.updateGameStateAndBroadcast(
-        {
-          arrangePlayerCardsState: this.getState(),
-        },
-        null
-      );
-    }, 1000);
-  }
-
-  private cleanup() {
-    // Clear timer and interval
-    this.timer.clear();
-    if (this.updateInterval) {
-      clearInterval(this.updateInterval);
-      this.updateInterval = null;
-    }
   }
 
   markPlayerDone(position: Position) {
@@ -131,6 +105,16 @@ export class ArrangePlayerCardsManager {
         null
       );
     }
+  }
+
+  updateTimeRemianing(timeRemaining: number) {
+    this.state.timeRemaining = timeRemaining;
+    this.game.updateGameStateAndBroadcast(
+      {
+        arrangePlayerCardsState: this.state,
+      },
+      null
+    );
   }
 
   isAllPlayersDone(): boolean {

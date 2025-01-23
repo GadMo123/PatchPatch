@@ -81,7 +81,7 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
 
   const handleArrangementComplete = () => {
     if (isArrangementComplete) return;
-    cancelTimer(); // Cancel timer when manual action is taken
+    if (typeof cancelTimer) cancelTimer(); // Cancel timer when manual action is taken
     const response = sendAarrangement(
       arrangedCards.map(card => `${card.rank}${card.suit}`)
     );

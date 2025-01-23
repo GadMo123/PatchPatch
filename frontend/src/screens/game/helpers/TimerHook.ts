@@ -13,14 +13,19 @@ export function useCountdownTimer({
   const [timeLeft, setTimeLeft] = useState(serverTimeRemaining);
   const timerRef = useRef<NodeJS.Timeout>(null);
   const isManuallyCancelled = useRef(false);
+  const hasInitialized = useRef(false);
 
   // Handle server time updates
   useEffect(() => {
+    console.log('timer update : ' + serverTimeRemaining);
     setTimeLeft(serverTimeRemaining);
+    if (serverTimeRemaining > 0) hasInitialized.current = true;
   }, [serverTimeRemaining]);
 
   // Handle countdown
   useEffect(() => {
+    if (!hasInitialized.current) return;
+
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
@@ -34,7 +39,7 @@ export function useCountdownTimer({
 
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
-        const newTime = prev - 1;
+        const newTime = prev - 1000;
         if (newTime <= 0) {
           clearInterval(timerRef.current as NodeJS.Timeout);
           if (!isManuallyCancelled.current) {
@@ -58,6 +63,7 @@ export function useCountdownTimer({
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
+    hasInitialized.current = false;
     setTimeLeft(0);
   }, []);
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './BetPanel.css';
 import { BettingState } from '../types/GameState';
 import { useBettingActions } from '../playerActions/SendPlayerActions';
@@ -27,7 +27,9 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
 
   const onAction = async (action: PlayerAction, amount?: number) => {
     if (isProcessing) return;
+
     cancelTimer(); // Cancel timer when manual action is taken
+
     setIsProcessing(true);
     setError(null);
     try {

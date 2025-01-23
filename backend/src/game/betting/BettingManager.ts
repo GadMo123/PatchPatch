@@ -1,19 +1,18 @@
 // src/game/betting/BettingManager.ts
 import { Game } from '../Game';
-import { Timer } from '../utils/Timer';
 import { ActionHandler } from './ActionHandler';
 import { ActionValidator } from './ActionValidator';
-import { TimerManager } from './TimerManager';
 import { BettingState, BettingConfig, PlayerAction } from './BettingTypes';
 import { PlayerInGame } from '../types/PlayerInGame';
 import { PositionsUtils } from '../utils/PositionsUtils';
+import { GameActionTimerManager } from '../utils/GameActionTimerManager';
 
 export class BettingManager {
   private bettingState: BettingState;
   private currentPlayerToAct: PlayerInGame;
   private actionHandler: ActionHandler;
   private actionValidator: ActionValidator;
-  private timerManager: TimerManager;
+  private timerManager: GameActionTimerManager;
   private game: Game;
   private lastToBetOrRaise: PlayerInGame;
   onBettingRoundComplete: (winner: PlayerInGame | null) => void;
@@ -26,7 +25,6 @@ export class BettingManager {
     this.actionValidator = new ActionValidator(bettingConfig);
     this.game = game;
     this.actionHandler = new ActionHandler(this.game);
-    this.timerManager = new TimerManager(new Timer(), bettingConfig, this);
     this.currentPlayerToAct = PositionsUtils.findFirstPlayerToAct(this.game);
     this.bettingState = {
       timeRemaining: 0,
@@ -39,6 +37,16 @@ export class BettingManager {
     };
     this.onBettingRoundComplete = onBettingRoundComplete;
     this.lastToBetOrRaise = this.currentPlayerToAct; // A hook to detect when the action returns back to the aggresor/first to talk without any further raise.
+    this.timerManager = new GameActionTimerManager({
+      duration: bettingConfig.timePerAction,
+      networkBuffer: 1000,
+      timeCookieEffect: bettingConfig.timeCookieEffect,
+      maxCookiesPerRound: 3,
+      updateTimeRemianing: (timeRemaining: number) =>
+        this.updateBettingState({ timeRemaining: timeRemaining }),
+      onTimeout: this.doDefualtActionOnTimeout.bind(this),
+      onComplete: this.cleanupTimerState.bind(this),
+    });
   }
 
   startNextPlayerTurn() {
@@ -46,8 +54,8 @@ export class BettingManager {
       this.bettingState,
       this.currentPlayerToAct
     );
-    this.timerManager.resetRoundTimebankCookies();
-    this.setupTimerAndListeners();
+    console.log('starting player turn ' + this.currentPlayerToAct.id);
+    this.timerManager.start();
     this.broadcastBettingState();
   }
 
@@ -56,6 +64,7 @@ export class BettingManager {
     action: PlayerAction,
     amount?: number
   ): void {
+    console.log('handlePlayerAction ' + playerId);
     if (this.currentPlayerToAct!.id !== playerId) return;
 
     const validActions = this.actionValidator.getValidActions(
@@ -73,8 +82,7 @@ export class BettingManager {
       console.log(`Invalid action: ${validation.error}`);
       action = validActions.includes('check') ? 'check' : 'fold'; // take default action
     }
-
-    this.timerManager.clear();
+    this.timerManager.handleAction();
     this.actionHandler.processAction(
       action,
       amount,
@@ -84,7 +92,15 @@ export class BettingManager {
     );
   }
 
+  private cleanupTimerState() {
+    this.updateBettingState({
+      timeRemaining: 0,
+      timeCookiesUsedThisRound: 0,
+    });
+  }
+
   private onPlayerActionCallback() {
+    console.log('onPlayerActionCallback ');
     const lastPlayer = this.currentPlayerToAct;
     this.switchToNextPlayer();
     if (this.isBettingRoundComplete()) {
@@ -93,19 +109,14 @@ export class BettingManager {
     } else this.startNextPlayerTurn();
   }
 
-  private setupTimerAndListeners(): void {
-    const onTimeout = () => {
-      const defaultAction = this.actionValidator
-        .getValidActions(this.bettingState, this.currentPlayerToAct)
-        .includes('check')
-        ? 'check'
-        : 'fold';
-      // todo lock player from sending action
-      this.handlePlayerAction(this.currentPlayerToAct.id, defaultAction);
-    };
-
-    this.timerManager.startTimer(this.currentPlayerToAct, onTimeout);
-    //this.setupTimeCookieListener();
+  private doDefualtActionOnTimeout(): void {
+    console.log('doDefualtActionOnTimeout ');
+    const defaultAction = this.actionValidator
+      .getValidActions(this.bettingState, this.currentPlayerToAct)
+      .includes('check')
+      ? 'check'
+      : 'fold';
+    this.handlePlayerAction(this.currentPlayerToAct.id, defaultAction);
   }
 
   private isBettingRoundComplete(): boolean {
