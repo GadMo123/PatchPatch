@@ -81,18 +81,20 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
               />
             )}
           </div>
-          {bettingState && bettingState.playerToAct === playerId && (
-            <div className="bet-panel">
-              <BetPanel
-                bettingState={bettingState}
-                defaultAction={
-                  bettingState.playerValidActions.includes('check')
-                    ? 'check'
-                    : 'fold'
-                }
-              />
-            </div>
-          )}
+          {bettingState &&
+            bettingState.playerToAct === playerId &&
+            bettingState.timeRemaining > 0 && (
+              <div className="bet-panel">
+                <BetPanel
+                  bettingState={bettingState}
+                  defaultAction={
+                    bettingState.playerValidActions.includes('check')
+                      ? 'check'
+                      : 'fold'
+                  }
+                />
+              </div>
+            )}
         </div>
       </div>
     </GameContextProvider>

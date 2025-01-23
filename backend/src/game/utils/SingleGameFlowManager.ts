@@ -90,26 +90,8 @@ export class SingleGameFlowManager {
     bettingManager.startNextPlayerTurn();
   }
 
-  handlePlayerAction(playerId: any, action: any, amount: any) {
-    this.bettingManager?.handlePlayerAction(playerId, action, amount);
-  }
-
-  async handlePlayerArrangedCards(
-    playerId: any,
-    arrangement: any,
-    callback: any
-  ) {
-    if (!this.arrangePlayerCardsManager) return;
-
-    const result =
-      this.arrangePlayerCardsManager.handlePlayerArrangedCardsRecived(
-        playerId,
-        arrangement
-      );
-    //Callback clinet
-  }
-
   startArrangePlayerCards() {
+    console.log('Card Arrange start -' + this.game.getPhase());
     this.arrangePlayerCardsManager = new ArrangePlayerCardsManager(
       this.game,
       this.onCardArrangeDone.bind(this)
@@ -117,6 +99,7 @@ export class SingleGameFlowManager {
   }
 
   onCardArrangeDone() {
+    console.log('Card Arrange Done -' + this.game.getPhase());
     this.arrangePlayerCardsManager = null;
     this.game.updateGameStateAndBroadcast(
       {
@@ -128,6 +111,7 @@ export class SingleGameFlowManager {
   }
 
   onBettingRoundComplete(winner: PlayerInGame | null) {
+    console.log('betting round complete -' + this.game.getPhase());
     if (winner) this.game.handleHandWonWithoutShowdown(winner);
     this.game.updateGameStateAndBroadcast(
       { bettingState: null },
@@ -144,5 +128,13 @@ export class SingleGameFlowManager {
         this.game.doShowdown();
       if (this.game.isReadyForNextHand()) this.startNextStreet();
     }
+  }
+
+  getBettingManager() {
+    return this.bettingManager;
+  }
+
+  getArrangeCardManager() {
+    return this.arrangePlayerCardsManager;
   }
 }
