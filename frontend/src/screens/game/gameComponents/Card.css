@@ -23,6 +23,7 @@
 }
 
 .upper-rank{
+    color: black;
     display: flex;
     align-items: center; /* Align text and image */
     justify-content: center; /* Center content horizontally */

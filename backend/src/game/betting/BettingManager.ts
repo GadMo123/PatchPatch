@@ -81,7 +81,10 @@ export class BettingManager {
     if (!validation.isValid) {
       console.log(`Invalid action: ${validation.error}`);
       action = validActions.includes('check') ? 'check' : 'fold'; // take default action
+      amount = 0;
     }
+    if ((amount ?? 0) > 0) this.lastToBetOrRaise = this.currentPlayerToAct;
+
     this.timerManager.handleAction();
     this.actionHandler.processAction(
       action,
@@ -143,9 +146,5 @@ export class BettingManager {
       { bettingState: this.bettingState },
       null
     );
-  }
-
-  setLastToBetOrRaise(player: PlayerInGame) {
-    this.lastToBetOrRaise = player;
   }
 }

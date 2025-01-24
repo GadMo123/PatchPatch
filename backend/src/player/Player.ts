@@ -13,7 +13,7 @@ export class Player {
     this.name = name;
     this.socketId = socketId;
     this.remainingTimeCookies = 1; // Todo - sync with Database.
-    this.coins = 500; // Todo - sync with Database.
+    this.coins = 10000000; // Todo - sync with Database.
   }
 
   useTimebankCookie() {

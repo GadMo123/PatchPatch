@@ -2,6 +2,8 @@
     display: flex;
     justify-content: center;
     align-items: end;
+    align-self: flex-end;
+    justify-self: flex-end;
     gap: 1vw;
     padding: 1vh 0;
     background-color: rgba(0, 0, 0, 0.7);

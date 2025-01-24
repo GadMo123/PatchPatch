@@ -119,7 +119,7 @@ io.on('connection', socket => {
     const result = await handleJoinGame(
       game!,
       socket.id,
-      100,
+      10000000,
       position,
       ServerStateManager.getInstance()
     );

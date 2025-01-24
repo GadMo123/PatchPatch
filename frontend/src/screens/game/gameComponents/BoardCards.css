@@ -1,0 +1,34 @@
+.boards{
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    gap: 0.6vh
+}
+
+.board-section {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    gap: 1rem;
+    width: 30%; /* Adjust as needed */
+  }
+  
+.board{
+    display: flex;
+    flex-direction: row; /* Horizontal layout for cards within each board */
+    justify-content: center;
+    align-content: center;
+    gap: 3px
+  }
+  
+.board-label {
+    font-size: 1rem;
+    margin-right: 1vw;
+    width: 5vw;
+  }
+  
+.board .card {
+    height: 12vh;
+    width: calc(12vh * 0.618); /* Golden ratio */
+  }
