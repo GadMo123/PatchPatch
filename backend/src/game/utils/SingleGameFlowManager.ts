@@ -120,13 +120,19 @@ export class SingleGameFlowManager {
   }
 
   afterBettingRoundComplete() {
+    //hand is done
     if (this.game.isHandWonWithoutShowdown()) {
       if (this.game.isReadyForNextHand()) this.startNextStreet();
       // else wait for players to join, the server will create a new game manager once ready
-    } else {
-      if (this.game.getPhase() === GamePhase.RiverBetting)
-        this.game.doShowdown();
-      if (this.game.isReadyForNextHand()) this.startNextStreet();
+    } else if (this.game.getPhase() === GamePhase.RiverBetting) {
+      this.game.doShowdown();
+      if (this.game.isReadyForNextHand()) {
+        this.startNextStreet();
+      }
+    }
+    // Keep current hand running
+    else {
+      this.startNextStreet();
     }
   }
 

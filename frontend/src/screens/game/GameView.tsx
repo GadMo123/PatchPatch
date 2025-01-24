@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './GameView.css';
-import Time from './gameComponents/Time';
 import OpponentCards from './gameComponents/OpponentCards';
 import PlayerCards from './gameComponents/PlayerCards';
 import BoardCards from './gameComponents/BoardCards';
@@ -11,6 +10,7 @@ import BetPanel from './gameComponents/BetPanel';
 import { GameContextProvider } from './types/GameContext';
 import socket from '../../socket/Socket';
 import PotDisplay from './gameComponents/PotDisplay';
+import TableAndSeats from './gameComponents/TableAndSeats';
 
 const GameView: React.FC<{ playerId: string; gameId: string }> = ({
   playerId,
@@ -49,7 +49,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
   return (
     <GameContextProvider playerId={playerId} gameId={gameId}>
       <div className="game-container">
-        <Time limit={4 * 60} />
+        <TableAndSeats isPlayerSeated={true} numberOfSeats={6} />
         <div className="game-status">Game ID: {gameId}</div>
         <div className="opponent-area">
           {gameState?.publicPlayerDataMapByPosition && (
@@ -65,12 +65,13 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
             />
           )}
         </div>
-        <div className="pot-display-container">
-          {gameState?.potSize && gameState?.potSize > 0 && (
-            <PotDisplay potSize={gameState?.potSize || 0} />
-          )}
-        </div>
+
         <div className="boards-container">
+          <div className="pot-display">
+            {gameState?.potSize && gameState?.potSize > 0 && (
+              <PotDisplay potSize={gameState?.potSize || 0} />
+            )}
+          </div>
           {boards && <BoardCards boards={boards} />}
         </div>
         <div className="player-area">
@@ -90,16 +91,14 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
           {bettingState &&
             bettingState.playerToAct === playerId &&
             bettingState.timeRemaining > 0 && (
-              <div className="bet-panel">
-                <BetPanel
-                  bettingState={bettingState}
-                  defaultAction={
-                    bettingState.playerValidActions.includes('check')
-                      ? 'check'
-                      : 'fold'
-                  }
-                />
-              </div>
+              <BetPanel
+                bettingState={bettingState}
+                defaultAction={
+                  bettingState.playerValidActions.includes('check')
+                    ? 'check'
+                    : 'fold'
+                }
+              />
             )}
         </div>
       </div>

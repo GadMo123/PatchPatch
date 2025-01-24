@@ -1,0 +1,34 @@
+.table-ellipse {
+  position: absolute;
+  background-color: darkgreen;
+  border-radius: 50%; /* Makes it an ellipse */
+  border: 2px solid darkred; /* Adds a border */
+  border-color: darkred;
+  z-index: -1; /* Ensures it is behind other elements */
+
+  /* Position and size */
+  left: 50%;
+  transform: translateX(-50%); /* Shift left by 50% of its width for centering */
+  top: 2%;
+  bottom: 45%; /* Stretches from 10% to 60% vertically */
+  max-width: 1300px;
+  width: 90%; 
+  height: auto;
+  
+}
+
+
+.table-seat {
+    position: absolute;
+    width: 50px; /* Adjust seat size */
+    height: 50px;
+    background-color: darkblue;
+    border-radius: 50%; /* Make it circular */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    transform: translate(-50%, -50%); /* Center seats properly */
+    z-index: 2;
+  }
