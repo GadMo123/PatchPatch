@@ -37,9 +37,11 @@ export class ActionHandler {
         throw new Error(`Unknown action: ${action}`);
     }
     bettingState.lastAction = action;
+    const potSize =
+      this.game.getPotSize() + (amount || bettingState.currentBet || 0); // bet or raise ? amount, call ? current bet, check or fold ? 0
     this.game.updateGameStateAndBroadcast(
       {
-        potSize: this.game.getPotSize() + (amount || 0),
+        potSize: potSize,
         bettingState: bettingState,
       },
       afterFunction
@@ -81,7 +83,7 @@ export class ActionHandler {
     player.updatePlayerPublicState({
       currentStack: player.getStack() - amount,
     });
+    bettingState.lastRaiseAmount = amount - bettingState.currentBet; // raise amount is the total amount minus the prev bet
     bettingState.currentBet = amount;
-    bettingState.lastRaiseAmount = amount;
   }
 }

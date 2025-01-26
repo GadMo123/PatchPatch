@@ -62,6 +62,12 @@ export class PlayerInGame extends Player {
     };
   }
 
+  increaseStack(returnedBet: number) {
+    this.updatePlayerPublicState({
+      currentStack: this.playerPublicState.currentStack + returnedBet,
+    });
+  }
+
   isFolded(): boolean {
     return this.playerPublicState.isFolded;
   }
