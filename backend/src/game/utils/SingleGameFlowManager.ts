@@ -7,21 +7,26 @@ import { BettingManager } from '../betting/BettingManager';
 import { Game } from '../Game';
 import { GamePhase } from '../types/GameState';
 import { PlayerInGame } from '../types/PlayerInGame';
+import { PositionsUtils } from './PositionsUtils';
+import { PotManager } from './PotUtils/PotManager';
 
 export class SingleGameFlowManager {
   private game: Game;
   private bettingManager: BettingManager | null;
   private arrangePlayerCardsManager: ArrangePlayerCardsManager | null;
+  private potManager: PotManager;
 
   constructor(game: Game) {
     this.game = game;
     this.bettingManager = null;
     this.arrangePlayerCardsManager = null;
+    this.potManager = new PotManager();
   }
 
   startNextStreet() {
     switch (this.game.getPhase()) {
       case GamePhase.Showdown:
+        this.prapereNextHand();
       case GamePhase.Waiting:
         this.dealPreflop();
         break;
@@ -40,7 +45,15 @@ export class SingleGameFlowManager {
     }
   }
 
-  dealPreflop() {
+  private prapereNextHand() {
+    this.game.PrepareNextHand();
+    this.game.updateGameStateAndBroadcast(
+      {},
+      this.startBettingRound.bind(this)
+    );
+  }
+
+  private dealPreflop() {
     this.game.dealNewHand();
     this.game.updateGameStateAndBroadcast(
       {},
@@ -48,7 +61,7 @@ export class SingleGameFlowManager {
     );
   }
 
-  dealFlops() {
+  private dealFlops() {
     this.game.updateGameStateAndBroadcast(
       {
         flops: this.game.dealFlops(),
@@ -58,7 +71,7 @@ export class SingleGameFlowManager {
     );
   }
 
-  dealTurn() {
+  private dealTurn() {
     this.game.updateGameStateAndBroadcast(
       {
         turns: this.game.dealTurns(),
@@ -68,7 +81,7 @@ export class SingleGameFlowManager {
     );
   }
 
-  dealRiver() {
+  private dealRiver() {
     this.game.updateGameStateAndBroadcast(
       {
         rivers: this.game.dealRivers(),
@@ -79,18 +92,19 @@ export class SingleGameFlowManager {
     // Todo : start cacl winner right here as a microservice to find the winner by the time of showdown
   }
 
-  startBettingRound() {
+  private startBettingRound() {
     const bettingManager = new BettingManager(
       this.game,
       this.game.getBettingConfig(),
-      this.onBettingRoundComplete.bind(this)
+      this.onBettingRoundComplete.bind(this),
+      this.game.getPhase() === GamePhase.PreflopBetting
     );
     this.bettingManager = bettingManager;
 
     bettingManager.startNextPlayerTurn();
   }
 
-  startArrangePlayerCards() {
+  private startArrangePlayerCards() {
     console.log('Card Arrange start -' + this.game.getPhase());
     this.arrangePlayerCardsManager = new ArrangePlayerCardsManager(
       this.game,
@@ -98,7 +112,7 @@ export class SingleGameFlowManager {
     );
   }
 
-  onCardArrangeDone() {
+  private onCardArrangeDone() {
     console.log('Card Arrange Done -' + this.game.getPhase());
     this.arrangePlayerCardsManager = null;
     this.game.updateGameStateAndBroadcast(
@@ -110,7 +124,7 @@ export class SingleGameFlowManager {
     );
   }
 
-  onBettingRoundComplete(winner: PlayerInGame | null) {
+  private onBettingRoundComplete(winner: PlayerInGame | null) {
     console.log('betting round complete -' + this.game.getPhase());
     if (winner) this.game.handleHandWonWithoutShowdown(winner);
     this.game.updateGameStateAndBroadcast(
@@ -119,7 +133,7 @@ export class SingleGameFlowManager {
     );
   }
 
-  afterBettingRoundComplete() {
+  private afterBettingRoundComplete() {
     //hand is done
     if (this.game.isHandWonWithoutShowdown()) {
       if (this.game.isReadyForNextHand()) this.startNextStreet();

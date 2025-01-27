@@ -6,14 +6,11 @@ import { DetailedGameState, GamePhase } from './types/GameState';
 import { PlayerInGame } from './types/PlayerInGame';
 import { GameStateBroadcaster } from './broadcasting/GameStateBroadcaster';
 import { Card } from './types/Card';
-import { Position } from './utils/PositionsUtils';
+import { Position, PositionsUtils } from './utils/PositionsUtils';
 import { Deck } from './types/Deck';
 import { BettingConfig } from './betting/BettingTypes';
 import { PositionLock } from './types/PositionLock';
-import {
-  ArrangePlayerCardsManager,
-  ArrangePlayerCardsState,
-} from './arrangeCards/ArrangePlayerCardsManager';
+import { ArrangePlayerCardsState } from './arrangeCards/ArrangePlayerCardsManager';
 import { SingleGameFlowManager } from './utils/SingleGameFlowManager';
 
 export class Game {
@@ -53,15 +50,37 @@ export class Game {
     this.gameFlowManager = null;
   }
 
-  dealNewHand() {
+  /*
+  return true if ready to start next hand
+   false if not ready for next hand, keep witing state until recived player action (join/rebuy/marked-ready)
+  */
+  PrepareNextHand(): boolean {
+    this.state.phase = GamePhase.Waiting;
     this.handWonWithoutShowdown = false;
+
+    this.state = {
+      ...this.state,
+      phase: GamePhase.Waiting,
+      flops: [],
+      turns: [],
+      rivers: [],
+      potSize: 0,
+    };
+
+    return PositionsUtils.rotatePositionsAndSetupPlayerState(
+      this.state.playerInPosition!,
+      this.state
+    );
+  }
+
+  dealNewHand() {
     this.deck = new Deck();
     this.state.phase = GamePhase.PreflopBetting;
-    this.state.potSize = 0; //todo take blinds
     this.state.playerInPosition!.forEach(player => {
-      if (player) {
-        const cards = this.deck!.getPlayerCards(); // deal player's cards
-        player.updatePlayerPrivateState({ cards }); // update
+      // As for now, player can only play a hand with >= 1BB stack
+      if (player?.isActive()) {
+        player.updatePlayerPrivateState({ cards: this.deck!.getPlayerCards() }); // update
+        player.updatePlayerPublicState({ isFolded: false, isAllIn: false });
       }
     });
   }

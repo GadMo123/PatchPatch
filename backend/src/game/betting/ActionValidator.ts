@@ -12,26 +12,24 @@ export class ActionValidator {
 
   getValidActions(
     bettingState: BettingState,
-    player: PlayerInGame
+    player: PlayerInGame,
+    biggestBet: number
   ): PlayerAction[] {
-    const { currentBet, lastAction } = bettingState;
+    const playersContribution = bettingState.potContributions;
 
-    // First to act
-    if (!lastAction) {
+    const playerContribution = playersContribution.get(player);
+
+    // First to act or BB option in preflop round
+    if (playerContribution === biggestBet) {
       return ['check', 'bet'];
     }
 
-    // Facing a bet/raise
-    if (currentBet > 0) {
-      const actions: PlayerAction[] = ['fold', 'call'];
-      if (this.canRaise(player, currentBet)) {
-        actions.push('raise');
-      }
-      return actions;
-    }
+    const actions: PlayerAction[] = ['fold', 'call'];
 
-    // After a check
-    return ['check', 'bet'];
+    if (player.getStack() + playerContribution! > biggestBet) {
+      actions.push('raise');
+    }
+    return actions;
   }
 
   validateAction(
@@ -43,22 +41,21 @@ export class ActionValidator {
     if (!validActions.includes(action)) {
       return { isValid: false, error: 'Invalid action for current state' };
     }
-
-    if (action === 'bet' || action === 'raise') {
+    if (action === 'bet' || action === 'raise' || action === 'call') {
       if (!amount)
-        return { isValid: false, error: 'Amount required for bet/raise' };
-      if (amount < this.config.minBet)
-        return { isValid: false, error: 'Bet below minimum' };
-      if (amount > this.config.maxBet)
-        return { isValid: false, error: 'Bet above maximum' };
+        return { isValid: false, error: 'Amount required for bet/raise/call' };
       if (amount > player.getStack())
         return { isValid: false, error: 'Insufficient funds' };
+      if (amount < 0) return { isValid: false, error: 'amount too low' };
+      if (action === 'bet' || action === 'raise') {
+        if (amount < this.config.minBet)
+          return { isValid: false, error: 'Bet below minimum' };
+        if (amount > this.config.maxBet)
+          // todo: max raise is relative to pot in pot-limit games, pot-limit games are not in the current scope.
+          return { isValid: false, error: 'Bet above maximum' };
+      }
     }
 
     return { isValid: true };
-  }
-
-  private canRaise(player: PlayerInGame, currentBet: number): boolean {
-    return player.getStack() > currentBet;
   }
 }

@@ -4,6 +4,8 @@ import { Card } from './Card';
 import { Position } from '../utils/PositionsUtils';
 
 export interface PlayerPublicState {
+  isSittingOut: any;
+  isAllIn: any;
   id: string;
   name: string;
   position: Position;
@@ -27,11 +29,13 @@ export class PlayerInGame extends Player {
     super(player.id, player.name, player.socketId);
     this.game = game;
     this.playerPublicState = {
+      isSittingOut: true,
       id: player.id,
       name: player.name,
       position: position,
       currentStack: buyIn,
       isFolded: false,
+      isAllIn: buyIn > 0,
     };
 
     this.playerPrivateState = {
@@ -70,6 +74,21 @@ export class PlayerInGame extends Player {
 
   isFolded(): boolean {
     return this.playerPublicState.isFolded;
+  }
+
+  isReadyToStartHand(bbAmount: number): boolean {
+    return (
+      this.playerPublicState.currentStack >= bbAmount &&
+      !this.playerPublicState.isSittingOut
+    );
+  }
+
+  isActive() {
+    return (
+      !this.playerPublicState.isAllIn &&
+      !this.playerPublicState.isFolded &&
+      !this.playerPublicState.isSittingOut
+    );
   }
 
   getStack(): number {

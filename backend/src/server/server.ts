@@ -86,7 +86,7 @@ io.on('connection', socket => {
 
   // Handle game creation
   // Todo: handle permissions, should player be able to create a game? or admin premission?
-  socket.on('create-game', (blindLevel, callback) => {
+  /*socket.on('create-game', (blindLevel, callback) => {
     if (!stateManager.getPlayer(socket.id)) {
       // assume playerID is socketID.
       callback({ success: false, message: 'Player not logged in' });
@@ -97,10 +97,10 @@ io.on('connection', socket => {
       socket.id,
       blindLevel,
       io,
-      getBettingConfig(10000, 2, Infinity, 10)
+      getBettingConfig(10000, 2, Infinity, 10, 5, 10)
     );
     callback({ success: true, gameId: game.getId() });
-  });
+  });*/
 
   // Handle joining a game
   socket.on('join-game', async (gameId, callback) => {
@@ -164,7 +164,7 @@ io.on('connection', socket => {
           ?.handlePlayerAction(playerId, action, amount);
         callback({ success: true });
       } catch (error) {
-        console.error('Error handling player action:', error);
+        console.log('Error handling player action:', error);
         callback({
           success: false,
           error: error instanceof Error ? error.message : 'Unknown error',
@@ -221,31 +221,31 @@ function createDummyGames(server: Server) {
     'admin',
     '5-10',
     server,
-    getBettingConfig(10000, 10, Infinity, 10)
+    getBettingConfig(10000, 10, Infinity, 10, 5, 10)
   );
   createGame(
     'admin',
     '5-10-fast',
     server,
-    getBettingConfig(10000, 10, Infinity, 8)
+    getBettingConfig(10000, 10, Infinity, 8, 5, 10)
   );
   createGame(
     'admin',
     '25-50',
     server,
-    getBettingConfig(10000, 50, Infinity, 10)
+    getBettingConfig(10000, 50, Infinity, 10, 25, 50)
   );
   createGame(
     'admin',
     '25-50-slow',
     server,
-    getBettingConfig(10000, 50, Infinity, 12)
+    getBettingConfig(10000, 50, Infinity, 12, 25, 50)
   );
   createGame(
     'admin',
     '10-20',
     server,
-    getBettingConfig(10000, 20, Infinity, 10)
+    getBettingConfig(10000, 20, Infinity, 10, 10, 20)
   );
 }
 

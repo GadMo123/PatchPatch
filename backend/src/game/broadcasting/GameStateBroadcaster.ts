@@ -26,11 +26,11 @@ export class GameStateBroadcaster {
       this.io.to(observer.socketId).emit('game-state', baseState);
     });
 
-    // Call afterFunction with a delay to let players recive the state
+    // Call afterFunction with a small delay to allow players recive the state
     if (afterFunction) {
       setTimeout(() => {
         afterFunction();
-      }, 10); // Adjust/delete delay
+      }, 10);
     }
   }
 }

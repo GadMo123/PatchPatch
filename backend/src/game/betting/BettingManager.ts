@@ -1,42 +1,54 @@
 // src/game/betting/BettingManager.ts
 import { Game } from '../Game';
-import { ActionHandler } from './ActionHandler';
 import { ActionValidator } from './ActionValidator';
 import { BettingState, BettingConfig, PlayerAction } from './BettingTypes';
 import { PlayerInGame } from '../types/PlayerInGame';
-import { PositionsUtils } from '../utils/PositionsUtils';
+import { Position, PositionsUtils } from '../utils/PositionsUtils';
 import { GameActionTimerManager } from '../utils/GameActionTimerManager';
+import { BettingRoundPotManager } from './bettingRoundPotManager';
 
 export class BettingManager {
+  getBiggestBet(): number {
+    throw new Error('Method not implemented.');
+  }
   private bettingState: BettingState;
   private currentPlayerToAct: PlayerInGame;
-  private actionHandler: ActionHandler;
   private actionValidator: ActionValidator;
   private timerManager: GameActionTimerManager;
   private game: Game;
-  private lastToBetOrRaise: PlayerInGame;
+  private biggestBetToCall: number; // The amount a player have to complate to the pot to call (reducing previous contributions)
+  private potManager: BettingRoundPotManager;
   onBettingRoundComplete: (winner: PlayerInGame | null) => void;
+
+  // This is a marker pointing to the last player to take an aggresive action, if the action returns to him without more aggrestion - we know the betting round ends.
+  private roundEndsCondition: PlayerInGame;
 
   constructor(
     game: Game,
     bettingConfig: BettingConfig,
-    onBettingRoundComplete: (winner: PlayerInGame | null) => void
+    onBettingRoundComplete: (winner: PlayerInGame | null) => void,
+    isPreflop: boolean
   ) {
     this.actionValidator = new ActionValidator(bettingConfig);
     this.game = game;
-    this.actionHandler = new ActionHandler(this.game);
     this.currentPlayerToAct = PositionsUtils.findFirstPlayerToAct(this.game);
+    this.roundEndsCondition = this.currentPlayerToAct;
+    this.biggestBetToCall = 0;
+
     this.bettingState = {
       timeRemaining: 0,
-      currentBet: 0, // Todo : count preflop blinds as a bet
-      lastAction: null,
-      lastRaiseAmount: 0,
       timeCookiesUsedThisRound: 0,
       playerValidActions: [],
       playerToAct: this.currentPlayerToAct.id,
+      potContributions: new Map(
+        Array.from(game.getPlayersInGame()!.values())
+          .filter(player => player?.isActive())
+          .map(player => [player!, 0])
+      ),
+      lastRaise: 0,
     };
     this.onBettingRoundComplete = onBettingRoundComplete;
-    this.lastToBetOrRaise = this.currentPlayerToAct; // A hook to detect when the action returns back to the aggresor/first to talk without any further raise.
+    this.potManager = new BettingRoundPotManager(this);
     this.timerManager = new GameActionTimerManager({
       duration: bettingConfig.timePerAction,
       networkBuffer: 1000,
@@ -47,12 +59,23 @@ export class BettingManager {
       onTimeout: this.doDefualtActionOnTimeout.bind(this),
       onComplete: this.cleanupTimerState.bind(this),
     });
+    if (isPreflop) {
+      this.potManager.takeBlinds(
+        game.getPlayerInPosition(Position.SB)!,
+        game.getPlayerInPosition(Position.BB)!,
+        bettingConfig.sbAmount,
+        bettingConfig.bbAmount
+      );
+      this.biggestBetToCall = bettingConfig.bbAmount; // for the current scope, we force the BB player (in hand preparation) to have at least 1BB in order to play a hand.
+      this.bettingState.lastRaise = bettingConfig.bbAmount;
+    }
   }
 
   startNextPlayerTurn() {
     this.bettingState.playerValidActions = this.actionValidator.getValidActions(
       this.bettingState,
-      this.currentPlayerToAct
+      this.currentPlayerToAct,
+      this.biggestBetToCall
     );
     console.log('starting player turn ' + this.currentPlayerToAct.id);
     this.timerManager.start();
@@ -64,13 +87,17 @@ export class BettingManager {
     action: PlayerAction,
     amount?: number
   ): void {
-    console.log('handlePlayerAction ' + playerId);
     if (this.currentPlayerToAct!.id !== playerId) return;
-
     const validActions = this.actionValidator.getValidActions(
       this.bettingState,
-      this.currentPlayerToAct
+      this.currentPlayerToAct,
+      this.biggestBetToCall
     );
+
+    // Calculate call amount in case of 'call' action
+    if (action === 'call')
+      amount = this.potManager.getRemainingToCall(this.currentPlayerToAct);
+
     const validation = this.actionValidator.validateAction(
       action,
       amount,
@@ -83,16 +110,29 @@ export class BettingManager {
       action = validActions.includes('check') ? 'check' : 'fold'; // take default action
       amount = 0;
     }
-    if ((amount ?? 0) > 0) this.lastToBetOrRaise = this.currentPlayerToAct;
 
-    this.timerManager.handleAction();
-    this.actionHandler.processAction(
-      action,
-      amount,
-      this.currentPlayerToAct,
-      this.bettingState,
-      this.onPlayerActionCallback.bind(this)
-    );
+    this.potManager.addContribution(this.currentPlayerToAct, amount || 0);
+
+    // When a player raise or bet a valid amount, he has the new biggest bet this round.
+    if ((amount ?? 0 > 0) && (action == 'raise' || action == 'bet')) {
+      this.roundEndsCondition = this.currentPlayerToAct;
+      this.bettingState.lastRaise = amount! - this.biggestBetToCall;
+      this.biggestBetToCall = this.bettingState.potContributions.get(
+        this.currentPlayerToAct
+      )!;
+    }
+
+    if (action == 'fold')
+      this.currentPlayerToAct.updatePlayerPublicState({ isFolded: true });
+
+    // Update betting state with latest pot contributions
+    this.updateBettingState({
+      potContributions: this.potManager.getAllContributions(),
+    });
+
+    this.timerManager.handleAction(); // Signal timer that we recived a valid action from the player
+
+    this.onPlayerActionDone();
   }
 
   private cleanupTimerState() {
@@ -102,8 +142,8 @@ export class BettingManager {
     });
   }
 
-  private onPlayerActionCallback() {
-    console.log('onPlayerActionCallback ');
+  private onPlayerActionDone() {
+    console.log('onPlayerActionDone ');
     const lastPlayer = this.currentPlayerToAct;
     this.switchToNextPlayer();
     if (this.isBettingRoundComplete()) {
@@ -115,7 +155,11 @@ export class BettingManager {
   private doDefualtActionOnTimeout(): void {
     console.log('doDefualtActionOnTimeout ');
     const defaultAction = this.actionValidator
-      .getValidActions(this.bettingState, this.currentPlayerToAct)
+      .getValidActions(
+        this.bettingState,
+        this.currentPlayerToAct,
+        this.biggestBetToCall
+      )
       .includes('check')
       ? 'check'
       : 'fold';
@@ -123,7 +167,17 @@ export class BettingManager {
   }
 
   private isBettingRoundComplete(): boolean {
-    return this.lastToBetOrRaise === this.currentPlayerToAct;
+    const activePlayers = Array.from(
+      this.bettingState.potContributions.keys()
+    ).filter(player => player.isActive());
+
+    // Round is complete if:
+    // 1. Only one player remains (others folded or allin)
+    // 2. action is back to the last aggresor (or first player to act in case there is no aggresion behind)
+    return (
+      activePlayers.length <= 1 ||
+      this.currentPlayerToAct === this.roundEndsCondition
+    );
   }
 
   private switchToNextPlayer() {
