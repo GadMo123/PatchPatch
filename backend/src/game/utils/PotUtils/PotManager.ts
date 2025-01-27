@@ -1,9 +1,8 @@
 import { Card } from '../../types/Card';
 import { PlayerInGame } from '../../types/PlayerInGame';
-import { OmahaHandEvaluator } from '../OmahaHandEvaluator';
 import { PotContribution } from './PotContribution ';
 
-export class Pot {
+export class PotManager {
   private sidePots: PotContribution[] = [];
   private mainPot: PotContribution;
 

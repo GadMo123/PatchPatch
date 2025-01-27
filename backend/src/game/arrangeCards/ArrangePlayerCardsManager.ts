@@ -28,7 +28,7 @@ export class ArrangePlayerCardsManager {
     const playersInGame = game.getPlayersInGame();
     if (playersInGame) {
       playersInGame.forEach((player, position) => {
-        if (player && !player.isFolded()) {
+        if (player && player.isActive()) {
           playerDoneMap.set(position, false);
           activePlayerCount++;
         }
