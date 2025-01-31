@@ -5,7 +5,7 @@ import { Card } from './Card';
 import { Position } from '../utils/PositionsUtils';
 import { Game } from '../Game';
 import { Player } from '../../player/Player';
-import { BettingConfig, BettingState } from '../betting/BettingTypes';
+import { TableConfig, BettingState } from '../betting/BettingTypes';
 import { ArrangePlayerCardsState } from '../arrangeCards/ArrangePlayerCardsManager';
 
 export enum GamePhase {
@@ -34,11 +34,11 @@ export interface DetailedGameState {
   observers: Player[];
 
   // Map of players playing by position
-  playerInPosition: Map<Position, PlayerInGame | null> | null;
+  playerInPosition: Map<Position, PlayerInGame | null>;
 
   // Betting state
   bettingState: BettingState | null;
-  bettingConfig: BettingConfig;
+  bettingConfig: TableConfig;
   arrangePlayerCardsState: ArrangePlayerCardsState | null;
 }
 
@@ -69,7 +69,7 @@ export class GameStateUtils {
       publicPlayerDataMapByPosition: publicPlayerByPositions,
       privatePlayerData: null,
       bettingState: game.getBettingState(),
-      bettingConfig: game.getBettingConfig(),
+      bettingConfig: game.getTableConfig(),
       arrangePlayerCardsState: game.getArrangePlayerCardsState(),
     };
   }

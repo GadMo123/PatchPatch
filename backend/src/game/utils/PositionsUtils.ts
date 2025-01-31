@@ -1,5 +1,3 @@
-//\src\game\types\PositionsUtils.ts
-
 import { Game } from '../Game';
 import { DetailedGameState, GamePhase } from '../types/GameState';
 import { PlayerInGame } from '../types/PlayerInGame';
@@ -13,117 +11,101 @@ export enum Position {
   UTG = 'utg',
 }
 
-export class PositionsUtils {
-  static findFirstPlayerToAct(game: Game): PlayerInGame {
-    const nextToTalk =
-      game.getPhase() === GamePhase.PreflopBetting ? Position.UTG : Position.SB; // preflop first player to act is UTG, otherwise SB (poker standart rules)
-    return (
-      game.getPlayerInPosition(nextToTalk) ||
-      this.findNextPlayerToAct(nextToTalk, game)
-    );
+const positionOrder = [
+  Position.UTG,
+  Position.MP,
+  Position.CO,
+  Position.BTN,
+  Position.SB,
+  Position.BB,
+] as const;
+
+export function findFirstPlayerToAct(game: Game): PlayerInGame {
+  const nextToTalk =
+    game.getPhase() === GamePhase.PreflopBetting ? Position.UTG : Position.SB;
+  return (
+    game.getPlayerInPosition(nextToTalk) ||
+    findNextPlayerToAct(nextToTalk, game)
+  );
+}
+
+export function findNextPlayerToAct(
+  startingPosition: Position,
+  game: Game
+): PlayerInGame {
+  const startIndex = positionOrder.indexOf(startingPosition);
+  for (let i = 1; i < positionOrder.length; i++) {
+    const nextIndex = (startIndex + i) % positionOrder.length;
+    const position = positionOrder[nextIndex];
+    const player = game.getPlayerInPosition(position);
+
+    if (player?.isActive()) {
+      return player;
+    }
+  }
+  throw new Error('No players found to act.');
+}
+
+export function getPosition(position: string): Position | null {
+  const positions = Object.values(Position);
+  const foundPosition = positions.find(p => p === position);
+  return foundPosition ?? null;
+}
+
+export function rotatePositionsAndSetupPlayerState(
+  players: Map<Position, PlayerInGame | null>,
+  state: DetailedGameState
+): boolean {
+  const readyPlayers: { player: PlayerInGame; position: Position }[] = [];
+  players.forEach((player, position) => {
+    if (player?.isReadyToStartHand(state.tableConfig.bbAmount)) {
+      readyPlayers.push({ player, position });
+      player.updatePlayerPublicState({ isFolded: false, isAllIn: false });
+    }
+  });
+
+  if (readyPlayers.length < 2) {
+    return false;
   }
 
-  static readonly PositionOrder = [
-    Position.UTG,
-    Position.MP,
-    Position.CO,
-    Position.BTN,
-    Position.SB,
+  players.forEach((_, position) => {
+    players.set(position, null);
+  });
+
+  const priorityOrder = [
     Position.BB,
-  ];
+    Position.SB,
+    Position.BTN,
+    Position.CO,
+    Position.MP,
+    Position.UTG,
+  ] as const;
 
-  static findNextPlayerToAct(
-    startingPosition: Position,
-    game: Game
-  ): PlayerInGame {
-    const startIndex = this.PositionOrder.indexOf(startingPosition);
-    for (let i = 1; i < this.PositionOrder.length; i++) {
-      const nextIndex = (startIndex + i) % this.PositionOrder.length;
-      const position = this.PositionOrder[nextIndex];
-      const player = game.getPlayerInPosition(position);
+  const playerToMoveFront = priorityOrder.reduce<
+    { player: PlayerInGame; position: Position } | undefined
+  >(
+    (found, position) =>
+      found || readyPlayers.find(p => p.position === position),
+    undefined
+  );
 
-      if (player?.isActive()) {
-        return player; // Return the first valid player ot act
-      }
-    }
-    throw new Error('No players found to act.');
+  if (!playerToMoveFront) {
+    return false;
   }
 
-  // get position by name
-  static getPosition(position: string): Position {
-    const positions = Object.values(Position); // Get all enum values
-    const foundPosition = positions.find(p => p === position);
-    return foundPosition as Position;
-  }
+  const activePositions = positionOrder.slice(-readyPlayers.length);
+  players.set(activePositions[0], playerToMoveFront.player);
 
-  static rotatePositionsAndSetupPlayerState(
-    players: Map<Position, PlayerInGame | null>,
-    state: DetailedGameState
-  ): boolean {
-    // Get ready players and their current positions
-    const readyPlayers: { player: PlayerInGame; position: Position }[] = [];
-    players.forEach((player, position) => {
-      if (player?.isReadyToStartHand(state.bettingConfig.bbAmount)) {
-        readyPlayers.push({ player, position });
-        player.updatePlayerPublicState({ isFolded: false, isAllIn: false });
-      }
-    });
+  const remainingPlayers = readyPlayers.filter(
+    p => p.player !== playerToMoveFront.player
+  );
 
-    // If less than 2 players ready, return false
-    if (readyPlayers.length < 2) {
-      return false;
+  remainingPlayers.forEach(({ player }, index) => {
+    const positionIndex = index + 1;
+    if (positionIndex < activePositions.length) {
+      players.set(activePositions[positionIndex], player);
     }
+  });
 
-    // Clear all positions first
-    players.forEach((_, position) => {
-      players.set(position, null);
-    });
-
-    // Find the player who should move to the lowest position (either previous BB or next in succession)
-    const priorityOrder = [
-      Position.BB,
-      Position.SB,
-      Position.BTN,
-      Position.CO,
-      Position.MP,
-      Position.UTG,
-    ];
-    let playerToMoveFront:
-      | { player: PlayerInGame; position: Position }
-      | undefined;
-
-    // Look through priority order until we find a player who is ready
-    for (const position of priorityOrder) {
-      playerToMoveFront = readyPlayers.find(p => p.position === position);
-      if (playerToMoveFront) {
-        break;
-      }
-    }
-
-    if (!playerToMoveFront) {
-      return false;
-    }
-
-    // Get positions for the number of players we have
-    const activePositions = this.PositionOrder.slice(-readyPlayers.length);
-
-    // Selected player moves to the lowest ranking position (first in the activePositions array)
-    players.set(activePositions[0], playerToMoveFront.player);
-
-    // Remove the selected player from ready players list
-    const remainingPlayers = readyPlayers.filter(
-      p => p.player !== playerToMoveFront!.player
-    );
-
-    // Assign remaining players to positions clockwise
-    let positionIndex = 1;
-    remainingPlayers.forEach(({ player }) => {
-      if (positionIndex < activePositions.length) {
-        players.set(activePositions[positionIndex], player);
-        positionIndex++;
-      }
-    });
-
-    return true;
-  }
+  return true;
 }

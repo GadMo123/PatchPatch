@@ -5,7 +5,6 @@ import { PlayerInGame } from '../types/PlayerInGame';
 export type PlayerAction = 'fold' | 'check' | 'call' | 'bet' | 'raise';
 
 export interface BettingState {
-  lastRaise: number;
   timeRemaining: number;
   timeCookiesUsedThisRound: number;
   playerValidActions: PlayerAction[];
@@ -13,13 +12,14 @@ export interface BettingState {
   potContributions: Map<PlayerInGame, number>; //The contribution of each player to the pot this current betting round
 }
 
-export interface BettingConfig {
+export interface TableConfig {
   timePerAction: number;
   minBet: number;
   maxBet: number;
   timeCookieEffect: number;
   sbAmount: number;
   bbAmount: number;
+  minPlayers: number;
 }
 
 export interface ActionValidationResult {
@@ -27,13 +27,14 @@ export interface ActionValidationResult {
   error?: string;
 }
 
-export function getBettingConfig(
+export function getTableConfig(
   timePerAction: number,
   minBet: number,
   maxBet: number,
   timeCookieEffect: number,
   sbAmount: number,
-  bbAmount: number
+  bbAmount: number,
+  minPlayers: number
 ) {
   return {
     timePerAction: timePerAction,
@@ -42,5 +43,6 @@ export function getBettingConfig(
     timeCookieEffect: timeCookieEffect,
     sbAmount: sbAmount,
     bbAmount: bbAmount,
+    minPlayers: minPlayers,
   };
 }

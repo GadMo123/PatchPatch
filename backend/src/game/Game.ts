@@ -6,31 +6,35 @@ import { DetailedGameState, GamePhase } from './types/GameState';
 import { PlayerInGame } from './types/PlayerInGame';
 import { GameStateBroadcaster } from './broadcasting/GameStateBroadcaster';
 import { Card } from './types/Card';
-import { Position, PositionsUtils } from './utils/PositionsUtils';
+import {
+  Position,
+  rotatePositionsAndSetupPlayerState,
+} from './utils/PositionsUtils';
 import { Deck } from './types/Deck';
-import { BettingConfig } from './betting/BettingTypes';
-import { PositionLock } from './types/PositionLock';
+import { TableConfig } from './betting/BettingTypes';
 import { ArrangePlayerCardsState } from './arrangeCards/ArrangePlayerCardsManager';
 import { SingleGameFlowManager } from './utils/SingleGameFlowManager';
+import { Mutex } from 'async-mutex';
 
 export class Game {
   private deck: Deck | null;
   private state: DetailedGameState;
   private broadcaster: GameStateBroadcaster;
-  private positionLock: PositionLock;
   private handWonWithoutShowdown: boolean;
   private server: Server;
   private gameFlowManager: SingleGameFlowManager | null;
+  private stacksUpdatesForNextHand: Array<[PlayerInGame, number]>;
+  private TableConditionChangeMutex: Mutex;
 
   constructor(
     id: string,
     stakes: string,
     server: Server,
-    tableBettingConfig: BettingConfig
+    tableConfig: TableConfig
   ) {
     this.server = server;
     this.broadcaster = new GameStateBroadcaster(server);
-    this.positionLock = new PositionLock();
+    this.TableConditionChangeMutex = new Mutex();
     this.handWonWithoutShowdown = false;
     this.state = {
       id,
@@ -42,22 +46,21 @@ export class Game {
       observers: [],
       potSize: 0,
       playerInPosition: new Map<Position, PlayerInGame | null>(),
-      bettingConfig: tableBettingConfig,
+      tableConfig: tableConfig,
       bettingState: null,
       arrangePlayerCardsState: null,
     };
     this.deck = null;
     this.gameFlowManager = null;
+    this.stacksUpdatesForNextHand = new Array<[PlayerInGame, number]>();
   }
 
   /*
   return true if ready to start next hand
-   false if not ready for next hand, keep witing state until recived player action (join/rebuy/marked-ready)
+   false if not, and keep waiting state until recived new active player (join/rebuy/marked-ready)
   */
-  PrepareNextHand(): boolean {
-    this.state.phase = GamePhase.Waiting;
+  PrepareNextHand() {
     this.handWonWithoutShowdown = false;
-
     this.state = {
       ...this.state,
       phase: GamePhase.Waiting,
@@ -66,11 +69,18 @@ export class Game {
       rivers: [],
       potSize: 0,
     };
-
-    return PositionsUtils.rotatePositionsAndSetupPlayerState(
-      this.state.playerInPosition!,
-      this.state
-    );
+    this.TableConditionChangeMutex.runExclusive(async () => {
+      rotatePositionsAndSetupPlayerState(
+        this.state.playerInPosition!,
+        this.state
+      );
+      this.stacksUpdatesForNextHand.forEach(([player, amount]) => {
+        player.updatePlayerPublicState({
+          currentStack: player.getStack() + amount,
+        });
+        player.isReadyToStartHand;
+      });
+    });
   }
 
   dealNewHand() {
@@ -80,7 +90,6 @@ export class Game {
       // As for now, player can only play a hand with >= 1BB stack
       if (player?.isActive()) {
         player.updatePlayerPrivateState({ cards: this.deck!.getPlayerCards() }); // update
-        player.updatePlayerPublicState({ isFolded: false, isAllIn: false });
       }
     });
   }
@@ -93,45 +102,70 @@ export class Game {
     this.broadcaster.broadcastGameState(this, afterFunction);
   }
 
-  startGame() {
-    this.gameFlowManager = new SingleGameFlowManager(this);
-    this.gameFlowManager.startNextStreet();
+  async startGame() {
+    this.TableConditionChangeMutex.runExclusive(async () => {
+      if (this.gameFlowManager) return;
+      this.gameFlowManager = new SingleGameFlowManager(this);
+      setImmediate(() => this.gameFlowManager?.startNextStreet());
+    });
   }
 
   addObserver(player: Player) {
-    if (!this.state.observers.some(observer => observer === player)) {
-      this.state.observers.push(player); // broadcast?
-    }
+    this.TableConditionChangeMutex.runExclusive(async () => {
+      if (!this.state.observers.some(observer => observer === player)) {
+        this.state.observers.push(player); // broadcast?
+      }
+    });
   }
 
-  addPlayer(player: Player, buyIn: number, position: Position): boolean {
-    // Check if the position is available
-    if (
-      this.state.playerInPosition!.has(position) ||
-      this.state.playerInPosition!.get(position) != null
-    )
-      return false;
+  async addPlayer(player: Player, position: Position): Promise<boolean> {
+    return this.TableConditionChangeMutex.runExclusive(async () => {
+      // Check if the position is available
+      if (
+        this.state.playerInPosition!.has(position) ||
+        this.state.playerInPosition!.get(position) != null
+      )
+        return false;
 
-    const playerInGame = new PlayerInGame(player, this, position, buyIn);
-    this.state.playerInPosition!.set(position, playerInGame);
+      const playerInGame = new PlayerInGame(player, this, position);
+      this.state.playerInPosition!.set(position, playerInGame);
 
-    //Remove player as an observers
-    this.state.observers = this.state.observers.filter(
-      obs => obs.id !== player.id
-    );
+      //Remove player as an observers
+      this.state.observers = this.state.observers.filter(
+        obs => obs.getId() !== player.getId()
+      );
 
-    this.updateGameStateAndBroadcast({}, null);
-    return true;
+      setImmediate(() => this.updateGameStateAndBroadcast({}, null));
+      return true;
+    });
   }
 
-  dealRivers(): Card[] | undefined {
-    return this.deck?.getRivers();
+  async playerBuyIn(player: PlayerInGame, amount: number) {
+    this.TableConditionChangeMutex.runExclusive(async () => {
+      // if in a running game - set an even for the end of the current hand to add players chips
+      if (this.gameFlowManager) {
+        this.stacksUpdatesForNextHand.push([player, amount]);
+      } else {
+        // otherwise, add the buyin chips right away
+        player.updatePlayerPublicState({
+          currentStack: player.getStack() + amount,
+        });
+        const afterFunction = this.isReadyForNextHand()
+          ? this.startGame.bind(this) // start game if ready, the updated stack will be broadcasted in the first game broadcast.
+          : this.updateGameStateAndBroadcast.bind(this, {}, null); // otherwise update players with the buyin chips.
+        setImmediate(afterFunction);
+      }
+    });
   }
-  dealTurns(): Card[] | undefined {
-    return this.deck?.getTurns();
+
+  dealRivers(): Card[] {
+    return this.deck!.getRivers();
   }
-  dealFlops(): Card[][] | undefined {
-    return this.deck?.getFlops();
+  dealTurns(): Card[] {
+    return this.deck!.getTurns();
+  }
+  dealFlops(): Card[][] {
+    return this.deck!.getFlops();
   }
 
   getStatus() {
@@ -146,12 +180,8 @@ export class Game {
     return this.state.stakes;
   }
 
-  getPositionLock(): PositionLock {
-    return this.positionLock;
-  }
-
   getObserversNames(): String[] {
-    return this.state.observers.map((observer: Player) => observer.name);
+    return this.state.observers.map((observer: Player) => observer.getName());
   }
 
   getPlayerInPosition(position: Position): PlayerInGame | null {
@@ -180,8 +210,8 @@ export class Game {
     return this.state.rivers;
   }
 
-  getBettingConfig() {
-    return this.state.bettingConfig;
+  getTableConfig() {
+    return this.state.tableConfig;
   }
   getBettingState() {
     return this.state.bettingState;
@@ -217,16 +247,24 @@ export class Game {
     return this.server;
   }
 
-  getGameFlowManager(): SingleGameFlowManager {
-    if (!this.gameFlowManager) throw new Error('Game is not running');
+  getGameFlowManager(): SingleGameFlowManager | null {
     return this.gameFlowManager;
   }
 
   isReadyForNextHand(): boolean {
-    //Todo
-    return (
-      this.getPlayerInPosition(Position.SB) != null &&
-      this.getPlayerInPosition(Position.BB) != null
-    );
+    const minStackRequired =
+      this.state.tableConfig.bbAmount *
+      (Number(process.env.MIN_BB_TO_PLAY_HAND) || 1);
+    const activePlayers = Array.from(
+      this.state.playerInPosition.values()
+    ).filter(player => player?.isReadyToStartHand(minStackRequired)).length;
+    return activePlayers >= this.state.tableConfig.minPlayers;
+  }
+
+  getPlayer(playerId: string): PlayerInGame | null {
+    for (const [, player] of this.state.playerInPosition ?? []) {
+      if (player?.getId() === playerId) return player;
+    }
+    return null;
   }
 }

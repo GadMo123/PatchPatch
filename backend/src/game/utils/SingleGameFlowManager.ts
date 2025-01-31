@@ -7,7 +7,6 @@ import { BettingManager } from '../betting/BettingManager';
 import { Game } from '../Game';
 import { GamePhase } from '../types/GameState';
 import { PlayerInGame } from '../types/PlayerInGame';
-import { PositionsUtils } from './PositionsUtils';
 import { PotManager } from './PotUtils/PotManager';
 
 export class SingleGameFlowManager {
@@ -45,8 +44,8 @@ export class SingleGameFlowManager {
     }
   }
 
-  private prapereNextHand() {
-    this.game.PrepareNextHand();
+  private async prapereNextHand() {
+    await this.game.PrepareNextHand();
     this.game.updateGameStateAndBroadcast(
       {},
       this.startBettingRound.bind(this)
@@ -95,7 +94,7 @@ export class SingleGameFlowManager {
   private startBettingRound() {
     const bettingManager = new BettingManager(
       this.game,
-      this.game.getBettingConfig(),
+      this.game.getTableConfig(),
       this.onBettingRoundComplete.bind(this),
       this.game.getPhase() === GamePhase.PreflopBetting
     );
@@ -129,11 +128,11 @@ export class SingleGameFlowManager {
     if (winner) this.game.handleHandWonWithoutShowdown(winner);
     this.game.updateGameStateAndBroadcast(
       { bettingState: null },
-      this.afterBettingRoundComplete.bind(this)
+      this.afterBettingDetermineNextStep.bind(this)
     );
   }
 
-  private afterBettingRoundComplete() {
+  private afterBettingDetermineNextStep() {
     //hand is done
     if (this.game.isHandWonWithoutShowdown()) {
       if (this.game.isReadyForNextHand()) this.startNextStreet();

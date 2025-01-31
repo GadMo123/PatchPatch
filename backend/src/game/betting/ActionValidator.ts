@@ -4,11 +4,11 @@ import {
   PlayerAction,
   BettingState,
   ActionValidationResult,
-  BettingConfig,
+  TableConfig,
 } from './BettingTypes';
 
 export class ActionValidator {
-  constructor(private config: BettingConfig) {}
+  constructor(private _config: TableConfig) {}
 
   getValidActions(
     bettingState: BettingState,
@@ -48,9 +48,9 @@ export class ActionValidator {
         return { isValid: false, error: 'Insufficient funds' };
       if (amount < 0) return { isValid: false, error: 'amount too low' };
       if (action === 'bet' || action === 'raise') {
-        if (amount < this.config.minBet)
+        if (amount < this._config.minBet)
           return { isValid: false, error: 'Bet below minimum' };
-        if (amount > this.config.maxBet)
+        if (amount > this._config.maxBet)
           // todo: max raise is relative to pot in pot-limit games, pot-limit games are not in the current scope.
           return { isValid: false, error: 'Bet above maximum' };
       }

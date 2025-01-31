@@ -56,7 +56,9 @@ export class PotManager {
     const mainPotContributors = this.mainPot.getContributors();
     if (mainPotContributors.size === 1) {
       const singlePlayer = Array.from(mainPotContributors)[0];
-      singlePlayer.increaseStack(this.mainPot.getTotalPotSize());
+      singlePlayer.updatePlayerPublicState({
+        currentStack: singlePlayer.getStack() + this.mainPot.getTotalPotSize(),
+      });
     }
   }
 

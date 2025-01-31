@@ -1,11 +1,11 @@
 import { Player } from '../../player/Player';
 import { Game } from '../Game';
-import { Card } from './Card';
 import { Position } from '../utils/PositionsUtils';
+import { Card } from './Card';
 
 export interface PlayerPublicState {
-  isSittingOut: any;
-  isAllIn: any;
+  isSittingOut: boolean;
+  isAllIn: boolean;
   id: string;
   name: string;
   position: Position;
@@ -19,29 +19,73 @@ export interface PlayerPrivateState {
   remainingTimeCookies: number;
 }
 
-// Represents player data in a single game
-export class PlayerInGame extends Player {
-  playerPublicState: PlayerPublicState;
-  playerPrivateState: PlayerPrivateState;
-  game: Game;
+// extends player? seems right but have a synchronicity complexity
+export class PlayerInGame {
+  private playerPublicState: PlayerPublicState;
+  private playerPrivateState: PlayerPrivateState;
+  private game: Game;
+  private player: Player;
 
-  constructor(player: Player, game: Game, position: Position, buyIn: number) {
-    super(player.id, player.name, player.socketId);
+  // Player sits in game
+  constructor(player: Player, game: Game, position: Position) {
+    this.player = player;
     this.game = game;
+
+    // Initialize states
     this.playerPublicState = {
       isSittingOut: true,
-      id: player.id,
-      name: player.name,
+      id: player.getId(),
+      name: player.getName(),
       position: position,
-      currentStack: buyIn,
+      currentStack: 0,
       isFolded: false,
-      isAllIn: buyIn > 0,
+      isAllIn: false,
     };
 
+    this.player.addActiveGame(game.getId());
     this.playerPrivateState = {
-      remainingTimeCookies: player.remainingTimeCookies,
       cards: null,
+      remainingTimeCookies: 0,
     };
+
+    player.getTimebankCookies().then(timebanks => {
+      this.playerPrivateState.remainingTimeCookies = timebanks;
+    });
+  }
+
+  async buyIntoGame(game: Game, buyIn: number): Promise<boolean> {
+    const seccuss = await this.player.buyIntoGame(buyIn, game);
+    if (!seccuss) return false;
+
+    this.playerPublicState.currentStack += buyIn;
+    return true;
+  }
+
+  async cashoutStack(): Promise<void> {
+    const currentStack = this.playerPublicState.currentStack;
+    if (currentStack > 0) {
+      this.player.addToBankCoins(currentStack).then(() =>
+        this.updatePlayerPublicState({
+          currentStack: 0,
+          isAllIn: false,
+        })
+      );
+    }
+  }
+
+  exitGame() {
+    this.player.removeActiveGame(this.game.getId());
+  }
+
+  async useTimebankCookie(): Promise<boolean> {
+    const success = await this.player.useTimebankCookie();
+    if (success) {
+      const remainingCookies = await this.player.getTimebankCookies();
+      this.updatePlayerPrivateState({
+        remainingTimeCookies: remainingCookies,
+      });
+    }
+    return success;
   }
 
   getPlayerPublicState(): PlayerPublicState {
@@ -66,17 +110,12 @@ export class PlayerInGame extends Player {
     };
   }
 
-  increaseStack(returnedBet: number) {
-    this.updatePlayerPublicState({
-      currentStack: this.playerPublicState.currentStack + returnedBet,
-    });
-  }
-
   isFolded(): boolean {
     return this.playerPublicState.isFolded;
   }
 
   isReadyToStartHand(bbAmount: number): boolean {
+    const minStack = Number(process.env.MIN_BB_TO_PLAY_HAND) || 1;
     return (
       this.playerPublicState.currentStack >= bbAmount &&
       !this.playerPublicState.isSittingOut
@@ -97,5 +136,17 @@ export class PlayerInGame extends Player {
 
   getPosition(): Position {
     return this.playerPublicState.position;
+  }
+
+  getId(): string {
+    return this.player.getId();
+  }
+
+  getName(): string {
+    return this.player.getName();
+  }
+
+  getSocketId(): string {
+    return this.player.getSocketId();
   }
 }

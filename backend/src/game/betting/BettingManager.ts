@@ -1,138 +1,154 @@
 // src/game/betting/BettingManager.ts
 import { Game } from '../Game';
 import { ActionValidator } from './ActionValidator';
-import { BettingState, BettingConfig, PlayerAction } from './BettingTypes';
+import { BettingState, TableConfig, PlayerAction } from './BettingTypes';
 import { PlayerInGame } from '../types/PlayerInGame';
-import { Position, PositionsUtils } from '../utils/PositionsUtils';
+import {
+  findFirstPlayerToAct,
+  findNextPlayerToAct,
+  Position,
+} from '../utils/PositionsUtils';
 import { GameActionTimerManager } from '../utils/GameActionTimerManager';
-import { BettingRoundPotManager } from './bettingRoundPotManager';
+import { BettingRoundPotManager } from './BettingRoundPotManager';
+import { Mutex } from 'async-mutex';
 
 export class BettingManager {
-  getBiggestBet(): number {
-    throw new Error('Method not implemented.');
-  }
-  private bettingState: BettingState;
-  private currentPlayerToAct: PlayerInGame;
-  private actionValidator: ActionValidator;
-  private timerManager: GameActionTimerManager;
-  private game: Game;
-  private biggestBetToCall: number; // The amount a player have to complate to the pot to call (reducing previous contributions)
-  private potManager: BettingRoundPotManager;
-  onBettingRoundComplete: (winner: PlayerInGame | null) => void;
-
+  private _awaitingPlayersAction: any;
+  private _bettingState: BettingState;
+  private _currentPlayerToAct: PlayerInGame;
+  private _actionValidator: ActionValidator;
+  private _processingAction: Mutex;
+  private _timerManager: GameActionTimerManager;
+  private _biggestBetToCall: number; // The amount a player have to complate to the pot to call (reducing previous contributions)
+  private _potManager: BettingRoundPotManager;
   // This is a marker pointing to the last player to take an aggresive action, if the action returns to him without more aggrestion - we know the betting round ends.
-  private roundEndsCondition: PlayerInGame;
+  private _roundEndsCondition: PlayerInGame;
 
   constructor(
-    game: Game,
-    bettingConfig: BettingConfig,
-    onBettingRoundComplete: (winner: PlayerInGame | null) => void,
+    private _game: Game,
+    tableConfig: TableConfig,
+    private _onBettingRoundComplete: (winner: PlayerInGame | null) => void,
     isPreflop: boolean
   ) {
-    this.actionValidator = new ActionValidator(bettingConfig);
-    this.game = game;
-    this.currentPlayerToAct = PositionsUtils.findFirstPlayerToAct(this.game);
-    this.roundEndsCondition = this.currentPlayerToAct;
-    this.biggestBetToCall = 0;
+    this._actionValidator = new ActionValidator(tableConfig);
+    this._currentPlayerToAct = findFirstPlayerToAct(this._game);
+    this._roundEndsCondition = this._currentPlayerToAct;
+    this._biggestBetToCall = 0;
+    this._processingAction = new Mutex();
+    this._awaitingPlayersAction = false;
 
-    this.bettingState = {
+    this._bettingState = {
       timeRemaining: 0,
       timeCookiesUsedThisRound: 0,
       playerValidActions: [],
-      playerToAct: this.currentPlayerToAct.id,
+      playerToAct: this._currentPlayerToAct.getId(),
       potContributions: new Map(
-        Array.from(game.getPlayersInGame()!.values())
+        Array.from(_game.getPlayersInGame()!.values())
           .filter(player => player?.isActive())
           .map(player => [player!, 0])
       ),
-      lastRaise: 0,
     };
-    this.onBettingRoundComplete = onBettingRoundComplete;
-    this.potManager = new BettingRoundPotManager(this);
-    this.timerManager = new GameActionTimerManager({
-      duration: bettingConfig.timePerAction,
+    this._potManager = new BettingRoundPotManager(this);
+    const timebanksPerRound = parseInt(process.env.COOKIES_PER_ROUND ?? '3');
+    this._timerManager = new GameActionTimerManager({
+      duration: tableConfig.timePerAction,
       networkBuffer: 1000,
-      timeCookieEffect: bettingConfig.timeCookieEffect,
-      maxCookiesPerRound: 3,
+      timeCookieEffect: tableConfig.timeCookieEffect,
+      maxCookiesPerRound: timebanksPerRound,
       updateTimeRemianing: (timeRemaining: number) =>
         this.updateBettingState({ timeRemaining: timeRemaining }),
       onTimeout: this.doDefualtActionOnTimeout.bind(this),
       onComplete: this.cleanupTimerState.bind(this),
     });
     if (isPreflop) {
-      this.potManager.takeBlinds(
-        game.getPlayerInPosition(Position.SB)!,
-        game.getPlayerInPosition(Position.BB)!,
-        bettingConfig.sbAmount,
-        bettingConfig.bbAmount
+      this._potManager.takeBlinds(
+        _game.getPlayerInPosition(Position.SB)!,
+        _game.getPlayerInPosition(Position.BB)!,
+        tableConfig.sbAmount,
+        tableConfig.bbAmount
       );
-      this.biggestBetToCall = bettingConfig.bbAmount; // for the current scope, we force the BB player (in hand preparation) to have at least 1BB in order to play a hand.
-      this.bettingState.lastRaise = bettingConfig.bbAmount;
+      this._biggestBetToCall = tableConfig.bbAmount; // for the current scope, we force the BB player (in hand preparation) to have at least 1BB in order to play a hand.
     }
   }
 
   startNextPlayerTurn() {
-    this.bettingState.playerValidActions = this.actionValidator.getValidActions(
-      this.bettingState,
-      this.currentPlayerToAct,
-      this.biggestBetToCall
-    );
-    console.log('starting player turn ' + this.currentPlayerToAct.id);
-    this.timerManager.start();
+    this._bettingState.playerValidActions =
+      this._actionValidator.getValidActions(
+        this._bettingState,
+        this._currentPlayerToAct,
+        this._biggestBetToCall
+      );
+    console.log('starting player turn ' + this._currentPlayerToAct.getId());
+    this._timerManager.start();
+    this._awaitingPlayersAction = true;
     this.broadcastBettingState();
   }
 
-  handlePlayerAction(
+  async handlePlayerAction(
     playerId: string,
     action: PlayerAction,
     amount?: number
-  ): void {
-    if (this.currentPlayerToAct!.id !== playerId) return;
-    const validActions = this.actionValidator.getValidActions(
-      this.bettingState,
-      this.currentPlayerToAct,
-      this.biggestBetToCall
-    );
+  ): Promise<boolean> {
+    await this._processingAction.acquire();
+    try {
+      if (
+        this._currentPlayerToAct.getId() !== playerId ||
+        !this._awaitingPlayersAction
+      )
+        return false;
+      const validActions = this._actionValidator.getValidActions(
+        this._bettingState,
+        this._currentPlayerToAct,
+        this._biggestBetToCall
+      );
 
-    // Calculate call amount in case of 'call' action
-    if (action === 'call')
-      amount = this.potManager.getRemainingToCall(this.currentPlayerToAct);
+      // Calculate call amount in case of 'call' action
+      if (action === 'call')
+        amount = this._potManager.getRemainingToCall(this._currentPlayerToAct);
 
-    const validation = this.actionValidator.validateAction(
-      action,
-      amount,
-      this.currentPlayerToAct,
-      validActions
-    );
+      const validation = this._actionValidator.validateAction(
+        action,
+        amount,
+        this._currentPlayerToAct,
+        validActions
+      );
 
-    if (!validation.isValid) {
-      console.log(`Invalid action: ${validation.error}`);
-      action = validActions.includes('check') ? 'check' : 'fold'; // take default action
-      amount = 0;
+      if (!validation.isValid) {
+        console.log(`Invalid action: ${validation.error}`);
+        action = validActions.includes('check') ? 'check' : 'fold'; // take default action
+        amount = 0;
+      }
+
+      this._potManager.addContribution(this._currentPlayerToAct, amount || 0);
+
+      // When a player raise or bet a valid amount, he has the new biggest bet this round.
+      if ((amount ?? 0 > 0) && (action == 'raise' || action == 'bet')) {
+        this._roundEndsCondition = this._currentPlayerToAct;
+        this._biggestBetToCall = this._bettingState.potContributions.get(
+          this._currentPlayerToAct
+        )!;
+      }
+
+      if (action == 'fold')
+        this._currentPlayerToAct.updatePlayerPublicState({ isFolded: true });
+
+      // Update betting state with latest pot contributions
+      this.updateBettingState({
+        potContributions: this._potManager.getAllContributions(),
+      });
+
+      this._timerManager.handleAction(); // Signal timer that we recived a valid action from the player
+
+      this._awaitingPlayersAction = false;
+      this._processingAction.release();
+      // Run after returning true
+      setImmediate(() => this.onPlayerActionDone());
+      return true;
+    } catch (error) {
+      return false;
+    } finally {
+      this._processingAction.release();
     }
-
-    this.potManager.addContribution(this.currentPlayerToAct, amount || 0);
-
-    // When a player raise or bet a valid amount, he has the new biggest bet this round.
-    if ((amount ?? 0 > 0) && (action == 'raise' || action == 'bet')) {
-      this.roundEndsCondition = this.currentPlayerToAct;
-      this.bettingState.lastRaise = amount! - this.biggestBetToCall;
-      this.biggestBetToCall = this.bettingState.potContributions.get(
-        this.currentPlayerToAct
-      )!;
-    }
-
-    if (action == 'fold')
-      this.currentPlayerToAct.updatePlayerPublicState({ isFolded: true });
-
-    // Update betting state with latest pot contributions
-    this.updateBettingState({
-      potContributions: this.potManager.getAllContributions(),
-    });
-
-    this.timerManager.handleAction(); // Signal timer that we recived a valid action from the player
-
-    this.onPlayerActionDone();
   }
 
   private cleanupTimerState() {
@@ -144,31 +160,32 @@ export class BettingManager {
 
   private onPlayerActionDone() {
     console.log('onPlayerActionDone ');
-    const lastPlayer = this.currentPlayerToAct;
+    const lastPlayer = this._currentPlayerToAct;
     this.switchToNextPlayer();
     if (this.isBettingRoundComplete()) {
-      const winner = this.currentPlayerToAct === lastPlayer ? lastPlayer : null;
-      this.onBettingRoundComplete(winner);
+      const winner =
+        this._currentPlayerToAct === lastPlayer ? lastPlayer : null;
+      this._onBettingRoundComplete(winner);
     } else this.startNextPlayerTurn();
   }
 
   private doDefualtActionOnTimeout(): void {
     console.log('doDefualtActionOnTimeout ');
-    const defaultAction = this.actionValidator
+    const defaultAction = this._actionValidator
       .getValidActions(
-        this.bettingState,
-        this.currentPlayerToAct,
-        this.biggestBetToCall
+        this._bettingState,
+        this._currentPlayerToAct,
+        this._biggestBetToCall
       )
       .includes('check')
       ? 'check'
       : 'fold';
-    this.handlePlayerAction(this.currentPlayerToAct.id, defaultAction);
+    this.handlePlayerAction(this._currentPlayerToAct.getId(), defaultAction);
   }
 
   private isBettingRoundComplete(): boolean {
     const activePlayers = Array.from(
-      this.bettingState.potContributions.keys()
+      this._bettingState.potContributions.keys()
     ).filter(player => player.isActive());
 
     // Round is complete if:
@@ -176,29 +193,33 @@ export class BettingManager {
     // 2. action is back to the last aggresor (or first player to act in case there is no aggresion behind)
     return (
       activePlayers.length <= 1 ||
-      this.currentPlayerToAct === this.roundEndsCondition
+      this._currentPlayerToAct === this._roundEndsCondition
     );
   }
 
   private switchToNextPlayer() {
-    this.currentPlayerToAct = PositionsUtils.findNextPlayerToAct(
-      this.currentPlayerToAct.getPosition(),
-      this.game
+    this._currentPlayerToAct = findNextPlayerToAct(
+      this._currentPlayerToAct.getPosition(),
+      this._game
     );
-    this.updateBettingState({ playerToAct: this.currentPlayerToAct.id });
+    this.updateBettingState({ playerToAct: this._currentPlayerToAct.getId() });
   }
 
-  updateBettingState(partialUpdate: Partial<BettingState>) {
-    this.bettingState = {
-      ...this.bettingState,
+  private updateBettingState(partialUpdate: Partial<BettingState>) {
+    this._bettingState = {
+      ...this._bettingState,
       ...partialUpdate,
     };
   }
 
-  broadcastBettingState() {
-    this.game.updateGameStateAndBroadcast(
-      { bettingState: this.bettingState },
+  private broadcastBettingState() {
+    this._game.updateGameStateAndBroadcast(
+      { bettingState: this._bettingState },
       null
     );
+  }
+
+  getCurrentPlayerToAct() {
+    return this._currentPlayerToAct;
   }
 }

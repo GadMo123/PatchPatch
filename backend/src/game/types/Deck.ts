@@ -1,25 +1,9 @@
 // src/game/utils/Deck.ts
 
-import { Card, Rank, Suit } from './Card';
+import { Card, RANKS, SUITS } from './Card';
 
 export class Deck {
-  private deck: string[] = [];
-  private suits: Suit[] = ['c', 'd', 'h', 's']; // Clubs, Diamonds, Hearts, Spades
-  private ranks: Rank[] = [
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    'T', // T for Ten
-    'J',
-    'Q',
-    'K',
-    'A',
-  ];
+  private deck: Card[] = [];
 
   constructor() {
     this.initializeDeck();
@@ -27,9 +11,9 @@ export class Deck {
   }
 
   private initializeDeck() {
-    for (const suit of this.suits) {
-      for (const rank of this.ranks) {
-        this.deck.push(`${rank}${suit}`);
+    for (const suit of SUITS) {
+      for (const rank of RANKS) {
+        this.deck.push(new Card(rank, suit));
       }
     }
   }
@@ -38,29 +22,23 @@ export class Deck {
     this.deck = this.deck.sort(() => Math.random() - 0.5);
   }
 
-  private convertToCardObject(card: string): Card {
-    const rank = card.slice(0, -1) as Rank;
-    const suit = card.slice(-1) as Suit;
-    return { rank, suit };
-  }
-
   getPlayerCards(): Card[] {
-    return this.deck.splice(0, 12).map(this.convertToCardObject);
+    return this.deck.splice(0, 12);
   }
 
   getFlops(): Card[][] {
     return [
-      this.deck.splice(0, 3).map(this.convertToCardObject),
-      this.deck.splice(0, 3).map(this.convertToCardObject),
-      this.deck.splice(0, 3).map(this.convertToCardObject),
+      this.deck.splice(0, 3),
+      this.deck.splice(0, 3),
+      this.deck.splice(0, 3),
     ];
   }
 
   getTurns(): Card[] {
-    return this.deck.splice(0, 3).map(this.convertToCardObject);
+    return this.deck.splice(0, 3);
   }
 
   getRivers(): Card[] {
-    return this.deck.splice(0, 3).map(this.convertToCardObject);
+    return this.deck.splice(0, 3);
   }
 }
