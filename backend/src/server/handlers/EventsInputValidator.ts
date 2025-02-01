@@ -1,5 +1,6 @@
 import { PlayerAction } from '../../game/betting/BettingTypes';
 import { Game } from '../../game/Game';
+import { isValidRank, isValidSuit } from '../../game/types/Card';
 import { Player } from '../../player/Player';
 import { ServerStateManager } from '../ServerStateManager';
 import {
@@ -60,10 +61,12 @@ export const isCardArrangementPayload = (
       item =>
         typeof item === 'object' &&
         item !== null &&
-        typeof item.card === 'object' &&
-        item.card !== null &&
-        typeof item.card.suit === 'string' &&
-        typeof item.card.rank === 'string'
+        'suit' in item &&
+        'rank' in item &&
+        typeof item.suit === 'string' &&
+        typeof item.rank === 'string' &&
+        isValidSuit(item.suit) &&
+        isValidRank(item.rank)
     );
 
   return isInGamePayload(p) && isValidArrangement;

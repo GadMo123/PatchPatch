@@ -48,7 +48,7 @@ export class BettingManager {
           .map(player => [player!, 0])
       ),
     };
-    this._potManager = new BettingRoundPotManager(this);
+    this._potManager = new BettingRoundPotManager();
     const timebanksPerRound = parseInt(process.env.COOKIES_PER_ROUND ?? '3');
     this._timerManager = new GameActionTimerManager({
       duration: tableConfig.timePerAction,
@@ -134,7 +134,7 @@ export class BettingManager {
 
       // Update betting state with latest pot contributions
       this.updateBettingState({
-        potContributions: this._potManager.getAllContributions(),
+        potContributions: this._potManager.getContributions(),
       });
 
       this._timerManager.handleAction(); // Signal timer that we recived a valid action from the player

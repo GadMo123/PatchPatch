@@ -49,15 +49,7 @@ export class Card {
 }
 
 export const isValidSuit = (suit: string): suit is Suit =>
-  ['c', 'd', 'h', 's'].includes(suit);
+  SUITS.includes(suit as Suit);
 
 export const isValidRank = (rank: string): rank is Rank =>
-  ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'].includes(
-    rank
-  );
-
-// export function fromString(card: string): Card {
-//   const rank = card.slice(0, -1) as Rank;
-//   const suit = card.slice(-1) as Suit;
-//   return { rank, suit };
-// }
+  RANKS.includes(rank as Rank);

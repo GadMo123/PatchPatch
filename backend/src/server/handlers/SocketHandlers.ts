@@ -12,20 +12,21 @@ import { ServerStateManager } from '../ServerStateManager';
 import { getPosition, Position } from '../../game/utils/PositionsUtils';
 import { PlayerAction } from '../../game/betting/BettingTypes';
 import { HandlerResponse } from './ServerTypes';
+import { Card } from '../../game/types/Card';
 
 export class SocketHandlers {
-  private static instance: SocketHandlers;
-  private stateManager: ServerStateManager;
+  private static _instance: SocketHandlers;
+  private _stateManager: ServerStateManager;
 
   private constructor() {
-    this.stateManager = ServerStateManager.getInstance();
+    this._stateManager = ServerStateManager.getInstance();
   }
 
   public static getInstance(): SocketHandlers {
-    if (!SocketHandlers.instance) {
-      SocketHandlers.instance = new SocketHandlers();
+    if (!SocketHandlers._instance) {
+      SocketHandlers._instance = new SocketHandlers();
     }
-    return SocketHandlers.instance;
+    return SocketHandlers._instance;
   }
 
   async handleLogin(
@@ -38,7 +39,7 @@ export class SocketHandlers {
 
     try {
       const player = new Player(socket.id, payload.name, socket.id);
-      this.stateManager.addPlayer(player);
+      this._stateManager.addPlayer(player);
       return { success: true, data: { playerId: player.getId() } };
     } catch (error) {
       return {
@@ -124,10 +125,12 @@ export class SocketHandlers {
     }
 
     const { playerId, arrangement } = payload;
+    const validCards: Card[] = arrangement.map(item => item as unknown as Card);
+
     const result = (await game
       .getGameFlowManager()
       ?.getArrangeCardManager()
-      ?.handlePlayerArrangedCardsRecived(playerId, arrangement)) ?? {
+      ?.handlePlayerArrangedCardsRecived(playerId, validCards)) ?? {
       success: false,
     };
     return { success: result.success, message: result.error };
@@ -135,17 +138,17 @@ export class SocketHandlers {
 
   //Todo
   async handleDisconnect(socketId: string): Promise<void> {
-    const player = this.stateManager.getPlayer(socketId);
+    const player = this._stateManager.getPlayer(socketId);
     if (player) {
       // Handle player cleanup in active games
-      const games = this.stateManager.getGames();
+      const games = this._stateManager.getGames();
       //todo : player object should keep a list of PlayerInGame which are active, handle dissconection
       //   for (const game of Object.values(games)) {
       //     if (game.getPlayer(socketId)) {
       //       await game.handlePlayerDisconnect(socketId);
       //     }
       //   }
-      this.stateManager.removePlayer(socketId);
+      this._stateManager.removePlayer(socketId);
     }
   }
 }

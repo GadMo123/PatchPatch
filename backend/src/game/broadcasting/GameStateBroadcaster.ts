@@ -2,13 +2,13 @@
 
 import { Server } from 'socket.io';
 import { Game } from '../Game';
-import { GameStateUtils } from '../types/GameState';
+import { getBaseGameState } from '../types/GameState';
 
 export class GameStateBroadcaster {
   constructor(private _io: Server) {}
 
   broadcastGameState(game: Game, afterFunction: (() => void) | null) {
-    const baseState = GameStateUtils.getBaseGameState(game);
+    const baseState = getBaseGameState(game);
 
     // Broadcast to players in game
     game.getPlayersInGame()?.forEach((player, position) => {

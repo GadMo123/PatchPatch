@@ -3,10 +3,6 @@ import { Mutex } from 'async-mutex';
 import { Game } from '../game/Game';
 
 export class Player {
-  private id: string;
-  private socketId: string;
-
-  private name: string;
   private bankCoins: number;
   private remainingTimeCookies: number;
   private activeGames: Set<string>;
@@ -14,10 +10,11 @@ export class Player {
   private timebankCookiesLock: Mutex;
   private activeGamesLock = new Mutex();
 
-  constructor(id: string, name: string, socketId: any) {
-    this.id = id;
-    this.name = name;
-    this.socketId = socketId;
+  constructor(
+    private _id: string,
+    private _name: string,
+    private _socketId: any
+  ) {
     this.remainingTimeCookies = 1;
     this.bankCoins = 10000000;
     this.activeGames = new Set();
@@ -27,20 +24,20 @@ export class Player {
   }
 
   getId(): string {
-    return this.id;
+    return this._id;
   }
 
   getName(): string {
-    return this.name;
+    return this._name;
   }
 
   getSocketId(): string {
-    return this.socketId;
+    return this._socketId;
   }
 
   async buyIntoGame(amount: number, game: Game): Promise<boolean> {
     return await this.bankLock.runExclusive(async () => {
-      const playerInGame = game.getPlayer(this.id);
+      const playerInGame = game.getPlayer(this._id);
       if (!playerInGame || this.bankCoins < amount) return false;
       this.bankCoins -= amount;
       return true;

@@ -21,7 +21,6 @@ export class Game {
   private state: DetailedGameState;
   private broadcaster: GameStateBroadcaster;
   private handWonWithoutShowdown: boolean;
-  private server: Server;
   private gameFlowManager: SingleGameFlowManager | null;
   private stacksUpdatesForNextHand: Array<[PlayerInGame, number]>;
   private TableConditionChangeMutex: Mutex;
@@ -29,11 +28,11 @@ export class Game {
   constructor(
     id: string,
     stakes: string,
-    server: Server,
+    private _server: Server,
     tableConfig: TableConfig
   ) {
-    this.server = server;
-    this.broadcaster = new GameStateBroadcaster(server);
+    this._server = _server;
+    this.broadcaster = new GameStateBroadcaster(_server);
     this.TableConditionChangeMutex = new Mutex();
     this.handWonWithoutShowdown = false;
     this.state = {
@@ -244,7 +243,7 @@ export class Game {
   }
 
   getServer() {
-    return this.server;
+    return this._server;
   }
 
   getGameFlowManager(): SingleGameFlowManager | null {

@@ -1,4 +1,5 @@
 import { Game } from '../Game';
+import { Card } from '../types/Card';
 import { GameActionTimerManager } from '../utils/GameActionTimerManager';
 import { Position } from '../utils/PositionsUtils';
 import { validateCardsArrangement } from './PlayerArrangementValidator';
@@ -55,8 +56,8 @@ export class ArrangePlayerCardsManager {
   }
 
   async handlePlayerArrangedCardsRecived(
-    playerId: any,
-    arrangement: Object[]
+    playerId: string,
+    arrangement: Card[]
   ): Promise<ArrangeCardsResult> {
     const player = Array.from(
       this._game.getPlayersInGame()?.entries() || []
@@ -80,7 +81,7 @@ export class ArrangePlayerCardsManager {
 
     // Update player's arranged cards
     player.updatePlayerPrivateState({
-      cards: validationResult.cards,
+      cards: arrangement,
     });
 
     // Mark player as done
