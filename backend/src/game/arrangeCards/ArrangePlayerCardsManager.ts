@@ -1,4 +1,5 @@
 import { Game } from '../Game';
+import { Card } from '../types/Card';
 import { GameActionTimerManager } from '../utils/GameActionTimerManager';
 import { Position } from '../utils/PositionsUtils';
 import { validateCardsArrangement } from './PlayerArrangementValidator';
@@ -14,58 +15,59 @@ export interface ArrangeCardsResult {
 }
 
 export class ArrangePlayerCardsManager {
-  private state: ArrangePlayerCardsState;
-  private game: Game;
-  private playersRemaining: number;
-  private timer: GameActionTimerManager;
+  private _state: ArrangePlayerCardsState;
+  private _playersRemaining: number;
+  private _timer: GameActionTimerManager;
 
-  constructor(game: Game, OnArrangeDone: () => void) {
-    this.game = game;
+  constructor(
+    private _game: Game,
+    OnArrangeDone: () => void
+  ) {
     // Initialize player done map and count
     const playerDoneMap = new Map<Position, boolean>();
     let activePlayerCount = 0;
 
-    const playersInGame = game.getPlayersInGame();
+    const playersInGame = _game.getPlayersInGame();
     if (playersInGame) {
       playersInGame.forEach((player, position) => {
-        if (player && player.isActive()) {
+        if (player && player.isFolded()) {
           playerDoneMap.set(position, false);
           activePlayerCount++;
         }
       });
     }
 
-    this.playersRemaining = activePlayerCount;
-    this.state = {
+    this._playersRemaining = activePlayerCount;
+    this._state = {
       timeRemaining: 60000, // todo table config
       playerDoneMap: playerDoneMap,
     };
-    this.timer = new GameActionTimerManager({
-      duration: this.state.timeRemaining,
+    this._timer = new GameActionTimerManager({
+      duration: this._state.timeRemaining,
       networkBuffer: 1000,
-      timeCookieEffect: game.getBettingConfig().timeCookieEffect,
+      timeCookieEffect: _game.getTableConfig().timeCookieEffect,
       maxCookiesPerRound: 3,
       updateTimeRemianing: (timeRemaining: number) =>
         this.updateTimeRemianing(timeRemaining),
       onTimeout: OnArrangeDone,
       onComplete: OnArrangeDone,
     });
-    this.timer.start();
+    this._timer.start();
   }
 
-  handlePlayerArrangedCardsRecived(
-    playerId: any,
-    arrangement: Object[]
-  ): ArrangeCardsResult {
+  async handlePlayerArrangedCardsRecived(
+    playerId: string,
+    arrangement: Card[]
+  ): Promise<ArrangeCardsResult> {
     const player = Array.from(
-      this.game.getPlayersInGame()?.entries() || []
-    ).find(([_, p]) => p?.id === playerId)?.[1];
+      this._game.getPlayersInGame()?.entries() || []
+    ).find(([_, p]) => p?.getId() === playerId)?.[1];
 
     if (!player) {
       return { success: false, error: 'Player not found' };
     }
 
-    if (this.state.playerDoneMap.get(player.getPosition()) === true) {
+    if (this._state.playerDoneMap.get(player.getPosition()) === true) {
       return { success: false, error: 'Player already submitted arrangement' };
     }
 
@@ -79,28 +81,28 @@ export class ArrangePlayerCardsManager {
 
     // Update player's arranged cards
     player.updatePlayerPrivateState({
-      cards: validationResult.cards,
+      cards: arrangement,
     });
 
     // Mark player as done
     this.markPlayerDone(player.getPosition());
 
     if (this.isAllPlayersDone()) {
-      this.timer.handleAction(); // Signal that we received valid actions, cancel timout action
+      this._timer.handleAction(); // Signal that we received valid actions, cancel timout action
     }
 
     return { success: true };
   }
 
   markPlayerDone(position: Position) {
-    if (this.state.playerDoneMap.get(position) === false) {
-      this.state.playerDoneMap.set(position, true);
-      this.playersRemaining--;
+    if (this._state.playerDoneMap.get(position) === false) {
+      this._state.playerDoneMap.set(position, true);
+      this._playersRemaining--;
 
       // Update game state to broadcast progress
-      this.game.updateGameStateAndBroadcast(
+      this._game.updateGameStateAndBroadcast(
         {
-          arrangePlayerCardsState: this.state,
+          arrangePlayerCardsState: this._state,
         },
         null
       );
@@ -108,16 +110,16 @@ export class ArrangePlayerCardsManager {
   }
 
   updateTimeRemianing(timeRemaining: number) {
-    this.state.timeRemaining = timeRemaining;
-    this.game.updateGameStateAndBroadcast(
+    this._state.timeRemaining = timeRemaining;
+    this._game.updateGameStateAndBroadcast(
       {
-        arrangePlayerCardsState: this.state,
+        arrangePlayerCardsState: this._state,
       },
       null
     );
   }
 
   isAllPlayersDone(): boolean {
-    return this.playersRemaining === 0;
+    return this._playersRemaining === 0;
   }
 }

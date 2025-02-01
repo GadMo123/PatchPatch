@@ -2,13 +2,13 @@
 
 import { Server } from 'socket.io';
 import { Game } from '../Game';
-import { GameStateUtils } from '../types/GameState';
+import { getBaseGameState } from '../types/GameState';
 
 export class GameStateBroadcaster {
-  constructor(private io: Server) {}
+  constructor(private _io: Server) {}
 
   broadcastGameState(game: Game, afterFunction: (() => void) | null) {
-    const baseState = GameStateUtils.getBaseGameState(game);
+    const baseState = getBaseGameState(game);
 
     // Broadcast to players in game
     game.getPlayersInGame()?.forEach((player, position) => {
@@ -17,13 +17,13 @@ export class GameStateBroadcaster {
           ...baseState,
           playerPrivateState: player.getPlayerPrivateState(),
         };
-        this.io.to(player.socketId).emit('game-state', playerGameState);
+        this._io.to(player.getSocketId()).emit('game-state', playerGameState);
       }
     });
 
     // Broadcast to observers
     game.getObserversList().forEach(observer => {
-      this.io.to(observer.socketId).emit('game-state', baseState);
+      this._io.to(observer.getSocketId()).emit('game-state', baseState);
     });
 
     // Call afterFunction with a small delay to allow players recive the state

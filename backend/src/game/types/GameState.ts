@@ -5,7 +5,7 @@ import { Card } from './Card';
 import { Position } from '../utils/PositionsUtils';
 import { Game } from '../Game';
 import { Player } from '../../player/Player';
-import { BettingConfig, BettingState } from '../betting/BettingTypes';
+import { TableConfig, BettingState } from '../betting/BettingTypes';
 import { ArrangePlayerCardsState } from '../arrangeCards/ArrangePlayerCardsManager';
 
 export enum GamePhase {
@@ -34,62 +34,60 @@ export interface DetailedGameState {
   observers: Player[];
 
   // Map of players playing by position
-  playerInPosition: Map<Position, PlayerInGame | null> | null;
+  playerInPosition: Map<Position, PlayerInGame | null>;
 
   // Betting state
   bettingState: BettingState | null;
-  bettingConfig: BettingConfig;
+  tableConfig: TableConfig;
   arrangePlayerCardsState: ArrangePlayerCardsState | null;
 }
 
-export class GameStateUtils {
-  // Exclude private data from the game state to broadcast to everyone
-  static getBaseGameState(game: Game): Object {
-    const playerInPosition = game.getPlayersInGame();
+// Exclude private data from the game state to broadcast to everyone
+export function getBaseGameState(game: Game): Object {
+  const playerInPosition = game.getPlayersInGame();
 
-    // Map each player to their public state for broadcasting
-    const publicPlayerByPositions = playerInPosition
-      ? new Map(
-          Array.from(playerInPosition.entries()).map(([position, player]) => [
-            position,
-            player ? player.getPlayerPublicState() : null,
-          ])
-        )
-      : null;
+  // Map each player to their public state for broadcasting
+  const publicPlayerByPositions = playerInPosition
+    ? new Map(
+        Array.from(playerInPosition.entries()).map(([position, player]) => [
+          position,
+          player ? player.getPlayerPublicState() : null,
+        ])
+      )
+    : null;
 
-    return {
-      id: game.getId(),
-      phase: game.getPhase(),
-      stakes: game.getStakes(),
-      flops: game.getFlops(),
-      turns: game.getTurns(),
-      rivers: game.getRivers(),
-      potSize: game.getPotSize(),
-      observers: game.getObserversNames(),
-      publicPlayerDataMapByPosition: publicPlayerByPositions,
-      privatePlayerData: null,
-      bettingState: game.getBettingState(),
-      bettingConfig: game.getBettingConfig(),
-      arrangePlayerCardsState: game.getArrangePlayerCardsState(),
-    };
+  return {
+    id: game.getId(),
+    phase: game.getPhase(),
+    stakes: game.getStakes(),
+    flops: game.getFlops(),
+    turns: game.getTurns(),
+    rivers: game.getRivers(),
+    potSize: game.getPotSize(),
+    observers: game.getObserversNames(),
+    publicPlayerDataMapByPosition: publicPlayerByPositions,
+    privatePlayerData: null,
+    bettingState: game.getBettingState(),
+    tableConfig: game.getTableConfig(),
+    arrangePlayerCardsState: game.getArrangePlayerCardsState(),
+  };
+}
+
+// Add personalized private data for a specific player
+export function addPlayerPersonalData(
+  baseState: Object,
+  playerPosition: Position,
+  game: Game
+): Object {
+  const personalizedState = structuredClone(baseState) as any; // Clone the base state
+
+  // Add private player data if the player exists in the game
+  const player = game.getPlayerInPosition(playerPosition);
+
+  if (player) {
+    // Update the map to include both public and private data for this player
+    personalizedState.privatePlayerData = player.getPlayerPrivateState();
   }
 
-  // Add personalized private data for a specific player
-  static addPlayerPersonalData(
-    baseState: Object,
-    playerPosition: Position,
-    game: Game
-  ): Object {
-    const personalizedState = structuredClone(baseState) as any; // Clone the base state
-
-    // Add private player data if the player exists in the game
-    const player = game.getPlayerInPosition(playerPosition);
-
-    if (player) {
-      // Update the map to include both public and private data for this player
-      personalizedState.privatePlayerData = player.getPlayerPrivateState();
-    }
-
-    return personalizedState;
-  }
+  return personalizedState;
 }

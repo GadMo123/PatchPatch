@@ -3,6 +3,7 @@
 import { Player } from '../player/Player';
 import { Game } from '../game/Game';
 
+//todo : all shared data access should be async
 export class ServerStateManager {
   private static instance: ServerStateManager;
 
@@ -27,7 +28,7 @@ export class ServerStateManager {
   }
 
   public addPlayer(player: Player): void {
-    this.players[player.id] = player;
+    this.players[player.getId()] = player;
   }
 
   public removePlayer(playerId: string): void {
