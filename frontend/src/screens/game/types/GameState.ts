@@ -1,9 +1,9 @@
-import CardObject from './CardObject';
+import { Card } from 'shared/src/Card';
 
 export interface Player {
   id: string;
   name: string;
-  cards: CardObject[];
+  cards: Card[];
   position: string;
   betOptions: String | null;
 }
@@ -14,9 +14,9 @@ export interface ServerGameState {
   id: string;
   phase: string;
   stakes: string;
-  flops: CardObject[][];
-  turns: CardObject[];
-  rivers: CardObject[];
+  flops: Card[][];
+  turns: Card[];
+  rivers: Card[];
   potSize: number;
   observers: any[];
   publicPlayerDataMapByPosition: Record<string, PublicPlayerData>;
@@ -29,8 +29,8 @@ export interface ServerGameState {
   };
   playerPrivateState: {
     remainingTimeCookies: number;
-    cards: CardObject[] | null;
-    arrangedCards?: CardObject[] | null;
+    cards: Card[] | null;
+    arrangedCards?: Card[] | null;
   };
   arrangePlayerCardsState: {
     timeRemaining: number;
@@ -42,12 +42,12 @@ export interface PublicPlayerData {
   id: string;
   name: string;
   position: string;
-  cards?: CardObject[];
+  cards?: Card[];
 }
 
 export interface PrivatePlayerData {
   id: string;
-  cards: CardObject[];
+  cards: Card[];
 }
 
 export interface BettingState {

@@ -1,5 +1,5 @@
 import { Game } from '../Game';
-import { Card } from '../types/Card';
+import { Card } from '../../../../shared/src/Card';
 import { GameActionTimerManager } from '../utils/GameActionTimerManager';
 import { Position } from '../utils/PositionsUtils';
 import { validateCardsArrangement } from './PlayerArrangementValidator';

@@ -2,7 +2,7 @@
 
 import { Server } from 'socket.io';
 import { Game } from '../Game';
-import { getBaseGameState } from '../types/GameState';
+import { getBaseGameState } from './GameState';
 
 export class GameStateBroadcaster {
   constructor(private _io: Server) {}

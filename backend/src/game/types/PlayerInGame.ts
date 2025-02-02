@@ -1,7 +1,7 @@
 import { Player } from '../../player/Player';
 import { Game } from '../Game';
 import { Position } from '../utils/PositionsUtils';
-import { Card } from './Card';
+import { Card } from '../../../../shared/src/Card';
 
 export interface PlayerPublicState {
   isSittingOut: boolean;

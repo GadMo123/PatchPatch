@@ -4,11 +4,15 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { SocketHandlers } from './handlers/SocketHandlers';
-import { GameServerConfig } from './handlers/ServerTypes';
+import {
+  GameServerConfig,
+  SocketEvents,
+} from '../../../shared/src/SocketProtocol';
 import { ServerStateManager } from './ServerStateManager';
 import { Game } from '../game/Game';
 import { TableConfig, getTableConfig } from '../game/betting/BettingTypes';
-import { GamePhase } from '../game/types/GameState';
+import { GamePhase } from '../game/broadcasting/GameState';
+import { getLobbyStatus } from '../lobby/LobbyManager';
 
 const serverConfig: GameServerConfig = {
   maxGamesPerServer: 3000,
@@ -19,6 +23,7 @@ const serverConfig: GameServerConfig = {
 
 const PORT = process.env.PORT || 5000;
 const app = express();
+
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
@@ -38,71 +43,70 @@ app.use(express.json());
 const socketHandlers = SocketHandlers.getInstance();
 let gameCounter = 0;
 
-// Create a new game helper function
-function createGame(
-  creatorId: string,
-  blindLevel: string,
-  server: Server,
-  config: TableConfig
-): Game {
-  const gameId = (gameCounter++).toString();
-  const newGame = new Game(gameId, blindLevel, server, config);
-  ServerStateManager.getInstance().addGame(newGame);
-  return newGame;
-}
-
 io.on('connection', socket => {
   console.log('A user connected:', socket.id);
+  // DOS
+  const rateLimiter = new Map<string, number[]>();
+  socket.use((packet, next) => {
+    const now = Date.now();
+    const timestamps = rateLimiter.get(socket.id) || [];
+
+    // Remove timestamps older than 1 second
+    while (timestamps.length > 0 && now - timestamps[0] > 1000) {
+      timestamps.shift();
+    }
+
+    const limit = Number(process.env.MSG_PER_SEC_LIMIT) || 15;
+    if (timestamps.length >= limit) {
+      return next(new Error(`Rate limit exceeded`));
+    }
+    // Add current timestamp and update map
+    timestamps.push(now);
+    rateLimiter.set(socket.id, timestamps);
+    next();
+  });
 
   //Todo - handle reconnection for each game where player is active
 
-  socket.on('login', async (payload, callback) => {
+  socket.on(SocketEvents.LOGIN, async (payload, callback) => {
     const result = await socketHandlers.handleLogin(socket, payload);
     callback(result);
   });
 
-  socket.on('disconnect', async () => {
+  socket.on(SocketEvents.DISCONNECT, async () => {
     await socketHandlers.handleDisconnect(socket.id);
     console.log('User disconnected:', socket.id);
   });
 
-  socket.on('join-game', async (payload, callback) => {
+  socket.on(SocketEvents.JOIN_GAME, async (payload, callback) => {
     const result = await socketHandlers.handleJoinGame(payload);
     callback(result);
   });
 
-  socket.on('game-buyin', async (payload, callback) => {
+  socket.on(SocketEvents.GAME_BUYIN, async (payload, callback) => {
     const result = await socketHandlers.handleGameBuyin(payload);
     callback(result);
   });
 
-  socket.on('player-action', async (payload, callback) => {
+  socket.on(SocketEvents.PLAYER_ACTION, async (payload, callback) => {
     const result = await socketHandlers.handlePlayerAction(payload);
     callback(result);
   });
 
-  socket.on('cards-arrangement', async (payload, callback) => {
+  socket.on(SocketEvents.CARDS_ARRANGEMENT, async (payload, callback) => {
     const result = await socketHandlers.handleCardArrangement(payload);
     callback(result);
   });
 
-  socket.on('lobby-status', async callback => {
+  socket.on(SocketEvents.LOBBY_STATUS, async callback => {
     const games = ServerStateManager.getInstance().getGames();
-    const gamesList = Object.values(games).map(game => ({
-      id: game.getId(),
-      blindLevel:
-        '' +
-        game.getTableConfig().sbAmount +
-        '-' +
-        game.getTableConfig().bbAmount,
-      players: game.getPlayersInGame(),
-      status: game.getStatus() === GamePhase.Waiting ? 'waiting' : 'running',
-    }));
-
-    callback({
-      success: true,
-      games: gamesList,
-    });
+    const gamesList = getLobbyStatus(games);
+    if (!gamesList.success) callback({ success: false });
+    else
+      callback({
+        success: true,
+        games: gamesList,
+      });
   });
 });
 
@@ -136,6 +140,19 @@ process.on('SIGTERM', () => {
     });
   });
 });
+
+// Create a new game helper function
+function createGame(
+  creatorId: string,
+  blindLevel: string,
+  server: Server,
+  config: TableConfig
+): Game {
+  const gameId = (gameCounter++).toString();
+  const newGame = new Game(gameId, blindLevel, server, config);
+  ServerStateManager.getInstance().addGame(newGame);
+  return newGame;
+}
 
 // Create dummy games for testing
 function createDummyGames(server: Server) {

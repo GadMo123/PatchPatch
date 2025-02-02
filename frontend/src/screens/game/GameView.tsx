@@ -5,18 +5,18 @@ import PlayerCards from './gameComponents/PlayerCards';
 import BoardCards from './gameComponents/BoardCards';
 import { constructBoards } from './helpers/gameHelpers';
 import { ServerGameState, BettingState } from './types/GameState';
-import CardObject from './types/CardObject';
 import BetPanel from './gameComponents/BetPanel';
 import { GameContextProvider } from './types/GameContext';
 import socket from '../../socket/Socket';
 import PotDisplay from './gameComponents/PotDisplay';
 import TableAndSeats from './gameComponents/TableAndSeats';
+import { Card } from 'shared/src/Card';
 
 const GameView: React.FC<{ playerId: string; gameId: string }> = ({
   playerId,
   gameId,
 }) => {
-  const [boards, setBoards] = useState<CardObject[][] | null>(null);
+  const [boards, setBoards] = useState<Card[][] | null>(null);
   const [gameState, setGameState] = useState<ServerGameState | null>(null);
   const [bettingState, setBettingState] = useState<BettingState | null>(null);
 
@@ -39,7 +39,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     };
   }, [gameId]);
 
-  function getDisplayCards(): CardObject[] {
+  function getDisplayCards(): Card[] {
     return (
       gameState!.playerPrivateState!.arrangedCards ??
       gameState?.playerPrivateState.cards!

@@ -1,20 +1,20 @@
-import { Card } from '../../types/Card';
+import { Card } from '../../../../../shared/src/Card';
 import { PlayerInGame } from '../../types/PlayerInGame';
 import { PotContribution } from './PotContribution ';
 
 export class PotManager {
-  private sidePots: PotContribution[] = [];
-  private mainPot: PotContribution;
+  private _sidePots: PotContribution[] = [];
+  private _mainPot: PotContribution;
 
   constructor() {
-    this.mainPot = new PotContribution();
+    this._mainPot = new PotContribution();
   }
 
   processBettingRound(
     players: PlayerInGame[],
     bets: Map<PlayerInGame, number>
   ) {
-    // Sort players by their contribution amount to the pot
+    // Sort players by their contribution amount to the pot increasing
     const sortedPlayers = [...players].sort(
       (a, b) => (bets.get(a) || 0) - (bets.get(b) || 0)
     );
@@ -41,7 +41,7 @@ export class PotManager {
 
       // Add side pot if it has contributions
       if (sidePot.getTotalPotSize() > 0) {
-        this.sidePots.push(sidePot);
+        this._sidePots.push(sidePot);
       }
 
       // Remove players with zero remaining bet
@@ -53,25 +53,24 @@ export class PotManager {
     // Check if main pot contains only one player:
     // When a player bets more than all-in anount of all other active players -
     // return the bet diractlly to his stack after the betting round (without processing it as a side pot).
-    const mainPotContributors = this.mainPot.getContributors();
+    const mainPotContributors = this._mainPot.getContributors();
     if (mainPotContributors.size === 1) {
       const singlePlayer = Array.from(mainPotContributors)[0];
       singlePlayer.updatePlayerPublicState({
-        currentStack: singlePlayer.getStack() + this.mainPot.getTotalPotSize(),
+        currentStack: singlePlayer.getStack() + this._mainPot.getTotalPotSize(),
       });
     }
   }
 
   distributeWinningsInShowdown(
-    boardCards: Card[],
     winningScores: Map<PlayerInGame, number>
   ): Map<PlayerInGame, number> {
     const winnings = new Map<PlayerInGame, number>();
 
     // Add main pot to side pots for distribution
-    this.sidePots.push(this.mainPot);
+    this._sidePots.push(this._mainPot);
 
-    for (const pot of this.sidePots) {
+    for (const pot of this._sidePots) {
       const potContributors = Array.from(pot.getContributors());
 
       // Filter winners from this pot based on pre-calculated scores
@@ -98,12 +97,12 @@ export class PotManager {
     const allContributors = new Set<PlayerInGame>();
 
     // Add contributors from main pot
-    for (const player of this.mainPot.getContributors()) {
+    for (const player of this._mainPot.getContributors()) {
       allContributors.add(player);
     }
 
     // Add contributors from side pots
-    for (const sidePot of this.sidePots) {
+    for (const sidePot of this._sidePots) {
       for (const player of sidePot.getContributors()) {
         allContributors.add(player);
       }

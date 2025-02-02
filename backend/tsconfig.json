@@ -1,15 +1,24 @@
 {
-    "compilerOptions": {
-      "target": "es6",
-      "module": "commonjs",
-      "outDir": "./dist",
-      "rootDir": "./",
-      "strict": true,
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true,
-      "sourceMap": true   // for debug
-    },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules"],
-  }
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src", 
+    "baseUrl": "./src",  
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
+    "paths": {
+      "shared/*": ["../../shared/src/*"]  
+    }
+  },
+  "include": ["src/**/*"],  
+  "exclude": ["node_modules"],
+  "references": [  // Add project references
+    {
+      "path": "../shared"
+    }
+  ]
+}
