@@ -1,4 +1,4 @@
-import { Card, Rank, Suit } from '../types/Card';
+import { Card, Rank, Suit } from '../../../../shared/src/Card';
 
 // Enum for Hand Rankings
 enum HandRank {

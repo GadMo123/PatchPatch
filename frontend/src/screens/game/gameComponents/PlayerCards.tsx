@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import Card from './Card';
+import CardView from './CardView';
 import './PlayerCards.css';
 import { useArrangedCardActions } from '../playerActions/SendPlayerActions';
 import { useGameContext } from '../types/GameContext';
 import socket from '../../../socket/Socket';
-import CardObject from '../types/CardObject';
 import { useCountdownTimer } from '../helpers/TimerHook';
+import { Card } from 'shared/src/Card';
 
 interface PlayerCardsProps {
-  playerCards: CardObject[];
+  playerCards: Card[];
   gamePhaseArrangeCards: boolean;
   arrangeCardsTimeLeft: number;
 }
@@ -19,7 +19,7 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
   arrangeCardsTimeLeft,
 }) => {
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
-  const [arrangedCards, setArrangedCards] = useState<CardObject[]>([]);
+  const [arrangedCards, setArrangedCards] = useState<Card[]>([]);
   const [isArrangementComplete, setIsArrangementComplete] = useState(false);
 
   const { playerId, gameId } = useGameContext();
@@ -42,7 +42,7 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
   useEffect(() => {
     setSelectedCards([]);
     if (gamePhaseArrangeCards) {
-      setArrangedCards(playerCards.map(card => ({ ...card })));
+      setArrangedCards(playerCards);
       setIsArrangementComplete(false);
     } else {
       setArrangedCards([]);
@@ -61,16 +61,14 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
 
     if (newSelection.length === 2) {
       const [firstIndex, secondIndex] = newSelection;
-      // First perform the swap
       setArrangedCards(prev => {
-        const newArrangement = [...prev];
-        // Make sure to create new object references when swapping
-        newArrangement[firstIndex] = { ...prev[secondIndex] };
-        newArrangement[secondIndex] = { ...prev[firstIndex] };
-        console.log('New arrangement:', newArrangement);
-        return newArrangement;
+        const newArr = [...prev];
+        [newArr[firstIndex], newArr[secondIndex]] = [
+          newArr[secondIndex],
+          newArr[firstIndex],
+        ];
+        return newArr;
       });
-
       // Then clear the selection
       setSelectedCards([]);
     } else {
@@ -82,9 +80,7 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
   const handleArrangementComplete = () => {
     if (isArrangementComplete) return;
     if (typeof cancelTimer) cancelTimer(); // Cancel timer when manual action is taken
-    const response = sendAarrangement(
-      arrangedCards.map(card => `${card.rank}${card.suit}`)
-    );
+    const response = sendAarrangement(arrangedCards);
     setIsArrangementComplete(true);
   };
 
@@ -139,7 +135,7 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
                       onClick={() => handleCardClick(absoluteIndex)}
                       className={getCardWrapperClassName(absoluteIndex)}
                     >
-                      <Card
+                      <CardView
                         card={card}
                         className={`card ${isSelected ? 'selected' : ''}`}
                       />

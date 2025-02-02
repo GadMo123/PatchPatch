@@ -2,6 +2,8 @@ import { useCallback } from 'react';
 
 import { PlayerAction } from '../gameComponents/BetPanel';
 import { Socket } from 'socket.io-client';
+import { Card } from 'shared/src/Card';
+import { SocketEvents } from 'shared/src/SocketProtocol';
 
 interface Response {
   success: boolean;
@@ -42,11 +44,11 @@ export const useArrangedCardActions = (
   socket: Socket
 ) => {
   const sendAarrangement = useCallback(
-    (arrangement: string[]): Promise<Response> => {
+    (arrangement: Card[]): Promise<Response> => {
       console.log('arrangment ' + arrangement);
       return new Promise(resolve => {
         socket.emit(
-          'cards-arrangement',
+          SocketEvents.CARDS_ARRANGEMENT,
           {
             gameId,
             playerId,

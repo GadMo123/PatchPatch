@@ -1,5 +1,5 @@
 import React from 'react';
-import Card from './Card';
+import CardView from './CardView';
 
 interface OpponentCardsProps {
   opponents: {
@@ -18,7 +18,7 @@ const OpponentCards: React.FC<OpponentCardsProps> = ({ opponents }) => {
           <div className="player-name">{opponent.name || 'Villain'}</div>
           <div className="opponent-cards">
             {opponent.cards?.map((card, cardIndex) => (
-              <Card
+              <CardView
                 key={`opponent-${index}-card-${cardIndex}`}
                 card={card}
                 className="card"

@@ -24,7 +24,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
     socket.on('reconnect', attemptNumber => {
       console.log(`Reconnected on attempt ${attemptNumber}`);
-      // Optionally trigger events here, like re-fetching game status, player status, etc.
+      // tood re-fetching games status, player status, etc.
     });
 
     socket.on('reconnect_error', error => {

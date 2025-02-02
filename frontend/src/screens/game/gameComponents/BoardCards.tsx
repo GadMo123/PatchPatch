@@ -1,10 +1,10 @@
 import React from 'react';
-import Card from './Card';
-import CardObject from '../types/CardObject';
+import CardView from './CardView';
 import './BoardCards.css';
+import { Card } from 'shared/src/Card';
 
 interface BoardCardsProps {
-  boards: CardObject[][];
+  boards: Card[][];
 }
 
 const BoardCards: React.FC<BoardCardsProps> = ({ boards }) => {
@@ -16,7 +16,7 @@ const BoardCards: React.FC<BoardCardsProps> = ({ boards }) => {
             <div className="board-label">Board {boardIndex + 1}</div>
             <div className="board">
               {board.map((card, cardIndex) => (
-                <Card
+                <CardView
                   key={`board-${boardIndex}-card-${cardIndex}`}
                   card={card}
                   className="card"

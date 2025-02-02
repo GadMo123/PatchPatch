@@ -1,13 +1,12 @@
 import React from 'react';
-import CardObject from '../types/CardObject';
-import './Card.css';
+import { Card } from 'shared/src/Card';
 
 interface CardProps {
-  card: CardObject;
+  card: Card;
   className?: string;
 }
 
-const Card: React.FC<CardProps> = ({ card, className = '' }) => {
+const CardView: React.FC<CardProps> = ({ card, className = '' }) => {
   const suitSrc = `/suits/${card.suit}.svg`;
   return (
     <div className={`container ${card.suit} ${className}`}>
@@ -23,4 +22,4 @@ const Card: React.FC<CardProps> = ({ card, className = '' }) => {
   );
 };
 
-export default Card;
+export default CardView;

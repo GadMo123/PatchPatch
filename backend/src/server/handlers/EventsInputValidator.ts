@@ -1,6 +1,6 @@
 import { PlayerAction } from '../../game/betting/BettingTypes';
 import { Game } from '../../game/Game';
-import { isValidRank, isValidSuit } from '../../game/types/Card';
+import { Card, isValidRank, isValidSuit } from '../../../../shared/src/Card';
 import { Player } from '../../player/Player';
 import { ServerStateManager } from '../ServerStateManager';
 import {
@@ -10,7 +10,7 @@ import {
   JoinGamePayload,
   LoginPayload,
   PlayerActionPayload,
-} from './ServerTypes';
+} from 'shared/SocketProtocol';
 
 export interface GameAndPlayer {
   game: Game | null;
@@ -59,14 +59,7 @@ export const isCardArrangementPayload = (
     p.arrangement.length === 12 &&
     p.arrangement.every(
       item =>
-        typeof item === 'object' &&
-        item !== null &&
-        'suit' in item &&
-        'rank' in item &&
-        typeof item.suit === 'string' &&
-        typeof item.rank === 'string' &&
-        isValidSuit(item.suit) &&
-        isValidRank(item.rank)
+        item instanceof Card && isValidSuit(item.suit) && isValidRank(item.rank)
     );
 
   return isInGamePayload(p) && isValidArrangement;
@@ -94,4 +87,8 @@ export const getGameAndPlayer = (payload: InGamePayload): GameAndPlayer => {
   const player =
     ServerStateManager.getInstance().getPlayer(payload.playerId) ?? null;
   return { game: game, player: player };
+};
+
+export const validateSessionToken = (token: string): boolean => {
+  return typeof token === 'string' && token.length > 20 && token.length < 500;
 };

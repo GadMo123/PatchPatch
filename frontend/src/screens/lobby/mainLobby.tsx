@@ -18,12 +18,11 @@ const MainLobby: React.FC<MainLobbyProps> = ({ joinGame, playerId }) => {
 
     socket?.emit(
       'lobby-status',
-      {},
       (response: { success: boolean; games: any[] }) => {
         console.log(response);
         if (response.success) {
           setGames(response.games); // Update games list
-        }
+        } else alert("Can't connect, try again leter");
       }
     );
   };

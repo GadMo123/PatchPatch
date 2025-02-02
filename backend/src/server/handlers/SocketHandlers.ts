@@ -11,8 +11,8 @@ import {
 import { ServerStateManager } from '../ServerStateManager';
 import { getPosition, Position } from '../../game/utils/PositionsUtils';
 import { PlayerAction } from '../../game/betting/BettingTypes';
-import { HandlerResponse } from './ServerTypes';
-import { Card } from '../../game/types/Card';
+import { Card } from '../../../../shared/src/Card';
+import { HandlerResponse } from 'shared/SocketProtocol';
 
 export class SocketHandlers {
   private static _instance: SocketHandlers;

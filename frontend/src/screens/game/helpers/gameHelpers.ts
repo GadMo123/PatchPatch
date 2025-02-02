@@ -1,13 +1,13 @@
-import CardObject from '../types/CardObject';
+import { Card } from 'shared/src/Card';
 
 export const constructBoards = (
-  flops: CardObject[][],
-  turns: CardObject[],
-  rivers: CardObject[]
+  flops: Card[][],
+  turns: Card[],
+  rivers: Card[]
 ) => {
   return (
     flops?.map((flop, index) => {
-      const board: CardObject[] = [...flop];
+      const board: Card[] = [...flop];
       if (turns[index]) board.push(turns[index]);
       if (rivers[index]) board.push(rivers[index]);
       return board;

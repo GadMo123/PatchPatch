@@ -1,12 +1,13 @@
 // src/utils/GameStateUtils.ts
 
-import { PlayerInGame } from './PlayerInGame';
-import { Card } from './Card';
+import { PlayerInGame } from '../types/PlayerInGame';
+import { Card } from '../../../../shared/src/Card';
 import { Position } from '../utils/PositionsUtils';
 import { Game } from '../Game';
 import { Player } from '../../player/Player';
 import { TableConfig, BettingState } from '../betting/BettingTypes';
 import { ArrangePlayerCardsState } from '../arrangeCards/ArrangePlayerCardsManager';
+import { GameStateServerBroadcast } from 'shared/SocketProtocol';
 
 export enum GamePhase {
   Waiting = 'waiting',
@@ -43,7 +44,7 @@ export interface DetailedGameState {
 }
 
 // Exclude private data from the game state to broadcast to everyone
-export function getBaseGameState(game: Game): Object {
+export function getBaseGameState(game: Game): GameStateServerBroadcast {
   const playerInPosition = game.getPlayersInGame();
 
   // Map each player to their public state for broadcasting
@@ -63,7 +64,7 @@ export function getBaseGameState(game: Game): Object {
     flops: game.getFlops(),
     turns: game.getTurns(),
     rivers: game.getRivers(),
-    potSize: game.getPotSize(),
+    potSize: null,
     observers: game.getObserversNames(),
     publicPlayerDataMapByPosition: publicPlayerByPositions,
     privatePlayerData: null,

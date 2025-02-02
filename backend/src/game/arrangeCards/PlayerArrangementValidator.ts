@@ -1,4 +1,4 @@
-import { Card, isValidRank, isValidSuit } from '../types/Card';
+import { Card, isValidRank, isValidSuit } from '../../../../shared/src/Card';
 import { PlayerInGame } from '../types/PlayerInGame';
 
 interface ValidationResult {

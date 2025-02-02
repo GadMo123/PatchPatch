@@ -1,5 +1,5 @@
 import { Game } from '../Game';
-import { DetailedGameState, GamePhase } from '../types/GameState';
+import { DetailedGameState, GamePhase } from '../broadcasting/GameState';
 import { PlayerInGame } from '../types/PlayerInGame';
 
 export enum Position {
