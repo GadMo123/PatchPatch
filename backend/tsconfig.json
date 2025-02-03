@@ -11,14 +11,9 @@
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "paths": {
-      "shared/*": ["../../shared/src/*"]  
+        "shared/*": ["../../shared/src/*"]  
     }
   },
   "include": ["src/**/*"],  
-  "exclude": ["node_modules"],
-  "references": [  // Add project references
-    {
-      "path": "../shared"
-    }
-  ]
+  "exclude": ["node_modules"]
 }

@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useSocket } from '../../socket/SocketContext';
 import { useNavigate } from 'react-router-dom';
-import PotDisplay from '../game/gameComponents/PotDisplay';
+import { SocketEvents } from 'shared/src/SocketProtocol';
 
 interface MainLobbyProps {
-  joinGame: (gameId: string) => void; // Callback to pass gameId back to App
+  enterGameView: (gameId: string) => void; // Callback to pass gameId back to App
   playerId: string;
 }
 
-const MainLobby: React.FC<MainLobbyProps> = ({ joinGame, playerId }) => {
+const MainLobby: React.FC<MainLobbyProps> = ({ enterGameView, playerId }) => {
   const { socket } = useSocket();
   const [games, setGames] = useState<any[]>([]);
   const navigate = useNavigate();
@@ -37,18 +37,19 @@ const MainLobby: React.FC<MainLobbyProps> = ({ joinGame, playerId }) => {
     return () => clearInterval(interval); // Cleanup interval on unmount
   }, []);
 
-  const handleJoinGame = (gameId: string) => {
+  const handleEnterGame = (gameId: string) => {
     if (!playerId || playerId === 'unregistered') {
       navigate('/login'); // Redirect to login
       return;
     }
 
     socket?.emit(
-      'join-game',
+      SocketEvents.ENTER_GAME,
       gameId,
+      playerId,
       (response: { success: boolean; message?: string }) => {
         if (response.success) {
-          joinGame(gameId); // Pass gameId to parent
+          enterGameView(gameId); // Pass gameId to parent
           navigate(`/game/${gameId}`);
         } else {
           alert(response.message || 'Failed to join game');
@@ -66,8 +67,13 @@ const MainLobby: React.FC<MainLobbyProps> = ({ joinGame, playerId }) => {
             <li key={game.id}>
               <h2>{game.blindLevel} Big Blinds</h2>
               <p>Players: {game.players?.join(', ')}</p>
-              <p>Status: {game.status}</p>
-              <button onClick={() => handleJoinGame(game.id)}>Join Game</button>
+              <p>Status: {game.status}</p>maxPlayers
+              <p>Max Players: {game.maxPlayers}</p>
+              <p>Min Buyin: {game.minBuyIn}</p>
+              <p>Max Buyin: {game.maxBuyIn}</p>
+              <button onClick={() => handleEnterGame(game.id)}>
+                Enter Game
+              </button>
             </li>
           ))}
         </ul>

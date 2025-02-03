@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
-      "target": "es5",
+      "target": "es6",
       "lib": ["dom", "dom.iterable", "esnext"],
-      "allowJs": false,
+      "allowJs": true,
       "skipLibCheck": true,
       "strict": true,
       "forceConsistentCasingInFileNames": true,
@@ -13,15 +13,7 @@
       "resolveJsonModule": true,
       "isolatedModules": true,
       "jsx": "react-jsx",
-      "paths": {
-        "shared/*": ["../../shared/src/*"]  
-      }
     },
     "include": ["src"],
-    "references": [ 
-      {
-        "path": "../shared"
-      }
-    ]
   }
   

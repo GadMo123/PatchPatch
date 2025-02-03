@@ -43,7 +43,9 @@ const App: React.FC = () => {
           {/* Lobby Route */}
           <Route
             path="/lobby"
-            element={<MainLobby joinGame={setGameId} playerId={playerId} />}
+            element={
+              <MainLobby enterGameView={setGameId} playerId={playerId} />
+            }
           />
 
           {/* Game Route */}

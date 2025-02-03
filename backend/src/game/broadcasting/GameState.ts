@@ -1,22 +1,22 @@
 // src/utils/GameStateUtils.ts
 
-import { PlayerInGame } from '../types/PlayerInGame';
-import { Card } from '../../../../shared/src/Card';
-import { Position } from '../utils/PositionsUtils';
-import { Game } from '../Game';
-import { Player } from '../../player/Player';
-import { TableConfig, BettingState } from '../betting/BettingTypes';
-import { ArrangePlayerCardsState } from '../arrangeCards/ArrangePlayerCardsManager';
-import { GameStateServerBroadcast } from 'shared/SocketProtocol';
+import { PlayerInGame } from "../types/PlayerInGame";
+import { Game } from "../Game";
+import { Player } from "../../player/Player";
+import { TableConfig, BettingState } from "../betting/BettingTypes";
+import { ArrangePlayerCardsState } from "../arrangeCards/ArrangePlayerCardsManager";
+import { GameStateServerBroadcast } from "shared";
+import { Position } from "shared";
+import { Card } from "shared";
 
 export enum GamePhase {
-  Waiting = 'waiting',
-  PreflopBetting = 'preflop-betting',
-  ArrangePlayerCards = 'arrange-player-cards',
-  FlopBetting = 'flop-betting',
-  TurnBetting = 'turn-betting',
-  RiverBetting = 'river-betting',
-  Showdown = 'showdown',
+  Waiting = "waiting",
+  PreflopBetting = "preflop-betting",
+  ArrangePlayerCards = "arrange-player-cards",
+  FlopBetting = "flop-betting",
+  TurnBetting = "turn-betting",
+  RiverBetting = "river-betting",
+  Showdown = "showdown",
 }
 
 export interface DetailedGameState {

@@ -1,7 +1,6 @@
-import { Player } from '../../player/Player';
-import { Game } from '../Game';
-import { Position } from '../utils/PositionsUtils';
-import { Card } from '../../../../shared/src/Card';
+import { Card, Position } from "shared";
+import { Player } from "../../player/Player";
+import { Game } from "../Game";
 
 export interface PlayerPublicState {
   isSittingOut: boolean;
@@ -49,7 +48,7 @@ export class PlayerInGame {
       remainingTimeCookies: 0,
     };
 
-    _player.getTimebankCookies().then(timebanks => {
+    _player.getTimebankCookies().then((timebanks) => {
       this._playerPrivateState.remainingTimeCookies = timebanks;
     });
   }

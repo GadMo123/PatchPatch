@@ -1,8 +1,8 @@
-import { Game } from '../Game';
-import { Card } from '../../../../shared/src/Card';
-import { GameActionTimerManager } from '../utils/GameActionTimerManager';
-import { Position } from '../utils/PositionsUtils';
-import { validateCardsArrangement } from './PlayerArrangementValidator';
+import { Card } from "shared";
+import { Game } from "../Game";
+import { GameActionTimerManager } from "../utils/GameActionTimerManager";
+import { validateCardsArrangement } from "./PlayerArrangementValidator";
+import { Position } from "shared";
 
 export interface ArrangePlayerCardsState {
   timeRemaining: number;
@@ -64,11 +64,11 @@ export class ArrangePlayerCardsManager {
     ).find(([_, p]) => p?.getId() === playerId)?.[1];
 
     if (!player) {
-      return { success: false, error: 'Player not found' };
+      return { success: false, error: "Player not found" };
     }
 
     if (this._state.playerDoneMap.get(player.getPosition()) === true) {
-      return { success: false, error: 'Player already submitted arrangement' };
+      return { success: false, error: "Player already submitted arrangement" };
     }
 
     const validationResult = validateCardsArrangement(arrangement, player);

@@ -1,5 +1,5 @@
-import { Card, isValidRank, isValidSuit } from '../../../../shared/src/Card';
-import { PlayerInGame } from '../types/PlayerInGame';
+import { Card } from "shared";
+import { PlayerInGame } from "../types/PlayerInGame";
 
 interface ValidationResult {
   isValid: boolean;
@@ -13,12 +13,12 @@ export function validateCardsArrangement(
 ): ValidationResult {
   // Verify all cards belong to the player
   const playerCardSet = new Set(
-    player.getPlayerPrivateState().cards?.map(card => cardToString(card))
+    player.getPlayerPrivateState().cards?.map((card) => cardToString(card))
   );
-  if (!arrangement.every(card => playerCardSet.has(cardToString(card)))) {
+  if (!arrangement.every((card) => playerCardSet.has(cardToString(card)))) {
     return {
       isValid: false,
-      error: 'Arrangement contains cards not dealt to player',
+      error: "Arrangement contains cards not dealt to player",
     };
   }
 
@@ -27,7 +27,7 @@ export function validateCardsArrangement(
   for (const card of arrangement) {
     const cardStr = cardToString(card);
     if (seenCards.has(cardStr)) {
-      return { isValid: false, error: 'Duplicate cards in arrangement' };
+      return { isValid: false, error: "Duplicate cards in arrangement" };
     }
     seenCards.add(cardStr);
   }
