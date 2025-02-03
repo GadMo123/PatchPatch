@@ -1,15 +1,7 @@
-import { Game } from '../Game';
-import { DetailedGameState, GamePhase } from '../broadcasting/GameState';
-import { PlayerInGame } from '../types/PlayerInGame';
-
-export enum Position {
-  BB = 'bb',
-  SB = 'sb',
-  BTN = 'btn',
-  CO = 'co',
-  MP = 'mp',
-  UTG = 'utg',
-}
+import { Position } from "shared";
+import { Game } from "../Game";
+import { DetailedGameState, GamePhase } from "../broadcasting/GameState";
+import { PlayerInGame } from "../types/PlayerInGame";
 
 const positionOrder = [
   Position.UTG,
@@ -43,12 +35,12 @@ export function findNextPlayerToAct(
       return player;
     }
   }
-  throw new Error('No players found to act.');
+  throw new Error("No players found to act.");
 }
 
 export function getPosition(position: string): Position | null {
   const positions = Object.values(Position);
-  const foundPosition = positions.find(p => p === position);
+  const foundPosition = positions.find((p) => p === position);
   return foundPosition ?? null;
 }
 
@@ -85,7 +77,7 @@ export function rotatePositionsAndSetupPlayerState(
     { player: PlayerInGame; position: Position } | undefined
   >(
     (found, position) =>
-      found || readyPlayers.find(p => p.position === position),
+      found || readyPlayers.find((p) => p.position === position),
     undefined
   );
 
@@ -97,7 +89,7 @@ export function rotatePositionsAndSetupPlayerState(
   players.set(activePositions[0], playerToMoveFront.player);
 
   const remainingPlayers = readyPlayers.filter(
-    p => p.player !== playerToMoveFront.player
+    (p) => p.player !== playerToMoveFront.player
   );
 
   remainingPlayers.forEach(({ player }, index) => {

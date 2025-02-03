@@ -1,6 +1,6 @@
 // src/game/utils/Deck.ts
 
-import { Card, RANKS, SUITS } from '../../../../shared/src/Card';
+import { Card, RANKS, SUITS } from "shared";
 
 export class Deck {
   private _deck: Card[] = [];

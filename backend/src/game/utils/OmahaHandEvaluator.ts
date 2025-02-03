@@ -1,4 +1,4 @@
-import { Card, Rank, Suit } from '../../../../shared/src/Card';
+import { Card, Rank, Suit } from "shared";
 
 // Enum for Hand Rankings
 enum HandRank {
@@ -16,14 +16,14 @@ enum HandRank {
 
 // Conversion utility to map ranks to numeric values for comparison
 const rankValues: Record<Rank, number> = {
-  '2': 2,
-  '3': 3,
-  '4': 4,
-  '5': 5,
-  '6': 6,
-  '7': 7,
-  '8': 8,
-  '9': 9,
+  "2": 2,
+  "3": 3,
+  "4": 4,
+  "5": 5,
+  "6": 6,
+  "7": 7,
+  "8": 8,
+  "9": 9,
   T: 10,
   J: 11,
   Q: 12,
@@ -40,13 +40,13 @@ interface HandEvaluation {
 
 export class OmahaHandEvaluator {
   static isFlush(cards: Card[]): boolean {
-    return new Set(cards.map(card => card.suit)).size === 1;
+    return new Set(cards.map((card) => card.suit)).size === 1;
   }
 
   // Check if a set of ranks forms a straight
   static isStraight(cards: Card[]): boolean {
     const sortedRanks = cards
-      .map(card => rankValues[card.rank])
+      .map((card) => rankValues[card.rank])
       .sort((a, b) => a - b);
 
     // Check for standard straight
@@ -61,7 +61,7 @@ export class OmahaHandEvaluator {
     // Check for wheel straight (A-2-3-4-5)
     if (
       uniqueSortedRanks.includes(14) &&
-      [2, 3, 4, 5].every(rank => uniqueSortedRanks.includes(rank))
+      [2, 3, 4, 5].every((rank) => uniqueSortedRanks.includes(rank))
     ) {
       return true;
     }
@@ -132,7 +132,7 @@ export class OmahaHandEvaluator {
     const suitCounts = this.countSuits(cards);
 
     // Check for flush
-    const isFlush = Object.values(suitCounts).some(count => count === 5);
+    const isFlush = Object.values(suitCounts).some((count) => count === 5);
 
     // Check for straight
     const isStraight = this.isStraight(cards);
@@ -141,7 +141,7 @@ export class OmahaHandEvaluator {
     if (isFlush && isStraight) {
       // Check for royal flush
       const sortedRanks = cards
-        .map(card => rankValues[card.rank])
+        .map((card) => rankValues[card.rank])
         .sort((a, b) => a - b);
 
       const isRoyalFlush =
@@ -228,7 +228,7 @@ export class OmahaHandEvaluator {
   // Get kickers (remaining cards after primary hand)
   private static getKickers(cards: Card[], count: number): Rank[] {
     return cards
-      .map(card => card.rank)
+      .map((card) => card.rank)
       .sort((a, b) => rankValues[b] - rankValues[a])
       .slice(0, count);
   }
@@ -237,8 +237,8 @@ export class OmahaHandEvaluator {
   private static defaultHand(): HandEvaluation {
     return {
       rank: HandRank.HighCard,
-      primaryValues: ['2'],
-      kickers: ['2', '3', '4', '5', '6'],
+      primaryValues: ["2"],
+      kickers: ["2", "3", "4", "5", "6"],
     };
   }
 }

@@ -1,5 +1,5 @@
-import { Socket } from 'socket.io';
-import { Player } from '../../player/Player';
+import { Socket } from "socket.io";
+import { Player } from "../../player/Player";
 import {
   getGameAndPlayer,
   isBuyIntoGamePayload,
@@ -7,12 +7,11 @@ import {
   isJoinGamePayload,
   isLoginPayload,
   isPlayerActionPayload,
-} from './EventsInputValidator';
-import { ServerStateManager } from '../ServerStateManager';
-import { getPosition, Position } from '../../game/utils/PositionsUtils';
-import { PlayerAction } from '../../game/betting/BettingTypes';
-import { Card } from '../../../../shared/src/Card';
-import { HandlerResponse } from 'shared/SocketProtocol';
+} from "./EventsInputValidator";
+import { ServerStateManager } from "../ServerStateManager";
+import { getPosition } from "../../game/utils/PositionsUtils";
+import { PlayerAction } from "../../game/betting/BettingTypes";
+import { Card, HandlerResponse } from "shared";
 
 export class SocketHandlers {
   private static _instance: SocketHandlers;
@@ -34,7 +33,7 @@ export class SocketHandlers {
     payload: unknown
   ): Promise<HandlerResponse<{ playerId: string }>> {
     if (!isLoginPayload(payload)) {
-      return { success: false, message: 'Invalid login payload format' };
+      return { success: false, message: "Invalid login payload format" };
     }
 
     try {
@@ -44,20 +43,20 @@ export class SocketHandlers {
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Login failed',
+        message: error instanceof Error ? error.message : "Login failed",
       };
     }
   }
 
   async handleJoinGame(payload: unknown): Promise<HandlerResponse<void>> {
     if (!isJoinGamePayload(payload))
-      return { success: false, message: 'Invalid input' };
+      return { success: false, message: "Invalid input" };
     const { game, player } = getGameAndPlayer(payload); //
     if (!game || !player) {
-      return { success: false, message: 'Invalid game and player id' };
+      return { success: false, message: "Invalid game and player id" };
     }
     const position = getPosition(payload.position);
-    if (!position) return { success: false, message: 'Invalid position' };
+    if (!position) return { success: false, message: "Invalid position" };
     await game.addPlayer(player, position);
     player.addActiveGame(payload.gameId);
     return { success: true };
@@ -65,26 +64,26 @@ export class SocketHandlers {
 
   async handleGameBuyin(payload: unknown): Promise<HandlerResponse<void>> {
     if (!isBuyIntoGamePayload(payload))
-      return { success: false, message: 'Invalid input' };
+      return { success: false, message: "Invalid input" };
 
     const { game, player } = getGameAndPlayer(payload);
     if (!game || !player) {
-      return { success: false, message: 'Invalid game and player id' };
+      return { success: false, message: "Invalid game and player id" };
     }
 
     const MIN_BUYIN = Number(process.env.MIN_BUYIN) || 20;
     const amount = payload.amount;
 
     if (amount < game.getTableConfig().bbAmount * MIN_BUYIN) {
-      return { success: false, message: 'Invalid amount' };
+      return { success: false, message: "Invalid amount" };
     }
 
     const playerInGame = game.getPlayer(player.getId());
-    if (!playerInGame) return { success: false, message: 'Invalid player' };
+    if (!playerInGame) return { success: false, message: "Invalid player" };
 
     //Reduce Coins from base player layer, still not adding chips to game stack (game logic).
     if (!(await player.buyIntoGame(amount, game)))
-      return { success: false, message: 'Invalid Buyin' };
+      return { success: false, message: "Invalid Buyin" };
 
     //Add chips to player stack, mark ready / start game based on player and game status.
     game.playerBuyIn(playerInGame, amount);
@@ -93,11 +92,11 @@ export class SocketHandlers {
 
   async handlePlayerAction(payload: unknown): Promise<HandlerResponse<void>> {
     if (!isPlayerActionPayload(payload))
-      return { success: false, message: 'Invalid input' };
+      return { success: false, message: "Invalid input" };
 
     const { game, player } = getGameAndPlayer(payload);
     if (!game || !player) {
-      return { success: false, message: 'Invalid game and player id' };
+      return { success: false, message: "Invalid game and player id" };
     }
 
     const { playerId, action, amount } = payload;
@@ -116,16 +115,18 @@ export class SocketHandlers {
     if (!isCardArrangementPayload(payload)) {
       return {
         success: false,
-        message: 'Invalid payload format for card arrangement',
+        message: "Invalid payload format for card arrangement",
       };
     }
     const { game, player } = getGameAndPlayer(payload);
     if (!game || !player) {
-      return { success: false, message: 'Invalid game and player id' };
+      return { success: false, message: "Invalid game and player id" };
     }
 
     const { playerId, arrangement } = payload;
-    const validCards: Card[] = arrangement.map(item => item as unknown as Card);
+    const validCards: Card[] = arrangement.map(
+      (item) => item as unknown as Card
+    );
 
     const result = (await game
       .getGameFlowManager()

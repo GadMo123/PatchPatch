@@ -1,20 +1,18 @@
 // src/game/Game.ts
 
-import { Server } from 'socket.io';
-import { Player } from '../player/Player';
-import { DetailedGameState, GamePhase } from './broadcasting/GameState';
-import { PlayerInGame } from './types/PlayerInGame';
-import { GameStateBroadcaster } from './broadcasting/GameStateBroadcaster';
-import { Card } from '../../../shared/src/Card';
-import {
-  Position,
-  rotatePositionsAndSetupPlayerState,
-} from './utils/PositionsUtils';
-import { Deck } from './types/Deck';
-import { TableConfig } from './betting/BettingTypes';
-import { ArrangePlayerCardsState } from './arrangeCards/ArrangePlayerCardsManager';
-import { SingleGameFlowManager } from './utils/SingleGameFlowManager';
-import { Mutex } from 'async-mutex';
+import { Server } from "socket.io";
+import { Player } from "../player/Player";
+import { DetailedGameState, GamePhase } from "./broadcasting/GameState";
+import { PlayerInGame } from "./types/PlayerInGame";
+import { GameStateBroadcaster } from "./broadcasting/GameStateBroadcaster";
+
+import { rotatePositionsAndSetupPlayerState } from "./utils/PositionsUtils";
+import { Deck } from "./types/Deck";
+import { TableConfig } from "./betting/BettingTypes";
+import { ArrangePlayerCardsState } from "./arrangeCards/ArrangePlayerCardsManager";
+import { SingleGameFlowManager } from "./utils/SingleGameFlowManager";
+import { Mutex } from "async-mutex";
+import { Card, Position } from "shared";
 
 export class Game {
   private _deck: Deck | null;
@@ -85,7 +83,7 @@ export class Game {
   dealNewHand() {
     this._deck = new Deck();
     this._state.phase = GamePhase.PreflopBetting;
-    this._state.playerInPosition!.forEach(player => {
+    this._state.playerInPosition!.forEach((player) => {
       // As for now, player can only play a hand with >= 1BB stack
       if (player?.isActive()) {
         player.updatePlayerPrivateState({
@@ -113,7 +111,7 @@ export class Game {
 
   addObserver(player: Player) {
     this._TableConditionChangeMutex.runExclusive(async () => {
-      if (!this._state.observers.some(observer => observer === player)) {
+      if (!this._state.observers.some((observer) => observer === player)) {
         this._state.observers.push(player); // broadcast?
       }
     });
@@ -133,7 +131,7 @@ export class Game {
 
       //Remove player as an observers
       this._state.observers = this._state.observers.filter(
-        obs => obs.getId() !== player.getId()
+        (obs) => obs.getId() !== player.getId()
       );
 
       setImmediate(() => this.updateGameStateAndBroadcast({}, null));
@@ -258,7 +256,7 @@ export class Game {
       (Number(process.env.MIN_BB_TO_PLAY_HAND) || 1);
     const activePlayers = Array.from(
       this._state.playerInPosition.values()
-    ).filter(player => player?.isReadyToStartHand(minStackRequired)).length;
+    ).filter((player) => player?.isReadyToStartHand(minStackRequired)).length;
     return activePlayers >= this._state.tableConfig.minPlayers;
   }
 

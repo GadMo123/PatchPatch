@@ -1,6 +1,5 @@
-import { Card } from '../../../../../shared/src/Card';
-import { PlayerInGame } from '../../types/PlayerInGame';
-import { PotContribution } from './PotContribution ';
+import { PlayerInGame } from "../../types/PlayerInGame";
+import { PotContribution } from "./PotContribution ";
 
 export class PotManager {
   private _sidePots: PotContribution[] = [];
@@ -27,7 +26,7 @@ export class PotManager {
 
       // Create side pot for players who can contribute at this level
       const sidePotContributors = sortedPlayers.filter(
-        player => (remainingBets.get(player) || 0) >= lowestBet
+        (player) => (remainingBets.get(player) || 0) >= lowestBet
       );
 
       const sidePot = new PotContribution();
@@ -76,9 +75,9 @@ export class PotManager {
       // Filter winners from this pot based on pre-calculated scores
       const potWinners = new Set(
         potContributors.filter(
-          player =>
+          (player) =>
             winningScores.get(player) ===
-            Math.min(...potContributors.map(p => winningScores.get(p)!))
+            Math.min(...potContributors.map((p) => winningScores.get(p)!))
         )
       );
 
