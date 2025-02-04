@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useSocket } from '../../socket/SocketContext';
-import { useNavigate } from 'react-router-dom';
-import { SocketEvents } from 'shared/src/SocketProtocol';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { LobbyStatusServerResponse, SocketEvents } from "@patchpatch/shared";
+import { useSocket } from "../../contexts/SocketContext";
 
 interface MainLobbyProps {
   enterGameView: (gameId: string) => void; // Callback to pass gameId back to App
@@ -16,19 +16,16 @@ const MainLobby: React.FC<MainLobbyProps> = ({ enterGameView, playerId }) => {
   const fetchLobbyStatus = () => {
     if (!socket) return;
 
-    socket?.emit(
-      'lobby-status',
-      (response: { success: boolean; games: any[] }) => {
-        console.log(response);
-        if (response.success) {
-          setGames(response.games); // Update games list
-        } else alert("Can't connect, try again leter");
-      }
-    );
+    socket?.emit("lobby-status", (response: LobbyStatusServerResponse) => {
+      console.log(response);
+      if (response.success) {
+        setGames(response.games); // Update games list
+      } else alert("Can't connect, try again leter");
+    });
   };
 
   useEffect(() => {
-    console.log('arrived in lobby');
+    console.log("arrived in lobby");
     // Fetch initially
     fetchLobbyStatus();
 
@@ -38,8 +35,8 @@ const MainLobby: React.FC<MainLobbyProps> = ({ enterGameView, playerId }) => {
   }, []);
 
   const handleEnterGame = (gameId: string) => {
-    if (!playerId || playerId === 'unregistered') {
-      navigate('/login'); // Redirect to login
+    if (!playerId || playerId === "unregistered") {
+      navigate("/login"); // Redirect to login
       return;
     }
 
@@ -52,7 +49,7 @@ const MainLobby: React.FC<MainLobbyProps> = ({ enterGameView, playerId }) => {
           enterGameView(gameId); // Pass gameId to parent
           navigate(`/game/${gameId}`);
         } else {
-          alert(response.message || 'Failed to join game');
+          alert(response.message || "Failed to join game");
         }
       }
     );
@@ -63,14 +60,14 @@ const MainLobby: React.FC<MainLobbyProps> = ({ enterGameView, playerId }) => {
       <h1>Lobby</h1>
       {
         <ul>
-          {games?.map(game => (
+          {games?.map((game) => (
             <li key={game.id}>
               <h2>{game.blindLevel} Big Blinds</h2>
-              <p>Players: {game.players?.join(', ')}</p>
+              <p>Players: {game.players?.join(", ")}</p>
               <p>Status: {game.status}</p>maxPlayers
-              <p>Max Players: {game.maxPlayers}</p>
-              <p>Min Buyin: {game.minBuyIn}</p>
-              <p>Max Buyin: {game.maxBuyIn}</p>
+              <p>Max Players: {game.blindLevel}</p>
+              <p>blindLevel: {game.minBuyIn}</p>
+              <p>id: {game.id}</p>
               <button onClick={() => handleEnterGame(game.id)}>
                 Enter Game
               </button>

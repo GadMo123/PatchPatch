@@ -1,8 +1,8 @@
 // src/game/betting/BettingTypes.ts
 
-import { PlayerInGame } from '../types/PlayerInGame';
+import { PlayerInGame } from "../types/PlayerInGame";
 
-export type PlayerAction = 'fold' | 'check' | 'call' | 'bet' | 'raise';
+export type PlayerAction = "fold" | "check" | "call" | "bet" | "raise";
 
 export interface BettingState {
   timeRemaining: number;
@@ -20,6 +20,9 @@ export interface TableConfig {
   sbAmount: number;
   bbAmount: number;
   minPlayers: number;
+  maxPlayers: number;
+  minBuyin: number;
+  maxBuyin: number;
 }
 
 export interface ActionValidationResult {
@@ -34,8 +37,11 @@ export function getTableConfig(
   timeCookieEffect: number,
   sbAmount: number,
   bbAmount: number,
-  minPlayers: number
-) {
+  minPlayers: number,
+  maxPlayers: number,
+  minBuyin: number,
+  maxBuyin: number
+): TableConfig {
   return {
     timePerAction: timePerAction,
     minBet: minBet,
@@ -44,5 +50,8 @@ export function getTableConfig(
     sbAmount: sbAmount,
     bbAmount: bbAmount,
     minPlayers: minPlayers,
+    maxPlayers: maxPlayers,
+    maxBuyin: maxBuyin,
+    minBuyin: minBuyin,
   };
 }

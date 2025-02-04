@@ -1,5 +1,5 @@
-import { SocketEvents } from "shared/src/SocketProtocol";
-import socket from "../../socket/Socket";
+import { SocketEvents } from "@patchpatch/shared";
+import socket from "../../services/socket/Socket";
 import { useState } from "react";
 
 interface LoginProps {

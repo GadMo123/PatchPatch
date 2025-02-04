@@ -11,7 +11,7 @@ import {
 import { ServerStateManager } from "../ServerStateManager";
 import { getPosition } from "../../game/utils/PositionsUtils";
 import { PlayerAction } from "../../game/betting/BettingTypes";
-import { Card, HandlerResponse } from "shared";
+import { Card, HandlerResponse, LoginResponse } from "shared";
 
 export class SocketHandlers {
   private static _instance: SocketHandlers;
@@ -28,10 +28,7 @@ export class SocketHandlers {
     return SocketHandlers._instance;
   }
 
-  async handleLogin(
-    socket: Socket,
-    payload: unknown
-  ): Promise<HandlerResponse<{ playerId: string }>> {
+  async handleLogin(socket: Socket, payload: unknown): Promise<LoginResponse> {
     if (!isLoginPayload(payload)) {
       return { success: false, message: "Invalid login payload format" };
     }
@@ -39,7 +36,7 @@ export class SocketHandlers {
     try {
       const player = new Player(socket.id, payload.name, socket.id);
       this._stateManager.addPlayer(player);
-      return { success: true, data: { playerId: player.getId() } };
+      return { success: true, playerId: player.getId(), token: "1" };
     } catch (error) {
       return {
         success: false,
@@ -48,7 +45,7 @@ export class SocketHandlers {
     }
   }
 
-  async handleJoinGame(payload: unknown): Promise<HandlerResponse<void>> {
+  async handleJoinGame(payload: unknown): Promise<HandlerResponse> {
     if (!isJoinGamePayload(payload))
       return { success: false, message: "Invalid input" };
     const { game, player } = getGameAndPlayer(payload); //
@@ -62,7 +59,7 @@ export class SocketHandlers {
     return { success: true };
   }
 
-  async handleGameBuyin(payload: unknown): Promise<HandlerResponse<void>> {
+  async handleGameBuyin(payload: unknown): Promise<HandlerResponse> {
     if (!isBuyIntoGamePayload(payload))
       return { success: false, message: "Invalid input" };
 
@@ -90,7 +87,7 @@ export class SocketHandlers {
     return { success: true };
   }
 
-  async handlePlayerAction(payload: unknown): Promise<HandlerResponse<void>> {
+  async handlePlayerAction(payload: unknown): Promise<HandlerResponse> {
     if (!isPlayerActionPayload(payload))
       return { success: false, message: "Invalid input" };
 
@@ -109,9 +106,7 @@ export class SocketHandlers {
     return { success: success };
   }
 
-  async handleCardArrangement(
-    payload: unknown
-  ): Promise<HandlerResponse<void>> {
+  async handleCardArrangement(payload: unknown): Promise<HandlerResponse> {
     if (!isCardArrangementPayload(payload)) {
       return {
         success: false,
