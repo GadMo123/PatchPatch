@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
-} from 'react-router-dom';
-import './App.css';
+} from "react-router-dom";
+import "./App.css";
 
-import GameView from './screens/game/GameView';
+import GameView from "./screens/game/GameView";
 
-import { SocketProvider } from './socket/SocketContext'; // Wrap the app with SocketProvider
-import Login from './screens/login/login';
-import MainLobby from './screens/lobby/mainLobby';
+import Login from "./screens/login/login";
+import MainLobby from "./screens/lobby/mainLobby";
+import { SocketProvider } from "./contexts/SocketContext"; // Wrap the app with SocketProvider
 
 const App: React.FC = () => {
-  const [playerId, setPlayerId] = useState<string>('unregistered');
+  const [playerId, setPlayerId] = useState<string>("unregistered");
   const [gameId, setGameId] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('arrived in app');
+    console.log("arrived in app");
   }, []);
 
   return (
@@ -32,7 +32,7 @@ const App: React.FC = () => {
           <Route
             path="/login"
             element={
-              playerId === 'unregistered' ? (
+              playerId === "unregistered" ? (
                 <Login onLogin={setPlayerId} />
               ) : (
                 <Navigate to="/lobby" replace />

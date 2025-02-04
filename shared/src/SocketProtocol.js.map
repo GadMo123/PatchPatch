@@ -1,1 +1,0 @@
-{"version":3,"file":"SocketProtocol.js","sourceRoot":"","sources":["SocketProtocol.ts"],"names":[],"mappings":";AAAA,+BAA+B;;;AAIlB,QAAA,YAAY,GAAG;IAC1B,KAAK,EAAE,OAAO;IACd,UAAU,EAAE,YAAY;IACxB,SAAS,EAAE,WAAW;IACtB,UAAU,EAAE,YAAY;IACxB,aAAa,EAAE,eAAe;IAC9B,iBAAiB,EAAE,mBAAmB;IACtC,YAAY,EAAE,cAAc;IAC5B,YAAY,EAAE,cAAc;IAC5B,iBAAiB,EAAE,mBAAmB;IACtC,UAAU,EAAE,YAAY;CACzB,CAAC"}

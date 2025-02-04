@@ -1,12 +1,14 @@
 {
-    "compilerOptions": {
-      "outDir": "dist",
-      "rootDir": "src",
-      "declaration": true,
-      "module": "CommonJS",
-      "target": "ESNext",
-      "composite": true,  
-      "declarationMap": true,
-    },
-    "include": ["src"]
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./dist-node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }

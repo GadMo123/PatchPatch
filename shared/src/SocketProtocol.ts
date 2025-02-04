@@ -15,10 +15,14 @@ export const SocketEvents = {
   DISCONNECT: "disconnect",
 };
 
-export interface HandlerResponse<T = void> {
+export interface HandlerResponse {
   success: boolean;
   message?: string;
-  data?: T;
+}
+
+export interface LoginResponse extends HandlerResponse {
+  playerId?: string;
+  token?: string;
 }
 
 export interface GameServerConfig {
@@ -62,10 +66,8 @@ export interface LobbyStatusServerResponse {
     id: string;
     blindLevel: string;
     players: string[];
-    status: "waiting" | "running";
+    status: string; //"waiting" | "running";
     maxPlayers: number;
-    minBuyIn: number;
-    maxBuyIn: number;
   }>;
 }
 

@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+      "target": "es2018",
+      "module": "esnext",
+      "declaration": true,
+      "declarationDir": "./dist-esm", // Ensure .d.ts files go to the same directory
+      "outDir": "./dist-esm",
+      "strict": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "jsx": "react-jsx"
+    }
+  }
