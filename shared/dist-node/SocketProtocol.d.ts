@@ -1,4 +1,5 @@
 import { Card } from "./Card";
+import { Position } from "./Position";
 export declare const SocketEvents: {
     LOGIN: string;
     ENTER_GAME: string;
@@ -9,7 +10,9 @@ export declare const SocketEvents: {
     LOBBY_STATUS: string;
     USE_TIMEBANK: string;
     GAME_STATE_UPDATE: string;
-    DISCONNECT: string;
+    SIT_OUT_NEXT_HAND: string;
+    STAND_UP: string;
+    EXIT_GAME: string;
 };
 export interface HandlerResponse {
     success: boolean;
@@ -66,9 +69,33 @@ export interface GameStateServerBroadcast {
     rivers: Card[] | null;
     potSize: number | null;
     observers: String[] | null;
-    publicPlayerDataMapByPosition: Map<Object, Object | null> | null;
-    privatePlayerData: Object | null;
-    bettingState: Object | null;
-    tableConfig: Object | null;
+    publicPlayerDataMapByPosition: Map<Position, PublicPlayerDataClientData> | null;
+    privatePlayerData: PrivatePlayerDataClientData | null;
+    bettingState: BettingStateClientData | null;
+    tableConfig: TableConfigClientData;
     arrangePlayerCardsState: Object | null;
+}
+export interface TableConfigClientData {
+    maxPlayers: 2 | 3 | 6;
+    minBuyin: number;
+    maxBuyin: number;
+}
+export interface PublicPlayerDataClientData {
+    tableAbsolotePosition: number;
+    id?: string;
+    name?: string;
+    position?: Position;
+    stack?: number;
+    cards?: Card[];
+}
+export interface PrivatePlayerDataClientData {
+    cards?: Card[];
+}
+export interface BettingStateClientData {
+    timeRemaining: number;
+    callAmount?: number;
+    minRaiseAmount: number;
+    timeCookiesUsedThisRound: number;
+    playerValidActions: String[];
+    playerToAct: string;
 }
