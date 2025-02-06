@@ -12,5 +12,7 @@ exports.SocketEvents = {
     LOBBY_STATUS: "lobby-status",
     USE_TIMEBANK: "use-timebank",
     GAME_STATE_UPDATE: "game-state-update",
-    DISCONNECT: "disconnect",
+    SIT_OUT_NEXT_HAND: "sit-out-next-hand",
+    STAND_UP: "stand-up",
+    EXIT_GAME: "exit-game", // Exit game view back to lobby / homepage
 };

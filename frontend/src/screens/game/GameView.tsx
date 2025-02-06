@@ -1,31 +1,51 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "./GameView.css";
-import OpponentCards from "../../game/players/OpponentCards/OpponentCards";
-import PlayerCards from "../../game/players/PlayerCards/PlayerCards";
-import BoardCards from "../../game/board/BoardCards/BoardCards";
-import { constructBoards } from "../../utils/gameHelpers";
+import OpponentCards from "../../gameComponents/players/OpponentCards/OpponentCards";
+import PlayerCards from "../../gameComponents/players/PlayerCards/PlayerCards";
+import BoardCards from "../../gameComponents/board/BoardCards/BoardCards";
+import {
+  constructBoards,
+  getTablePropsFromGameState,
+} from "../../utils/GameHelpers";
 import { ServerGameState, BettingState } from "../../types/GameState";
-import BetPanel from "../../game/betting/BetPanel/BetPanel";
+import BetPanel from "../../gameComponents/betting/BetPanel/BetPanel";
 import { GameContextProvider } from "../../contexts/GameContext";
 import socket from "../../services/socket/Socket";
-import PotDisplay from "../../game/board/PotDisplay/PotDisplay";
-import TableAndSeats from "../../game/TableAndSeats/TableAndSeats";
-import { Card } from "@patchpatch/shared";
+import PotDisplay from "../../gameComponents/board/PotDisplay/PotDisplay";
+import TableAndSeats, {
+  TableProps,
+} from "../../gameComponents/tableAndSeats/TableAndSeats";
+import { Card, GameStateServerBroadcast, Position } from "@patchpatch/shared";
+
+interface PlayerSeatInfo {
+  playerId: string;
+  name: string;
+  stack: number;
+  position: Position;
+}
 
 const GameView: React.FC<{ playerId: string; gameId: string }> = ({
   playerId,
   gameId,
 }) => {
   const [boards, setBoards] = useState<Card[][] | null>(null);
-  const [gameState, setGameState] = useState<ServerGameState | null>(null);
+  const [gameState, setGameState] = useState<GameStateServerBroadcast | null>(
+    null
+  );
   const [bettingState, setBettingState] = useState<BettingState | null>(null);
+
+  // useMemo to compute table props whenever gameState changes
+  const TableProps: TableProps = useMemo(
+    () => getTablePropsFromGameState(gameState, playerId),
+    [gameState, playerId]
+  );
 
   useEffect(() => {
     if (!gameId) {
       console.error("Game ID is missing");
       return;
     }
-    console.log(playerId);
+
     const handleGameState = (state: ServerGameState) => {
       console.log(state);
       setGameState(state);
@@ -49,7 +69,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
   return (
     <GameContextProvider playerId={playerId} gameId={gameId}>
       <div className="game-container">
-        <TableAndSeats isPlayerSeated={true} numberOfSeats={6} />
+        <TableAndSeats {...tableProps} />
         <div className="game-status">Game ID: {gameId}</div>
         <div className="opponent-area">
           {gameState?.publicPlayerDataMapByPosition && (

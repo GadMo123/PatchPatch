@@ -32,3 +32,33 @@
     transform: translate(-50%, -50%); /* Center seats properly */
     z-index: 2;
   }
+
+  .occupied-seat {
+    text-align: center;
+    width: 100%;
+  }
+  
+  .player-name {
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  
+  .player-stack {
+    font-size: 0.9em;
+    color: #90EE90;
+  }
+  
+  .join-seat-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+  }
+  
+  .join-seat-button:hover {
+    background-color: #45a049;
+  }
