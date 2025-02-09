@@ -11,6 +11,7 @@ interface OpponentCardsProps {
   }[];
 }
 
+// Showing the opponent cards area, default is card-back during the game phases until the showdown where the actual cards revealed
 const OpponentCards: React.FC<OpponentCardsProps> = ({ opponents }) => {
   return (
     <>

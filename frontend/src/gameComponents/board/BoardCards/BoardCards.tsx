@@ -7,6 +7,7 @@ interface BoardCardsProps {
   boards: Card[][];
 }
 
+// Displaying the boards
 const BoardCards: React.FC<BoardCardsProps> = ({ boards }) => {
   return (
     <>

@@ -6,6 +6,7 @@ interface LoginProps {
   onLogin: (playerId: string) => void;
 }
 
+// Login screen - todo
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [name, setName] = useState("");
   const [error, setError] = useState("");

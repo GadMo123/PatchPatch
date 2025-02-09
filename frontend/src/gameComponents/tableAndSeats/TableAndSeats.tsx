@@ -1,27 +1,21 @@
 import React, { useEffect, useState } from "react";
 import "./TableAndSeats.css";
 import { useGameContext } from "../../contexts/GameContext";
-import { Position } from "@patchpatch/shared";
+import { Position, PublicPlayerClientData } from "@patchpatch/shared";
 import socket from "../../services/socket/Socket";
 import { useJoinGame } from "../../hooks/sendJoinGame";
 
-export interface PlayerSeatInfo {
-  playerId: string | null;
-  name: string | null;
-  stack?: number;
-  position: Position;
-}
-
 export interface TableProps {
   numberOfSeats: 2 | 3 | 6;
-  seatsMap: { [index: number]: PlayerSeatInfo };
-  currentPlayerPosition?: Position;
+  seatsMap: { [index: number]: PublicPlayerClientData };
+  isJoinedGame: boolean;
 }
 
+// Displaying the table and seats with player's info for each seat, keeps hero centered at bottom-center seat, allows player to join empty seats.
 const TableAndSeats: React.FC<TableProps> = ({
   numberOfSeats,
-  seatsMap: seats,
-  currentPlayerPosition,
+  seatsMap,
+  isJoinedGame: isJoinedGame,
 }) => {
   const [tableSize, setTableSize] = useState({ width: 0, height: 0 });
   const { gameId, playerId } = useGameContext();
@@ -50,29 +44,30 @@ const TableAndSeats: React.FC<TableProps> = ({
     const renderSeat = (angle: number, index: number) => {
       const x = ellipseRadiusX * Math.cos(angle);
       const y = ellipseRadiusY * Math.sin(angle);
-      const seatInfo = seats[index];
+      const seatInfo = seatsMap[index];
 
       return (
         <div
-          key={seatInfo.position}
+          key={seatInfo.tableAbsolotePosition}
           className="table-seat"
           style={{
             left: `calc(50% + ${x}px)`,
             top: `calc(50% + ${y}px)`,
           }}
         >
-          {seatInfo ? (
+          {seatInfo.id ? (
             <div className="occupied-seat">
               <div className="player-name">
-                {seatInfo.playerId === playerId ? "You" : seatInfo.name}
+                {seatInfo.id === playerId ? "You" : seatInfo.name}
               </div>
               <div className="player-stack">${seatInfo.stack}</div>
+              <div className="player-position">${seatInfo.position}</div>
             </div>
           ) : (
-            currentPlayerPosition === null && (
+            !isJoinedGame && (
               <button
                 className="join-seat-button"
-                onClick={() => sendAction(seatInfo.position)}
+                onClick={() => sendAction(seatInfo.tableAbsolotePosition)}
               >
                 Seat Here
               </button>
@@ -83,10 +78,9 @@ const TableAndSeats: React.FC<TableProps> = ({
     };
 
     const angleIncrement = (2 * Math.PI) / numberOfSeats;
-    for (let i = 1; i < numberOfSeats; i++) {
+    for (let i = 0; i < numberOfSeats; i++) {
       const angle = Math.PI / 2 + i * angleIncrement;
-      const position = i.toString();
-      seatElements.push(renderSeat(angle, position));
+      seatElements.push(renderSeat(angle, i));
     }
 
     return seatElements;

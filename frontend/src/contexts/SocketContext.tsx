@@ -11,6 +11,7 @@ interface SocketProviderProps {
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
+// Provides web socket context to app component
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   useEffect(() => {
     // Handle reconnection attempts

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode } from "react";
 
 export interface GameContextType {
   playerId: string;
@@ -7,6 +7,7 @@ export interface GameContextType {
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
+// Provides gameID and playerId context to game components
 export const GameContextProvider: React.FC<{
   playerId: string;
   gameId: string;
@@ -22,7 +23,7 @@ export const GameContextProvider: React.FC<{
 export const useGameContext = () => {
   const context = useContext(GameContext);
   if (!context) {
-    throw new Error('useGameContext must be used within a GameProvider');
+    throw new Error("useGameContext must be used within a GameProvider");
   }
   return context;
 };

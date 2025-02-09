@@ -13,6 +13,7 @@ interface PlayerCardsProps {
   arrangeCardsTimeLeft: number;
 }
 
+// Showing player's private cards during a hand, also allowing card arrangement during card-arrangement phase
 const PlayerCards: React.FC<PlayerCardsProps> = ({
   playerCards,
   gamePhaseArrangeCards,

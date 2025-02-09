@@ -45,7 +45,7 @@ export interface CardArrangementPayload extends InGamePayload {
     }>;
 }
 export interface JoinGamePayload extends InGamePayload {
-    position: string;
+    tableAbsoluteposition: number;
 }
 export interface BuyIntoGamePayload extends InGamePayload {
     amount: number;
@@ -69,26 +69,26 @@ export interface GameStateServerBroadcast {
     rivers: Card[] | null;
     potSize: number | null;
     observers: String[] | null;
-    publicPlayerDataMapByPosition: Map<Position, PublicPlayerDataClientData> | null;
-    privatePlayerData: PrivatePlayerDataClientData | null;
+    publicPlayerDataMapByPosition: Map<Position, PublicPlayerClientData> | null;
+    privatePlayerData: PrivatePlayerClientData | null;
     bettingState: BettingStateClientData | null;
     tableConfig: TableConfigClientData;
-    arrangePlayerCardsState: Object | null;
+    arrangePlayerCardsState: ArrangePlayerCardsStateClientData | null;
 }
 export interface TableConfigClientData {
     maxPlayers: 2 | 3 | 6;
     minBuyin: number;
     maxBuyin: number;
 }
-export interface PublicPlayerDataClientData {
+export interface PublicPlayerClientData {
     tableAbsolotePosition: number;
+    position?: Position;
     id?: string;
     name?: string;
-    position?: Position;
     stack?: number;
     cards?: Card[];
 }
-export interface PrivatePlayerDataClientData {
+export interface PrivatePlayerClientData {
     cards?: Card[];
 }
 export interface BettingStateClientData {
@@ -98,4 +98,8 @@ export interface BettingStateClientData {
     timeCookiesUsedThisRound: number;
     playerValidActions: String[];
     playerToAct: string;
+}
+export interface ArrangePlayerCardsStateClientData {
+    timeRemaining: number;
+    playerDoneMap: Map<Position, boolean>;
 }

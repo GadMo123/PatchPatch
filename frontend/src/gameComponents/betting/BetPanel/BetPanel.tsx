@@ -1,18 +1,19 @@
 import React, { useState } from "react";
 import "./BetPanel.css";
-import { BettingState } from "../../../types/GameState";
 import { useBettingActions } from "../../../hooks/SendPlayerActions";
 import { useGameContext } from "../../../contexts/GameContext";
 import socket from "../../../services/socket/Socket";
 import { useCountdownTimer } from "../../../hooks/TimerHook";
+import { BettingStateClientData } from "@patchpatch/shared";
 
 export type PlayerAction = "fold" | "check" | "call" | "bet" | "raise";
 
 interface BetPanelProps {
-  bettingState: BettingState;
+  bettingState: BettingStateClientData;
   defaultAction: PlayerAction;
 }
 
+// Allows player to choose between betting options when its his turn to act, also show time-remaining to act before the defualt action is taken
 const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);

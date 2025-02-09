@@ -8,6 +8,7 @@ interface MainLobbyProps {
   playerId: string;
 }
 
+// Lobby screen display, allows player to enter a game.
 const MainLobby: React.FC<MainLobbyProps> = ({ enterGameView, playerId }) => {
   const { socket } = useSocket();
   const [games, setGames] = useState<any[]>([]);

@@ -56,7 +56,7 @@ export interface CardArrangementPayload extends InGamePayload {
 }
 
 export interface JoinGamePayload extends InGamePayload {
-  position: string;
+  tableAbsoluteposition: number; // number of clockwise ticks from bottom left seat (0 - (n - 1)).
 }
 
 export interface BuyIntoGamePayload extends InGamePayload {
@@ -83,14 +83,11 @@ export interface GameStateServerBroadcast {
   rivers: Card[] | null;
   potSize: number | null;
   observers: String[] | null; // just names
-  publicPlayerDataMapByPosition: Map<
-    Position,
-    PublicPlayerDataClientData
-  > | null;
-  privatePlayerData: PrivatePlayerDataClientData | null;
+  publicPlayerDataMapByPosition: Map<Position, PublicPlayerClientData> | null;
+  privatePlayerData: PrivatePlayerClientData | null;
   bettingState: BettingStateClientData | null;
   tableConfig: TableConfigClientData;
-  arrangePlayerCardsState: Object | null;
+  arrangePlayerCardsState: ArrangePlayerCardsStateClientData | null;
 }
 
 export interface TableConfigClientData {
@@ -99,16 +96,16 @@ export interface TableConfigClientData {
   maxBuyin: number;
 }
 
-export interface PublicPlayerDataClientData {
+export interface PublicPlayerClientData {
   tableAbsolotePosition: number; // How many clockwise rotations ticks from bottom-center position (0 - (maxPlayers - 1) rotations). this is the postion where the player initially set down. for UI purpose, we want each player to keep his absolute table position regardless of his poker-position .
+  position?: Position; // Poker position (BB / SB / BTN / CO ect.)
   id?: string;
   name?: string;
-  position?: Position; // Poker position
   stack?: number;
   cards?: Card[]; // Other players cards for showdown phase
 }
 
-export interface PrivatePlayerDataClientData {
+export interface PrivatePlayerClientData {
   cards?: Card[]; // Hero cards
 }
 
@@ -119,4 +116,9 @@ export interface BettingStateClientData {
   timeCookiesUsedThisRound: number;
   playerValidActions: String[];
   playerToAct: string;
+}
+
+export interface ArrangePlayerCardsStateClientData {
+  timeRemaining: number;
+  playerDoneMap: Map<Position, boolean>;
 }
