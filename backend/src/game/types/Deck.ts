@@ -1,4 +1,4 @@
-// src/game/utils/Deck.ts
+// src/game/utils/Deck.ts - Deck of cards representation
 
 import { Card, RANKS, SUITS } from "shared";
 

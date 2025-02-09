@@ -1,4 +1,5 @@
-// src/server/server.ts
+// src/server/server.ts - Listen for a websocket communication with each the client and forward client protocol calls to handlers.
+
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -6,7 +7,7 @@ import { SocketHandlers } from "./handlers/SocketHandlers";
 
 import { ServerStateManager } from "./ServerStateManager";
 import { Game } from "../game/Game";
-import { TableConfig, getTableConfig } from "../game/betting/BettingTypes";
+import { TableConfig } from "../game/betting/BettingTypes";
 import { getLobbyStatus } from "../lobby/LobbyManager";
 import { GameServerConfig, SocketEvents } from "shared";
 
@@ -69,9 +70,14 @@ io.on("connection", (socket) => {
     callback(result);
   });
 
-  socket.on(SocketEvents.DISCONNECT, async () => {
+  socket.on("disconnect", async () => {
     await socketHandlers.handleDisconnect(socket.id);
     console.log("User disconnected:", socket.id);
+  });
+
+  socket.on(SocketEvents.ENTER_GAME, async (payload, callback) => {
+    const result = await socketHandlers.handleEnterGame(payload);
+    callback(result);
   });
 
   socket.on(SocketEvents.JOIN_GAME, async (payload, callback) => {
@@ -180,6 +186,32 @@ function createDummyGames(server: Server) {
     server,
     getTableConfig(10000, 200, Infinity, 10, 100, 200, 6, 2, 50, 500)
   );
+}
+
+export function getTableConfig(
+  timePerAction: number,
+  minBet: number,
+  maxBet: number,
+  timeCookieEffect: number,
+  sbAmount: number,
+  bbAmount: number,
+  minPlayers: number,
+  maxPlayers: number,
+  minBuyin: number,
+  maxBuyin: number
+): TableConfig {
+  return {
+    timePerAction: timePerAction,
+    minBet: minBet,
+    maxBet: maxBet,
+    timeCookieEffect: timeCookieEffect,
+    sbAmount: sbAmount,
+    bbAmount: bbAmount,
+    minPlayers: minPlayers,
+    maxPlayers: maxPlayers,
+    maxBuyin: maxBuyin,
+    minBuyin: minBuyin,
+  };
 }
 
 export { io, app };

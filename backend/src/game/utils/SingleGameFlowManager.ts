@@ -1,13 +1,10 @@
-// src/server/singleGameManager.ts
+// src/server/singleGameManager.ts - Is a helper to manage a single game life cycle flow and timings.
 
-/* This is a helper to manage all the single game life cycle, manage all the flow of a single game*/
-
-import { ArrangePlayerCardsManager } from '../arrangeCards/ArrangePlayerCardsManager';
-import { BettingManager } from '../betting/BettingManager';
-import { Game } from '../Game';
-import { GamePhase } from '../broadcasting/GameState';
-import { PlayerInGame } from '../types/PlayerInGame';
-import { PotManager } from './PotUtils/PotManager';
+import { ArrangePlayerCardsManager } from "../arrangeCards/ArrangePlayerCardsManager";
+import { BettingManager } from "../betting/BettingManager";
+import { Game } from "../Game";
+import { GamePhase } from "../broadcasting/GameState";
+import { PlayerInGame } from "../types/PlayerInGame";
 
 export class SingleGameFlowManager {
   private _bettingManager: BettingManager | null;
@@ -100,7 +97,7 @@ export class SingleGameFlowManager {
   }
 
   private startArrangePlayerCards() {
-    console.log('Card Arrange start -' + this._game.getPhase());
+    console.log("Card Arrange start -" + this._game.getPhase());
     this._arrangePlayerCardsManager = new ArrangePlayerCardsManager(
       this._game,
       this.onCardArrangeDone.bind(this)
@@ -108,7 +105,7 @@ export class SingleGameFlowManager {
   }
 
   private onCardArrangeDone() {
-    console.log('Card Arrange Done -' + this._game.getPhase());
+    console.log("Card Arrange Done -" + this._game.getPhase());
     this._arrangePlayerCardsManager = null;
     this._game.updateGameStateAndBroadcast(
       {
@@ -120,7 +117,7 @@ export class SingleGameFlowManager {
   }
 
   private onBettingRoundComplete(winner: PlayerInGame | null) {
-    console.log('betting round complete -' + this._game.getPhase());
+    console.log("betting round complete -" + this._game.getPhase());
     if (winner) this._game.handleHandWonWithoutShowdown(winner);
     this._game.updateGameStateAndBroadcast(
       { bettingState: null },

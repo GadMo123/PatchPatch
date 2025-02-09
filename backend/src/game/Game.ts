@@ -1,4 +1,4 @@
-// src/game/Game.ts
+// src/game/Game.ts - Represents a single game object.
 
 import { Server } from "socket.io";
 import { Player } from "../player/Player";
@@ -109,7 +109,7 @@ export class Game {
     });
   }
 
-  addObserver(player: Player) {
+  async addObserver(player: Player) {
     this._TableConditionChangeMutex.runExclusive(async () => {
       if (!this._state.observers.some((observer) => observer === player)) {
         this._state.observers.push(player); // broadcast?

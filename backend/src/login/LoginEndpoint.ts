@@ -1,1 +1,1 @@
-// src/login/LoginEndpoint.ts
+// src/login/LoginEndpoint.ts - Handles player login request

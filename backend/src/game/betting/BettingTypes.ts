@@ -1,4 +1,4 @@
-// src/game/betting/BettingTypes.ts
+// src/game/betting/BettingTypes.ts - should be moved other places , TODO
 
 import { PlayerInGame } from "../types/PlayerInGame";
 
@@ -28,30 +28,4 @@ export interface TableConfig {
 export interface ActionValidationResult {
   isValid: boolean;
   error?: string;
-}
-
-export function getTableConfig(
-  timePerAction: number,
-  minBet: number,
-  maxBet: number,
-  timeCookieEffect: number,
-  sbAmount: number,
-  bbAmount: number,
-  minPlayers: number,
-  maxPlayers: number,
-  minBuyin: number,
-  maxBuyin: number
-): TableConfig {
-  return {
-    timePerAction: timePerAction,
-    minBet: minBet,
-    maxBet: maxBet,
-    timeCookieEffect: timeCookieEffect,
-    sbAmount: sbAmount,
-    bbAmount: bbAmount,
-    minPlayers: minPlayers,
-    maxPlayers: maxPlayers,
-    maxBuyin: maxBuyin,
-    minBuyin: minBuyin,
-  };
 }

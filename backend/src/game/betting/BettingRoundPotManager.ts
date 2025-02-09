@@ -1,5 +1,5 @@
-// src/game/betting/BettingRoundPotManager.ts
-import { PlayerInGame } from '../types/PlayerInGame';
+// src/game/betting/BettingRoundPotManager.ts - Manage pot contributions and splits during a betting round.
+import { PlayerInGame } from "../types/PlayerInGame";
 
 export class BettingRoundPotManager {
   private _playerContributions: Map<PlayerInGame, number> = new Map();

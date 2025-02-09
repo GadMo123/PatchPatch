@@ -1,6 +1,6 @@
-// Player.ts
-import { Mutex } from 'async-mutex';
-import { Game } from '../game/Game';
+// Player.ts - A representation of a logged in player.
+import { Mutex } from "async-mutex";
+import { Game } from "../game/Game";
 
 export class Player {
   private bankCoins: number;

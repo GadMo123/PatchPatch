@@ -1,3 +1,4 @@
+// src\game\types\PlayerInGame.ts - A representation of a player sitting in a game, PlayerInGame extends Player is possibility, for now Decided agains it, for better synchronicity handling clearance
 import { Card, Position } from "shared";
 import { Player } from "../../player/Player";
 import { Game } from "../Game";

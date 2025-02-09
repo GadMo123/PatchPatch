@@ -1,4 +1,4 @@
-// src/server/StateManager.ts
+// src/server/ServerStateManager.ts - Saves the state of the server, atm locally and in the future via database.
 
 import { Player } from "../player/Player";
 import { Game } from "../game/Game";

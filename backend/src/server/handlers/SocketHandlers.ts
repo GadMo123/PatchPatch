@@ -1,9 +1,12 @@
+// src\server\handlers\SocketHandlers.ts - Handles protocol calls from clients.
+
 import { Socket } from "socket.io";
 import { Player } from "../../player/Player";
 import {
   getGameAndPlayer,
   isBuyIntoGamePayload,
   isCardArrangementPayload,
+  isInGamePayload,
   isJoinGamePayload,
   isLoginPayload,
   isPlayerActionPayload,
@@ -45,10 +48,21 @@ export class SocketHandlers {
     }
   }
 
+  async handleEnterGame(payload: any) {
+    if (!isInGamePayload(payload))
+      return { success: false, message: "Invalid input" };
+    const { game, player } = getGameAndPlayer(payload);
+    if (!game || !player) {
+      return { success: false, message: "Invalid game and player id" };
+    }
+    await game.addObserver(player);
+    return { success: true };
+  }
+
   async handleJoinGame(payload: unknown): Promise<HandlerResponse> {
     if (!isJoinGamePayload(payload))
       return { success: false, message: "Invalid input" };
-    const { game, player } = getGameAndPlayer(payload); //
+    const { game, player } = getGameAndPlayer(payload);
     if (!game || !player) {
       return { success: false, message: "Invalid game and player id" };
     }

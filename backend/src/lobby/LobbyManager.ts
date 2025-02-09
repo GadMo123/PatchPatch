@@ -1,4 +1,4 @@
-// src/lobby/LobbyManager.ts
+// src/lobby/LobbyManager.ts - Provides accessible lobby status representation for clients.
 
 import { LobbyStatusServerResponse } from "shared";
 import { GamePhase } from "../game/broadcasting/GameState";

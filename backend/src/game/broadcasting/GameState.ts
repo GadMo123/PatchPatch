@@ -1,4 +1,4 @@
-// src/utils/GameStateUtils.ts
+// src\game\broadcasting\GameState.ts - Prepare a GameState protocol representation to broadcast.
 
 import { PlayerInGame } from "../types/PlayerInGame";
 import { Game } from "../Game";

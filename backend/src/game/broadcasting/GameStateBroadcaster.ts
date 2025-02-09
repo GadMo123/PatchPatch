@@ -1,8 +1,8 @@
-// src/game/broadcasting/GameStateBroadcaster.ts
+// src/game/broadcasting/GameStateBroadcaster.ts - Broadcasting GameState to all clients involved in a game.
 
-import { Server } from 'socket.io';
-import { Game } from '../Game';
-import { getBaseGameState } from './GameState';
+import { Server } from "socket.io";
+import { Game } from "../Game";
+import { getBaseGameState } from "./GameState";
 
 export class GameStateBroadcaster {
   constructor(private _io: Server) {}
@@ -17,13 +17,13 @@ export class GameStateBroadcaster {
           ...baseState,
           playerPrivateState: player.getPlayerPrivateState(),
         };
-        this._io.to(player.getSocketId()).emit('game-state', playerGameState);
+        this._io.to(player.getSocketId()).emit("game-state", playerGameState);
       }
     });
 
     // Broadcast to observers
-    game.getObserversList().forEach(observer => {
-      this._io.to(observer.getSocketId()).emit('game-state', baseState);
+    game.getObserversList().forEach((observer) => {
+      this._io.to(observer.getSocketId()).emit("game-state", baseState);
     });
 
     // Call afterFunction with a small delay to allow players recive the state

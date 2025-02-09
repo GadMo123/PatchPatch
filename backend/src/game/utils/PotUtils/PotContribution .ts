@@ -1,4 +1,4 @@
-import { PlayerInGame } from '../../types/PlayerInGame';
+import { PlayerInGame } from "../../types/PlayerInGame";
 
 export class PotContribution {
   private _contributions: Map<PlayerInGame, number> = new Map();

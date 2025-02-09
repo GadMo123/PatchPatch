@@ -1,4 +1,4 @@
-// src/game/betting/BettingManager.ts
+// src/game/betting/BettingManager.ts - Handles a single betting round start logic to finish, timings, actions, broadcasting changes, pot updates ect.
 import { Game } from "../Game";
 import { ActionValidator } from "./ActionValidator";
 import { BettingState, TableConfig, PlayerAction } from "./BettingTypes";

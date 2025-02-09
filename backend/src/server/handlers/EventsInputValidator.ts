@@ -1,3 +1,5 @@
+// src\server\handlers\EventsInputValidator.ts - Validates client protocol calls inputs are in the right format.
+
 import { Card, isValidRank, isValidSuit } from "shared";
 import { PlayerAction } from "../../game/betting/BettingTypes";
 import { Game } from "../../game/Game";
@@ -32,7 +34,7 @@ export const isLoginPayload = (payload: unknown): payload is LoginPayload => {
   return typeof p.name === "string" && p.name.length > 0;
 };
 
-const isInGamePayload = (p: Record<string, unknown>): boolean => {
+export const isInGamePayload = (p: Record<string, unknown>): boolean => {
   return typeof p.gameId === "string" && typeof p.playerId === "string";
 };
 
@@ -63,6 +65,14 @@ export const isCardArrangementPayload = (
     );
 
   return isInGamePayload(p) && isValidArrangement;
+};
+
+export const isEnterGamePayload = (
+  payload: unknown
+): payload is JoinGamePayload => {
+  if (typeof payload !== "object" || payload === null) return false;
+  const p = payload as Record<string, unknown>;
+  return isInGamePayload(p) && typeof p.position === "string";
 };
 
 export const isJoinGamePayload = (

@@ -7,7 +7,6 @@ import {
 } from "@patchpatch/shared";
 import { TableProps } from "../gameComponents/tableAndSeats/TableAndSeats";
 
-// else if the player is not in the game - use positions as is from server state braodcast.
 export const getTablePropsFromGameState = (
   gameState: GameStateServerBroadcast | null,
   playerId: string

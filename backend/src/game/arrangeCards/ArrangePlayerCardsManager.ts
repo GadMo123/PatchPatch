@@ -1,3 +1,5 @@
+// src\game\arrangeCards\ArrangePlayerCardsManager.ts - Handles card arrangement phase - timers, broadcasts, validations, default action.
+
 import { Card } from "shared";
 import { Game } from "../Game";
 import { GameActionTimerManager } from "../utils/GameActionTimerManager";

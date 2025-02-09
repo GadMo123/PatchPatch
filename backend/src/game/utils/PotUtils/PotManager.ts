@@ -1,5 +1,9 @@
+// src\game\utils\PotUtils\PotManager.ts - Manage game pot, pot splits in case of a player all in.
+
+// !!! Notice that "main-pot" is always the currently active pot, which goes against the normal poker-conventions, for code readability purpose. !!!
+
 import { PlayerInGame } from "../../types/PlayerInGame";
-import { PotContribution } from "./PotContribution ";
+import { PotContribution } from "./PotContribution";
 
 export class PotManager {
   private _sidePots: PotContribution[] = [];
