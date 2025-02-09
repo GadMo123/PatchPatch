@@ -1,19 +1,63 @@
 # PatchPatch
 
-To run a game:
+PatchPatch is a popular game among the Israeli poker community, often played during poker trips between tournaments. The game is based on Pot-Limit Omaha but introduces a unique twist.
 
-1. Compile frontend, backend and shared components.
+## Game Overview
 
-2. Run the server.
+Each player is dealt **12 cards**, which they must split into **three flops** to create the strongest possible hands by the river. The game follows a structured betting round sequence:
 
-3. Access the client at:
+1. **Preflop:** Cards are dealt, followed by a betting round.
+2. **Flop:** Three flops are dealt, and players arrange their hands, followed by a betting round.
+3. **Turn:** A turn card is dealt, followed by a betting round.
+4. **River:** A river card is dealt, followed by a final betting round.
+5. **Showdown:** Players reveal their hands to determine the winner.
+6. **Next Hand:** The game continues with the next round.
+
+## Future Plans
+
+PatchPatch is designed to be easily scalable, with plans to support traditional **No-Limit Hold'em** and **Pot-Limit Omaha** games in future updates.
+
+## About This Project
+
+This is a commercial game, and all **code and game rights** are legally protected. The purpose of this repository is to showcase my work as part of my **portfolio** for potential employers. I am open to job opportunities.
+
+---
+
+## How to Run the Game
+
+### 1. Compile Shared Components
+
+Before running the game, ensure shared components are compiled.
+
+### 2. Install Dependencies and Build
+
+```bash
+npm install
+npm run build
+```
+
+### 3. Run the server.
+
+```bash
+ npm start
+```
+
+### 4. Access few client:
+
+```bash
+ npm start
+```
 
 ```bash
  localhost:3000/
 ```
 
-4. Choose a game and enter the game view, Login each player will be required.
+### 5. Start a game
 
-5. Join the same game with enough players to start. The number of players required depends on each table's configuration, which is visible in the lobby.
+1. Choose a game and enter the game view.
+2. Log in as each player.
+3. Ensure enough players join the same game to meet the required minimum (visible in the lobby).
 
-6. Tutorials will be available upon release.
+### Tutorials
+
+A full gameplay tutorial will be available upon the official release.
