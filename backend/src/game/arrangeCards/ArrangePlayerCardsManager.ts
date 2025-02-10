@@ -69,7 +69,7 @@ export class ArrangePlayerCardsManager {
       return { success: false, error: "Player not found" };
     }
 
-    if (this._state.playerDoneMap.get(player.getPosition()) === true) {
+    if (this._state.playerDoneMap.get(player.getPokerPosition()) === true) {
       return { success: false, error: "Player already submitted arrangement" };
     }
 
@@ -87,7 +87,7 @@ export class ArrangePlayerCardsManager {
     });
 
     // Mark player as done
-    this.markPlayerDone(player.getPosition());
+    this.markPlayerDone(player.getPokerPosition());
 
     if (this.isAllPlayersDone()) {
       this._timer.handleAction(); // Signal that we received valid actions, cancel timout action

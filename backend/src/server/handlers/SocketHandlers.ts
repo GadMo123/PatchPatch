@@ -1,4 +1,4 @@
-// src\server\handlers\SocketHandlers.ts - Handles protocol calls from clients.
+// src\server\handlers\SocketHandlers.ts - Handles protocol calls from clients, send inputs throw validations and forwerd reqeusts to the relevant handlers.
 
 import { Socket } from "socket.io";
 import { Player } from "../../player/Player";
@@ -12,7 +12,6 @@ import {
   isPlayerActionPayload,
 } from "./EventsInputValidator";
 import { ServerStateManager } from "../ServerStateManager";
-import { getPosition } from "../../game/utils/PositionsUtils";
 import { PlayerAction } from "../../game/betting/BettingTypes";
 import { Card, HandlerResponse, LoginResponse } from "shared";
 
@@ -31,6 +30,7 @@ export class SocketHandlers {
     return SocketHandlers._instance;
   }
 
+  // Design - move login to a saparated endpoint? connect to socket after login? enable gameview for unregister?
   async handleLogin(socket: Socket, payload: unknown): Promise<LoginResponse> {
     if (!isLoginPayload(payload)) {
       return { success: false, message: "Invalid login payload format" };
@@ -48,6 +48,7 @@ export class SocketHandlers {
     }
   }
 
+  // Player enters game view as an observer
   async handleEnterGame(payload: any) {
     if (!isInGamePayload(payload))
       return { success: false, message: "Invalid input" };
@@ -55,10 +56,17 @@ export class SocketHandlers {
     if (!game || !player) {
       return { success: false, message: "Invalid game and player id" };
     }
-    await game.addObserver(player);
-    return { success: true };
+    game
+      .addObserver(player)
+      .then(() => {
+        return { success: true };
+      })
+      .catch((error) => {
+        return { success: false, error: error.message };
+      });
   }
 
+  // Player enter game seat as a Player
   async handleJoinGame(payload: unknown): Promise<HandlerResponse> {
     if (!isJoinGamePayload(payload))
       return { success: false, message: "Invalid input" };
@@ -66,13 +74,15 @@ export class SocketHandlers {
     if (!game || !player) {
       return { success: false, message: "Invalid game and player id" };
     }
-    const position = getPosition(payload.position);
-    if (!position) return { success: false, message: "Invalid position" };
-    await game.addPlayer(player, position);
+
+    const success = await game.addPlayer(player, payload.tableAbsoluteposition);
+
+    if (!success) return { success: false, message: "Seat is taken" };
     player.addActiveGame(payload.gameId);
     return { success: true };
   }
 
+  // Player is sitting in a game and wants to buyin or add play chips
   async handleGameBuyin(payload: unknown): Promise<HandlerResponse> {
     if (!isBuyIntoGamePayload(payload))
       return { success: false, message: "Invalid input" };
@@ -82,10 +92,11 @@ export class SocketHandlers {
       return { success: false, message: "Invalid game and player id" };
     }
 
-    const MIN_BUYIN = Number(process.env.MIN_BUYIN) || 20;
+    const MIN_BUYIN =
+      Number(process.env.MIN_BUYIN) || 20 * game.getTableConfig().bbAmount;
     const amount = payload.amount;
 
-    if (amount < game.getTableConfig().bbAmount * MIN_BUYIN) {
+    if (amount < MIN_BUYIN) {
       return { success: false, message: "Invalid amount" };
     }
 

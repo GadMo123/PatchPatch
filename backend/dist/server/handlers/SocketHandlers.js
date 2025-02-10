@@ -1,4 +1,5 @@
 "use strict";
+// src\server\handlers\SocketHandlers.ts - Handles protocol calls from clients.
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -42,11 +43,23 @@ class SocketHandlers {
             }
         });
     }
+    handleEnterGame(payload) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!(0, EventsInputValidator_1.isInGamePayload)(payload))
+                return { success: false, message: "Invalid input" };
+            const { game, player } = (0, EventsInputValidator_1.getGameAndPlayer)(payload);
+            if (!game || !player) {
+                return { success: false, message: "Invalid game and player id" };
+            }
+            yield game.addObserver(player);
+            return { success: true };
+        });
+    }
     handleJoinGame(payload) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!(0, EventsInputValidator_1.isJoinGamePayload)(payload))
                 return { success: false, message: "Invalid input" };
-            const { game, player } = (0, EventsInputValidator_1.getGameAndPlayer)(payload); //
+            const { game, player } = (0, EventsInputValidator_1.getGameAndPlayer)(payload);
             if (!game || !player) {
                 return { success: false, message: "Invalid game and player id" };
             }

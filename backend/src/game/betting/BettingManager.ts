@@ -6,7 +6,7 @@ import { PlayerInGame } from "../types/PlayerInGame";
 import {
   findFirstPlayerToAct,
   findNextPlayerToAct,
-} from "../utils/PositionsUtils";
+} from "../utils/PokerPositionsUtils";
 import { GameActionTimerManager } from "../utils/GameActionTimerManager";
 import { BettingRoundPotManager } from "./BettingRoundPotManager";
 import { Mutex } from "async-mutex";
@@ -199,7 +199,7 @@ export class BettingManager {
 
   private switchToNextPlayer() {
     this._currentPlayerToAct = findNextPlayerToAct(
-      this._currentPlayerToAct.getPosition(),
+      this._currentPlayerToAct.getPokerPosition(),
       this._game
     );
     this.updateBettingState({ playerToAct: this._currentPlayerToAct.getId() });

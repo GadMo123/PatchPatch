@@ -1,4 +1,5 @@
 "use strict";
+// src\game\utils\PositionsUtils.ts - Helper functions related to position, manage players position and table rotations between hands.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.findFirstPlayerToAct = findFirstPlayerToAct;
 exports.findNextPlayerToAct = findNextPlayerToAct;

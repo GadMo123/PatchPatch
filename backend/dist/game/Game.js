@@ -1,5 +1,5 @@
 "use strict";
-// src/game/Game.ts
+// src/game/Game.ts - Represents a single game object.
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -88,11 +88,13 @@ class Game {
         });
     }
     addObserver(player) {
-        this._TableConditionChangeMutex.runExclusive(() => __awaiter(this, void 0, void 0, function* () {
-            if (!this._state.observers.some((observer) => observer === player)) {
-                this._state.observers.push(player); // broadcast?
-            }
-        }));
+        return __awaiter(this, void 0, void 0, function* () {
+            this._TableConditionChangeMutex.runExclusive(() => __awaiter(this, void 0, void 0, function* () {
+                if (!this._state.observers.some((observer) => observer === player)) {
+                    this._state.observers.push(player); // broadcast?
+                }
+            }));
+        });
     }
     addPlayer(player, position) {
         return __awaiter(this, void 0, void 0, function* () {

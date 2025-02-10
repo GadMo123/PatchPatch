@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Player = void 0;
-// Player.ts
+// Player.ts - A representation of a logged in player.
 const async_mutex_1 = require("async-mutex");
 class Player {
     constructor(_id, _name, _socketId) {

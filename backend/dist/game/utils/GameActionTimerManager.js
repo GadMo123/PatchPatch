@@ -1,5 +1,5 @@
 "use strict";
-// src/game/utils/GameActionTimer.ts
+// src/game/utils/GameActionTimer.ts - Manage a timed action timer, take default action on timeout and accept timebank extenders request.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GameActionTimerManager = void 0;
 class GameActionTimerManager {

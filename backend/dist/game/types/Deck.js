@@ -1,5 +1,5 @@
 "use strict";
-// src/game/utils/Deck.ts
+// src/game/utils/Deck.ts - Deck of cards representation
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Deck = void 0;
 const shared_1 = require("shared");

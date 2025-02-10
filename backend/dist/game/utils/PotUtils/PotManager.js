@@ -1,7 +1,8 @@
 "use strict";
+// src\game\utils\PotUtils\PotManager.ts - Manage game pot, pot splits in case of a player all in.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PotManager = void 0;
-const PotContribution_1 = require("./PotContribution ");
+const PotContribution_1 = require("./PotContribution");
 class PotManager {
     constructor() {
         this._sidePots = [];

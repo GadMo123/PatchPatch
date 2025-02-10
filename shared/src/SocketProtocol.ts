@@ -56,7 +56,7 @@ export interface CardArrangementPayload extends InGamePayload {
 }
 
 export interface JoinGamePayload extends InGamePayload {
-  tableAbsoluteposition: number; // number of clockwise ticks from bottom left seat (0 - (n - 1)).
+  tableAbsolutePosition: number; // number of clockwise ticks from bottom left seat (0 - (n - 1)).
 }
 
 export interface BuyIntoGamePayload extends InGamePayload {
@@ -82,7 +82,7 @@ export interface GameStateServerBroadcast {
   turns: Card[] | null;
   rivers: Card[] | null;
   potSize: number | null;
-  observers: String[] | null; // just names
+  observersNames: String[] | null;
   publicPlayerDataMapByPosition: Map<Position, PublicPlayerClientData> | null;
   privatePlayerData: PrivatePlayerClientData | null;
   bettingState: BettingStateClientData | null;

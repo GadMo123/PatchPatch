@@ -1,5 +1,5 @@
 "use strict";
-// src/server/singleGameManager.ts
+// src/server/singleGameManager.ts - Is a helper to manage a single game life cycle flow and timings.
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SingleGameFlowManager = void 0;
-/* This is a helper to manage all the single game life cycle, manage all the flow of a single game*/
 const ArrangePlayerCardsManager_1 = require("../arrangeCards/ArrangePlayerCardsManager");
 const BettingManager_1 = require("../betting/BettingManager");
 const GameState_1 = require("../broadcasting/GameState");
@@ -77,11 +76,11 @@ class SingleGameFlowManager {
         bettingManager.startNextPlayerTurn();
     }
     startArrangePlayerCards() {
-        console.log('Card Arrange start -' + this._game.getPhase());
+        console.log("Card Arrange start -" + this._game.getPhase());
         this._arrangePlayerCardsManager = new ArrangePlayerCardsManager_1.ArrangePlayerCardsManager(this._game, this.onCardArrangeDone.bind(this));
     }
     onCardArrangeDone() {
-        console.log('Card Arrange Done -' + this._game.getPhase());
+        console.log("Card Arrange Done -" + this._game.getPhase());
         this._arrangePlayerCardsManager = null;
         this._game.updateGameStateAndBroadcast({
             arrangePlayerCardsState: null,
@@ -89,7 +88,7 @@ class SingleGameFlowManager {
         }, this.startBettingRound.bind(this));
     }
     onBettingRoundComplete(winner) {
-        console.log('betting round complete -' + this._game.getPhase());
+        console.log("betting round complete -" + this._game.getPhase());
         if (winner)
             this._game.handleHandWonWithoutShowdown(winner);
         this._game.updateGameStateAndBroadcast({ bettingState: null }, this.afterBettingDetermineNextStep.bind(this));

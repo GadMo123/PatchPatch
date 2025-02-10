@@ -8,7 +8,8 @@ export interface PlayerPublicState {
   isAllIn: boolean;
   id: string;
   name: string;
-  position: Position;
+  pokerPosition: Position | null;
+  tablePosition: number;
   currentStack: number;
   isFolded: boolean;
   arrangedCardsReady?: boolean;
@@ -24,21 +25,23 @@ export class PlayerInGame {
   private _playerPublicState: PlayerPublicState;
   private _playerPrivateState: PlayerPrivateState;
 
-  // Player sits in game
+  // When a player sits in a game
   constructor(
     private _player: Player,
     private _game: Game,
-    position: Position
+    pokerPosition: Position | null,
+    tablePosition: number
   ) {
     this._player = _player;
 
     // Initialize states
     this._playerPublicState = {
-      isSittingOut: true,
       id: _player.getId(),
       name: _player.getName(),
-      position: position,
+      pokerPosition: pokerPosition,
+      tablePosition: tablePosition,
       currentStack: 0,
+      isSittingOut: true,
       isFolded: false,
       isAllIn: false,
     };
@@ -135,8 +138,12 @@ export class PlayerInGame {
     return this._playerPublicState.currentStack;
   }
 
-  getPosition(): Position {
-    return this._playerPublicState.position;
+  getPokerPosition(): Position | null {
+    return this._playerPublicState.pokerPosition;
+  }
+
+  getTablePosition(): number {
+    return this._playerPublicState.tablePosition;
   }
 
   getId(): string {

@@ -1,4 +1,5 @@
 "use strict";
+// src/server/server.ts - Listen for a websocket communication with each the client and forward client protocol calls to handlers.
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -13,14 +14,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = exports.io = void 0;
-// src/server/server.ts
+exports.getTableConfig = getTableConfig;
 const express_1 = __importDefault(require("express"));
 const http_1 = require("http");
 const socket_io_1 = require("socket.io");
 const SocketHandlers_1 = require("./handlers/SocketHandlers");
 const ServerStateManager_1 = require("./ServerStateManager");
 const Game_1 = require("../game/Game");
-const BettingTypes_1 = require("../game/betting/BettingTypes");
 const LobbyManager_1 = require("../lobby/LobbyManager");
 const shared_1 = require("shared");
 const serverConfig = {
@@ -74,9 +74,13 @@ io.on("connection", (socket) => {
         const result = yield socketHandlers.handleLogin(socket, payload);
         callback(result);
     }));
-    socket.on(shared_1.SocketEvents.DISCONNECT, () => __awaiter(void 0, void 0, void 0, function* () {
+    socket.on("disconnect", () => __awaiter(void 0, void 0, void 0, function* () {
         yield socketHandlers.handleDisconnect(socket.id);
         console.log("User disconnected:", socket.id);
+    }));
+    socket.on(shared_1.SocketEvents.ENTER_GAME, (payload, callback) => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield socketHandlers.handleEnterGame(payload);
+        callback(result);
     }));
     socket.on(shared_1.SocketEvents.JOIN_GAME, (payload, callback) => __awaiter(void 0, void 0, void 0, function* () {
         const result = yield socketHandlers.handleJoinGame(payload);
@@ -135,10 +139,24 @@ function createGame(creatorId, blindLevel, server, config) {
 }
 // Create dummy games for testing
 function createDummyGames(server) {
-    createGame("admin", "5-10", server, (0, BettingTypes_1.getTableConfig)(10000, 10, Infinity, 10, 5, 10, 2, 2, 50, 500));
-    createGame("admin", "10-20", server, (0, BettingTypes_1.getTableConfig)(10000, 20, Infinity, 10, 10, 20, 3, 6, 50, 500));
-    createGame("admin", "25-50", server, (0, BettingTypes_1.getTableConfig)(10000, 50, Infinity, 10, 25, 50, 3, 6, 50, 500));
-    createGame("admin", "50-100", server, (0, BettingTypes_1.getTableConfig)(10000, 100, Infinity, 10, 50, 100, 4, 3, 50, 500));
-    createGame("admin", "100-200", server, (0, BettingTypes_1.getTableConfig)(10000, 200, Infinity, 10, 100, 200, 6, 2, 50, 500));
+    createGame("admin", "5-10", server, getTableConfig(10000, 10, Infinity, 10, 5, 10, 2, 2, 50, 500));
+    createGame("admin", "10-20", server, getTableConfig(10000, 20, Infinity, 10, 10, 20, 3, 6, 50, 500));
+    createGame("admin", "25-50", server, getTableConfig(10000, 50, Infinity, 10, 25, 50, 3, 6, 50, 500));
+    createGame("admin", "50-100", server, getTableConfig(10000, 100, Infinity, 10, 50, 100, 4, 3, 50, 500));
+    createGame("admin", "100-200", server, getTableConfig(10000, 200, Infinity, 10, 100, 200, 6, 2, 50, 500));
+}
+function getTableConfig(timePerAction, minBet, maxBet, timeCookieEffect, sbAmount, bbAmount, minPlayers, maxPlayers, minBuyin, maxBuyin) {
+    return {
+        timePerAction: timePerAction,
+        minBet: minBet,
+        maxBet: maxBet,
+        timeCookieEffect: timeCookieEffect,
+        sbAmount: sbAmount,
+        bbAmount: bbAmount,
+        minPlayers: minPlayers,
+        maxPlayers: maxPlayers,
+        maxBuyin: maxBuyin,
+        minBuyin: minBuyin,
+    };
 }
 //# sourceMappingURL=server.js.map

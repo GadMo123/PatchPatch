@@ -1,5 +1,5 @@
 "use strict";
-// src/utils/GameStateUtils.ts
+// src\game\broadcasting\GameState.ts - Prepare a GameState protocol representation to broadcast.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GamePhase = void 0;
 exports.getBaseGameState = getBaseGameState;

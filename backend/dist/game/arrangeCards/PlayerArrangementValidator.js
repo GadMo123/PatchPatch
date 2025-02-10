@@ -1,4 +1,5 @@
 "use strict";
+// src\game\arrangeCards\PlayerArrangementValidator.ts - validates that a player's card arrangement input fits game logic (behind type handeling which happens in server handlers)
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateCardsArrangement = validateCardsArrangement;
 function validateCardsArrangement(arrangement, // already validated that each card is an object of two strings

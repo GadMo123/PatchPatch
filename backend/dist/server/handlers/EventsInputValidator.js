@@ -1,6 +1,7 @@
 "use strict";
+// src\server\handlers\EventsInputValidator.ts - Validates client protocol calls inputs are in the right format.
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateSessionToken = exports.getGameAndPlayer = exports.isBuyIntoGamePayload = exports.isJoinGamePayload = exports.isCardArrangementPayload = exports.isPlayerActionPayload = exports.isLoginPayload = void 0;
+exports.validateSessionToken = exports.getGameAndPlayer = exports.isBuyIntoGamePayload = exports.isJoinGamePayload = exports.isEnterGamePayload = exports.isCardArrangementPayload = exports.isPlayerActionPayload = exports.isInGamePayload = exports.isLoginPayload = void 0;
 const shared_1 = require("shared");
 const ServerStateManager_1 = require("../ServerStateManager");
 const validPlayerActions = new Set([
@@ -21,11 +22,12 @@ exports.isLoginPayload = isLoginPayload;
 const isInGamePayload = (p) => {
     return typeof p.gameId === "string" && typeof p.playerId === "string";
 };
+exports.isInGamePayload = isInGamePayload;
 const isPlayerActionPayload = (payload) => {
     if (typeof payload !== "object" || payload === null)
         return false;
     const p = payload;
-    return (isInGamePayload(p) &&
+    return ((0, exports.isInGamePayload)(p) &&
         typeof p.action === "string" &&
         validPlayerActions.has(p.action) &&
         (p.amount === undefined || (typeof p.amount === "number" && p.amount >= 0)));
@@ -38,21 +40,28 @@ const isCardArrangementPayload = (payload) => {
     const isValidArrangement = Array.isArray(p.arrangement) &&
         p.arrangement.length === 12 &&
         p.arrangement.every((item) => item instanceof shared_1.Card && (0, shared_1.isValidSuit)(item.suit) && (0, shared_1.isValidRank)(item.rank));
-    return isInGamePayload(p) && isValidArrangement;
+    return (0, exports.isInGamePayload)(p) && isValidArrangement;
 };
 exports.isCardArrangementPayload = isCardArrangementPayload;
+const isEnterGamePayload = (payload) => {
+    if (typeof payload !== "object" || payload === null)
+        return false;
+    const p = payload;
+    return (0, exports.isInGamePayload)(p) && typeof p.position === "string";
+};
+exports.isEnterGamePayload = isEnterGamePayload;
 const isJoinGamePayload = (payload) => {
     if (typeof payload !== "object" || payload === null)
         return false;
     const p = payload;
-    return isInGamePayload(p) && typeof p.position === "string";
+    return (0, exports.isInGamePayload)(p) && typeof p.position === "string";
 };
 exports.isJoinGamePayload = isJoinGamePayload;
 const isBuyIntoGamePayload = (payload) => {
     if (typeof payload !== "object" || payload === null)
         return false;
     const p = payload;
-    return isInGamePayload(p) && typeof p.amount === "number";
+    return (0, exports.isInGamePayload)(p) && typeof p.amount === "number";
 };
 exports.isBuyIntoGamePayload = isBuyIntoGamePayload;
 // could be async if need acurate state at some point

@@ -80,7 +80,11 @@ export const isJoinGamePayload = (
 ): payload is JoinGamePayload => {
   if (typeof payload !== "object" || payload === null) return false;
   const p = payload as Record<string, unknown>;
-  return isInGamePayload(p) && typeof p.position === "string";
+  return (
+    isInGamePayload(p) &&
+    typeof p.tableAbsolutePosition === "number" &&
+    p.tableAbsolutePosition >= 0
+  );
 };
 
 export const isBuyIntoGamePayload = (

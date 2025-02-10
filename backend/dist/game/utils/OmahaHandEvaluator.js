@@ -1,4 +1,5 @@
 "use strict";
+// src\game\utils\OmahaHandEvaluator.ts - is a helper that caclulate hand strength in showdown
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OmahaHandEvaluator = void 0;
 // Enum for Hand Rankings

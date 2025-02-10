@@ -1,8 +1,7 @@
-// src\game\broadcasting\GameState.ts - Prepare a GameState protocol representation to broadcast.
+// src\game\broadcasting\GameState.ts - Server side version of game state representation
 
 import { PlayerInGame } from "../types/PlayerInGame";
 import { Game } from "../Game";
-import { Player } from "../../player/Player";
 import { TableConfig, BettingState } from "../betting/BettingTypes";
 import { ArrangePlayerCardsState } from "../arrangeCards/ArrangePlayerCardsManager";
 import { GameStateServerBroadcast } from "shared";
@@ -32,10 +31,13 @@ export interface DetailedGameState {
   rivers: Card[]; // Array of 3 river cards
 
   // Observers list
-  observers: Player[];
+  observers: String[];
 
-  // Map of players playing by position
+  // Map of players playing by poker position
   playerInPosition: Map<Position, PlayerInGame | null>;
+
+  // Map of players sitting in by table position
+  playersAbsolutePosition: Array<PlayerInGame | null>;
 
   // Betting state
   bettingState: BettingState | null;
@@ -64,13 +66,12 @@ export function getBaseGameState(game: Game): GameStateServerBroadcast {
     flops: game.getFlops(),
     turns: game.getTurns(),
     rivers: game.getRivers(),
-    potSize: null,
-    observers: game.getObserversNames(),
-    publicPlayerDataMapByPosition: publicPlayerByPositions,
+    potSize: game.getPotSize(),
+    observersNames: game.getObserversNames(),
     privatePlayerData: null,
-    bettingState: game.getBettingState(),
-    tableConfig: game.getTableConfig(),
-    arrangePlayerCardsState: game.getArrangePlayerCardsState(),
+    bettingState: toClientVersion(game.getBettingState()),
+    tableConfig: toClientVersion(game.getTableConfig()),
+    arrangePlayerCardsState: toClientVersion(game.getArrangePlayerCardsState()),
   };
 }
 

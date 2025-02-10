@@ -1,5 +1,5 @@
 "use strict";
-// src/lobby/LobbyManager.ts
+// src/lobby/LobbyManager.ts - Provides accessible lobby status representation for clients.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getLobbyStatus = getLobbyStatus;
 const GameState_1 = require("../game/broadcasting/GameState");

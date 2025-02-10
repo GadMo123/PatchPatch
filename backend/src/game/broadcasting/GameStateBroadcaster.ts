@@ -3,6 +3,8 @@
 import { Server } from "socket.io";
 import { Game } from "../Game";
 import { getBaseGameState } from "./GameState";
+import { ServerStateManager } from "server/ServerStateManager";
+import { SocketEvents } from "shared";
 
 export class GameStateBroadcaster {
   constructor(private _io: Server) {}
@@ -17,13 +19,28 @@ export class GameStateBroadcaster {
           ...baseState,
           playerPrivateState: player.getPlayerPrivateState(),
         };
-        this._io.to(player.getSocketId()).emit("game-state", playerGameState);
+        try {
+          this._io
+            .to(player.getSocketId())
+            .emit(SocketEvents.GAME_STATE_UPDATE, playerGameState);
+        } catch (error) {
+          console.error(
+            `Error broadcasting to player ${player.getSocketId()}:`,
+            error
+          );
+        }
       }
+      1210;
     });
 
     // Broadcast to observers
-    game.getObserversList().forEach((observer) => {
-      this._io.to(observer.getSocketId()).emit("game-state", baseState);
+    game.getObserversSockets().forEach((observer) => {
+      if (observer)
+        try {
+          this._io.to(observer).emit(SocketEvents.GAME_STATE_UPDATE, baseState);
+        } catch (error) {
+          console.error(`Error broadcasting to observer ${observer}:`, error);
+        }
     });
 
     // Call afterFunction with a small delay to allow players recive the state

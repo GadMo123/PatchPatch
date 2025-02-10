@@ -1,5 +1,5 @@
 "use strict";
-// src/server/StateManager.ts
+// src/server/ServerStateManager.ts - Saves the state of the server, atm locally and in the future via database.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ServerStateManager = void 0;
 //todo : all shared data access should be async,
