@@ -13,6 +13,20 @@ Each player is dealt **12 cards**, which they must split into **three flops** to
 5. **Showdown:** Players reveal their hands to determine the winner of each board. Each board is worth one-third of the total pot.
 6. **Next Hand:** The game continues with the next round.
 
+## Code design
+
+The backend component, built with TypeScript, listens for all client protocol requests and handles game logic and game flow. It manages asynchronous client requests to support multiplayer functionality for each running game. Currently, the backend is designed as a monolithic server, but its components are well-separated to allow for easy scalability and proper separation of concerns. This setup ensures that vertical scaling is possible if needed in the future. Given the nature of the game protocol, a single server can support thousands of users, so microservices and DevOps are not necessary at this stage. However, the architecture is designed to accommodate them if required.
+
+The frontend component is built with React and TypeScript (with future plans for React Native). It manages client-side logic, UI rendering, and user interactions, allowing players to control decision trees and send protocol calls to the server.
+
+The shared component defines the communication protocol between the client and server, including shared objects, interfaces, and the protocol itself. This design choice suits the project's current scope, as I am developing both the backend and frontend solo. It allows for quick protocol changes during development.
+
+The shared component is configured to compile twice: once in JavaScript for React compatibility and once in TypeScript for backend use. This is a temporary but convenient solution to support React while maintaining compatibility with the latest TypeScript version.
+
+This is an ongoing project, and some core functionalities—such as time bank usage, database state management, and others—are still not fully integrated.
+
+For more details on each component's internal design, refer to its respective README file.
+
 ## Future Plans
 
 PatchPatch is designed to be easily scalable, with plans to support traditional **No-Limit Hold'em** and **Pot-Limit Omaha** games in future updates.
