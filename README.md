@@ -41,9 +41,13 @@ This is a commercial game, and all **code and game rights** are legally protecte
 
 ### 1. Compile Shared Components
 
-Before running the game, ensure shared components are compiled.
+Compile the '/shared' component, as it is required by both the frontend and backend.
 
-### 2. Install Dependencies and Build
+### 2. Install Dependencies and Build frontend and backend
+
+Ensure you have '/shared' component in the root directory. If it is located elsewhere, update the import path in 'tsconfig.json' to point to the correct location.
+
+run
 
 ```bash
 npm install
@@ -61,6 +65,8 @@ npm run build
 ```bash
  npm start
 ```
+
+Add additional clients:
 
 ```bash
  localhost:3000/
