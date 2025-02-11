@@ -1,16 +1,16 @@
 # PatchPatch
 
-PatchPatch is a popular game among the Israeli poker community, often played during poker trips between tournaments. The game is based on Pot-Limit Omaha but introduces a unique twist.
+PatchPatch is inspired by a popular game played among the Israeli poker community during poker trips between tournaments, using real playing cards and chips. This version introduces unique twists.
 
 ## Game Overview
 
-Each player is dealt **12 cards**, which they must split into **three flops** to create the strongest possible hands by the river. The game follows a structured betting round sequence:
+Each player is dealt **12 cards**, which they must split into **three flops** to create the strongest possible Omaha hands by the river. The game follows a structured betting round sequence:
 
 1. **Preflop:** Cards are dealt, followed by a betting round.
 2. **Flop:** Three flops are dealt, and players arrange their hands, followed by a betting round.
 3. **Turn:** A turn card is dealt, followed by a betting round.
 4. **River:** A river card is dealt, followed by a final betting round.
-5. **Showdown:** Players reveal their hands to determine the winner.
+5. **Showdown:** Players reveal their hands to determine the winner of each board. Each board is worth one-third of the total pot.
 6. **Next Hand:** The game continues with the next round.
 
 ## Future Plans
@@ -42,7 +42,7 @@ npm run build
  npm start
 ```
 
-### 4. Access few client:
+### 4. Open multiple clients:
 
 ```bash
  npm start
