@@ -103,12 +103,10 @@ export class SocketHandlers {
     const playerInGame = game.getPlayer(player.getId());
     if (!playerInGame) return { success: false, message: "Invalid player" };
 
-    //Reduce Coins from base player layer, still not adding chips to game stack (game logic).
+    // Reduce Coins from base player layer and add chips to player stack as one transaction (if one fail -> the other won't happen)
     if (!(await player.buyIntoGame(amount, game)))
       return { success: false, message: "Invalid Buyin" };
 
-    //Add chips to player stack, mark ready / start game based on player and game status.
-    game.playerBuyIn(playerInGame, amount);
     return { success: true };
   }
 

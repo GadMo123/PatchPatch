@@ -57,11 +57,7 @@ export class Game {
     this._observersList = new Set();
   }
 
-  /*
-  return true if ready to start next hand
-   false if not, and keep waiting state until recived new active player (join/rebuy/marked-ready)
-  */
-  PrepareNextHand() {
+  async PrepareNextHand() {
     this._isHandWonWithoutShowdown = false;
     this._state = {
       ...this._state,
@@ -71,7 +67,7 @@ export class Game {
       rivers: [],
       potSize: 0,
     };
-    this._TableConditionChangeMutex.runExclusive(async () => {
+    await this._TableConditionChangeMutex.runExclusive(async () => {
       rotatePositionsAndSetupPlayerState(
         this._state.playerInPosition!,
         this._state
@@ -107,7 +103,7 @@ export class Game {
   }
 
   async startGame() {
-    this._TableConditionChangeMutex.runExclusive(async () => {
+    await this._TableConditionChangeMutex.runExclusive(async () => {
       if (this._gameFlowManager) return;
       this._gameFlowManager = new SingleGameFlowManager(this);
       setImmediate(() => this._gameFlowManager?.startNextStreet());
@@ -126,7 +122,7 @@ export class Game {
     player: Player,
     tableAbsolutePosition: number
   ): Promise<boolean> {
-    return this._TableConditionChangeMutex.runExclusive(async () => {
+    return await this._TableConditionChangeMutex.runExclusive(async () => {
       // Check if the position is available
       if (
         this._state.playersAbsolutePosition.length >= tableAbsolutePosition ||
@@ -153,10 +149,12 @@ export class Game {
   }
 
   // A player buyin play chips for the current game (either for the first time or adding on his existing stack)
-  async playerBuyIn(player: PlayerInGame, amount: number) {
-    this._TableConditionChangeMutex.runExclusive(async () => {
-      // if in a running game - set an event for the end of the current hand to add players chips
+  async playerBuyIn(player: PlayerInGame, amount: number): Promise<boolean> {
+    return await this._TableConditionChangeMutex.runExclusive(async () => {
+      if (player.getStack() + amount > this.getTableConfig().maxBuyin)
+        return false;
       if (this._gameFlowManager) {
+        // if in a running game - set an event for the end of the current hand to add players chips
         this._stacksUpdatesForNextHand.push([player, amount]);
       } else {
         // otherwise, add the buyin chips right away
@@ -169,6 +167,7 @@ export class Game {
           : this.updateGameStateAndBroadcast.bind(this, {}, null); // otherwise update players with the buyin chips.
         setImmediate(afterFunction);
       }
+      return true;
     });
   }
 

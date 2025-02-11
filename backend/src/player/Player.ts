@@ -39,7 +39,8 @@ export class Player {
     return await this.bankLock.runExclusive(async () => {
       const playerInGame = game.getPlayer(this._id);
       if (!playerInGame || this.bankCoins < amount) return false;
-      this.bankCoins -= amount;
+      const seccuss = await game.playerBuyIn(playerInGame, amount);
+      if (seccuss) this.bankCoins -= amount;
       return true;
     });
   }
