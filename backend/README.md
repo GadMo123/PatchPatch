@@ -19,11 +19,11 @@ Manages all the logic for a single game instance.
 - **`/broadcasting`** – Sends the current game state to clients.
   - Since the game state is not too large and state updates occur only a few dozen times per game, the full state is broadcast to clients each time.
   - This approach simplifies state management, supports reconnections, and reduces potential single points of failure at a small resource cost.
-- **`/utils`** – Contains game logic helper functions for calculating positions, pots, side pots, winning hands, etc.
+- **`/utils`** – Contains game logic helpers for managing the gameflow, calculating positions, pot and side pots, winning hands, etc.
 
 ### `/lobby`
 
-Handles lobby status requests. Currently, the lobby status is generated upon each client request. However, at a larger scale, this should be managed by a microservice that continuously tracks and updates lobby status in real time.
+Handles lobby status requests. Currently, the lobby status is generated upon each client request. At a larger scale, this should be cached.
 
 ## Development Status
 

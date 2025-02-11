@@ -14,3 +14,7 @@ To run the project, you don’t need to worry about these compilation paths. Jus
 ```sh
 npm install
 ```
+
+### The protocol
+
+Can be found in **'\SocketProtocol.ts'**

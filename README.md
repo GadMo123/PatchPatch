@@ -74,4 +74,4 @@ npm run build
 
 ### Tutorials
 
-A full gameplay tutorial will be available upon the official release.
+A full gameplay tutorial will be available upon release.

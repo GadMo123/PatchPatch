@@ -26,4 +26,4 @@ Below are some of the key components that structure the frontend for better orie
 
 ## Development Status
 
-The frontend is actively being developed. While core game functionality is in place, UI refinements, animations, and additional features are still being improved.
+The frontend is actively being developed. While core game functionality is in place, UI refinements, animations, and additional features are being improved constantly.
