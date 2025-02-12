@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./TableAndSeats.css";
 import { useGameContext } from "../../contexts/GameContext";
-import { Position, PublicPlayerClientData } from "@patchpatch/shared";
+import { PublicPlayerClientData } from "@patchpatch/shared";
 import socket from "../../services/socket/Socket";
 import { useJoinGame } from "../../hooks/sendJoinGame";
 

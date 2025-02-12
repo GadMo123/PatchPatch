@@ -45,7 +45,7 @@ export interface CardArrangementPayload extends InGamePayload {
     }>;
 }
 export interface JoinGamePayload extends InGamePayload {
-    tableAbsoluteposition: number;
+    tableAbsolutePosition: number;
 }
 export interface BuyIntoGamePayload extends InGamePayload {
     amount: number;
@@ -68,7 +68,7 @@ export interface GameStateServerBroadcast {
     turns: Card[] | null;
     rivers: Card[] | null;
     potSize: number | null;
-    observers: String[] | null;
+    observersNames: String[] | null;
     publicPlayerDataMapByPosition: Map<Position, PublicPlayerClientData> | null;
     privatePlayerData: PrivatePlayerClientData | null;
     bettingState: BettingStateClientData | null;

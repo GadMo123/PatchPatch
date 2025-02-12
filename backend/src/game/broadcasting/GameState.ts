@@ -4,7 +4,7 @@ import { PlayerInGame } from "../types/PlayerInGame";
 import { Game } from "../Game";
 import { TableConfig, BettingState } from "../betting/BettingTypes";
 import { ArrangePlayerCardsState } from "../arrangeCards/ArrangePlayerCardsManager";
-import { GameStateServerBroadcast } from "shared";
+import { GameStateServerBroadcast, TableConfigClientData } from "shared";
 import { Position } from "shared";
 import { Card } from "shared";
 
@@ -43,53 +43,4 @@ export interface DetailedGameState {
   bettingState: BettingState | null;
   tableConfig: TableConfig;
   arrangePlayerCardsState: ArrangePlayerCardsState | null;
-}
-
-// Exclude private data from the game state to broadcast to everyone
-export function getBaseGameState(game: Game): GameStateServerBroadcast {
-  const playerInPosition = game.getPlayersInGame();
-
-  // Map each player to their public state for broadcasting
-  const publicPlayerByPositions = playerInPosition
-    ? new Map(
-        Array.from(playerInPosition.entries()).map(([position, player]) => [
-          position,
-          player ? player.getPlayerPublicState() : null,
-        ])
-      )
-    : null;
-
-  return {
-    id: game.getId(),
-    phase: game.getPhase(),
-    stakes: game.getStakes(),
-    flops: game.getFlops(),
-    turns: game.getTurns(),
-    rivers: game.getRivers(),
-    potSize: game.getPotSize(),
-    observersNames: game.getObserversNames(),
-    privatePlayerData: null,
-    bettingState: toClientVersion(game.getBettingState()),
-    tableConfig: toClientVersion(game.getTableConfig()),
-    arrangePlayerCardsState: toClientVersion(game.getArrangePlayerCardsState()),
-  };
-}
-
-// Add personalized private data for a specific player
-export function addPlayerPersonalData(
-  baseState: Object,
-  playerPosition: Position,
-  game: Game
-): Object {
-  const personalizedState = structuredClone(baseState) as any; // Clone the base state
-
-  // Add private player data if the player exists in the game
-  const player = game.getPlayerInPosition(playerPosition);
-
-  if (player) {
-    // Update the map to include both public and private data for this player
-    personalizedState.privatePlayerData = player.getPlayerPrivateState();
-  }
-
-  return personalizedState;
 }

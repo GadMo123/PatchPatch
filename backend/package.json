@@ -17,7 +17,7 @@
     "async-mutex": "^0.5.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "shared": "file:../shared/dist-node",
+    "@patchpatch/shared": "file:../shared",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {

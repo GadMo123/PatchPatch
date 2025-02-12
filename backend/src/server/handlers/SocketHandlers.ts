@@ -75,7 +75,7 @@ export class SocketHandlers {
       return { success: false, message: "Invalid game and player id" };
     }
 
-    const success = await game.addPlayer(player, payload.tableAbsoluteposition);
+    const success = await game.addPlayer(player, payload.tableAbsolutePosition);
 
     if (!success) return { success: false, message: "Seat is taken" };
     player.addActiveGame(payload.gameId);
@@ -104,9 +104,9 @@ export class SocketHandlers {
     if (!playerInGame) return { success: false, message: "Invalid player" };
 
     // Reduce Coins from base player layer and add chips to player stack as one transaction.
-    if (!(await player.buyIntoGame(amount, game)))
-      return { success: false, message: "Invalid Buyin" };
-    return { success: true };
+    return (await player.buyIntoGame(amount, game))
+      ? { success: false, message: "Invalid Buyin" }
+      : { success: true };
   }
 
   async handlePlayerAction(payload: unknown): Promise<HandlerResponse> {
@@ -119,13 +119,15 @@ export class SocketHandlers {
     }
 
     const { playerId, action, amount } = payload;
-    const success =
-      (await game
-        .getGameFlowManager()
-        ?.getBettingManager()
-        ?.handlePlayerAction(playerId, action as PlayerAction, amount)) ??
-      false;
-    return { success: success };
+
+    return {
+      success:
+        (await game
+          .getGameFlowManager()
+          ?.getBettingManager()
+          ?.handlePlayerAction(playerId, action as PlayerAction, amount)) ??
+        false,
+    };
   }
 
   async handleCardArrangement(payload: unknown): Promise<HandlerResponse> {
