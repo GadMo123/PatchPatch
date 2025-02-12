@@ -1,8 +1,7 @@
 import { useCallback } from "react";
 
-import { PlayerAction } from "../gameComponents/betting/BetPanel/BetPanel";
 import { Socket } from "socket.io-client";
-import { SocketEvents, Card } from "@patchpatch/shared";
+import { SocketEvents, Card, BettingTypes } from "@patchpatch/shared";
 
 interface Response {
   success: boolean;
@@ -15,7 +14,7 @@ export const useBettingActions = (
   socket: Socket
 ) => {
   const sendAction = useCallback(
-    (action: PlayerAction, amount?: number): Promise<Response> => {
+    (action: BettingTypes, amount?: number): Promise<Response> => {
       return new Promise((resolve) => {
         socket.emit(
           SocketEvents.PLAYER_ACTION,

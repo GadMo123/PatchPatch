@@ -12,7 +12,7 @@ import { TableConfig } from "./betting/BettingTypes";
 import { ArrangePlayerCardsState } from "./arrangeCards/ArrangePlayerCardsManager";
 import { SingleGameFlowManager } from "./utils/SingleGameFlowManager";
 import { Mutex } from "async-mutex";
-import { Card, Position } from "shared";
+import { Card, Position } from "@patchpatch/shared";
 
 export class Game {
   private _deck: Deck | null;
@@ -209,6 +209,10 @@ export class Game {
 
   getPlayerInPosition(position: Position): PlayerInGame | null {
     return this._state.playerInPosition?.get(position) || null;
+  }
+
+  getSeatMap(): Array<PlayerInGame | null> {
+    return this._state.playersAbsolutePosition;
   }
 
   getPlayersInGame(): Map<Position, PlayerInGame | null> | null {

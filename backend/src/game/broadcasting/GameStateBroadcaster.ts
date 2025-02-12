@@ -10,7 +10,7 @@ import {
   PublicPlayerClientData,
   SocketEvents,
   TableConfigClientData,
-} from "shared";
+} from "@patchpatch/shared";
 import { BettingState, TableConfig } from "game/betting/BettingTypes";
 import { ArrangePlayerCardsState } from "game/arrangeCards/ArrangePlayerCardsManager";
 import { PlayerPublicState } from "game/types/PlayerInGame";
@@ -65,16 +65,21 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
   const seatMap = game.getSeatMap();
 
   // Map each player to their public state for broadcasting
-  const publicPlayerByPositions = playerInPosition
-    ? new Map(
-        Array.from(playerInPosition.entries()).map(([position, player]) => [
-          position,
-          player
-            ? reducePlayerPublicStateToClientData(player.getPlayerPublicState())
-            : null,
-        ])
-      )
-    : null;
+  const publicPlayerByPositions = seatMap.map((player, index) => {
+    if (player === null) {
+      // For empty seats, return minimal data with just the position
+      return {
+        tableAbsolotePosition: index,
+      } as PublicPlayerClientData;
+    }
+
+    // For occupied seats, get the full public state and convert to client format
+    return {
+      ...reducePlayerPublicStateToClientData(player.getPlayerPublicState()),
+      tableAbsolotePosition: index,
+    } as PublicPlayerClientData;
+  });
+
   const bettingState = game.getBettingState();
   const arrangePlayerCardsState = game.getArrangePlayerCardsState();
 
@@ -88,7 +93,7 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
     potSize: game.getPotSize(),
     observersNames: game.getObserversNames(),
     privatePlayerData: null,
-    publicPlayerDataMapByPosition: publicPlayerByPositions,
+    publicPlayerDataMapByTablePosition: publicPlayerByPositions,
     bettingState: bettingState
       ? reduceBettingStateToClientData(bettingState)
       : null,

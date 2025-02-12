@@ -1,12 +1,9 @@
 // src\game\broadcasting\GameState.ts - Server side version of game state representation
 
 import { PlayerInGame } from "../types/PlayerInGame";
-import { Game } from "../Game";
 import { TableConfig, BettingState } from "../betting/BettingTypes";
 import { ArrangePlayerCardsState } from "../arrangeCards/ArrangePlayerCardsManager";
-import { GameStateServerBroadcast, TableConfigClientData } from "shared";
-import { Position } from "shared";
-import { Card } from "shared";
+import { Card, Position } from "@patchpatch/shared";
 
 export enum GamePhase {
   Waiting = "waiting",

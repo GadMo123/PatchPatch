@@ -1,7 +1,7 @@
 // src/server/SocketProtocol.ts
 
 import { Card } from "./Card";
-import { Position } from "./Position";
+import { BettingTypes, Position } from "./Types";
 
 export const SocketEvents = {
   LOGIN: "login",
@@ -45,14 +45,12 @@ export interface InGamePayload {
 }
 
 export interface PlayerActionPayload extends InGamePayload {
-  action: string;
+  action: BettingTypes;
   amount?: number;
 }
 
 export interface CardArrangementPayload extends InGamePayload {
-  arrangement: Array<{
-    card: Card[];
-  }>;
+  arrangement: Card[];
 }
 
 export interface JoinGamePayload extends InGamePayload {
@@ -83,7 +81,7 @@ export interface GameStateServerBroadcast {
   rivers: Card[] | null;
   potSize: number | null;
   observersNames: String[] | null;
-  publicPlayerDataMapByPosition: Map<Position, PublicPlayerClientData> | null;
+  publicPlayerDataMapByTablePosition: Array<PublicPlayerClientData>;
   privatePlayerData: PrivatePlayerClientData | null;
   bettingState: BettingStateClientData | null;
   tableConfig: TableConfigClientData;
@@ -114,7 +112,7 @@ export interface BettingStateClientData {
   callAmount?: number;
   minRaiseAmount?: number;
   timeCookiesUsedThisRound?: number;
-  playerValidActions: String[];
+  playerValidActions: BettingTypes[];
   playerToAct: string;
 }
 

@@ -11,7 +11,7 @@ export const getTablePropsFromGameState = (
   gameState: GameStateServerBroadcast | null,
   playerId: string
 ): TableProps | null => {
-  if (!gameState?.publicPlayerDataMapByPosition) return null;
+  if (!gameState?.publicPlayerDataMapByTablePosition) return null;
 
   const numberOfSeats = gameState.tableConfig.maxPlayers as 2 | 3 | 6;
   const seats: { [index: number]: PublicPlayerClientData } = {};
@@ -20,7 +20,7 @@ export const getTablePropsFromGameState = (
   let isJoinedGame = false;
 
   // First pass: find the hero's absolute position to calculate rotation
-  Object.values(gameState.publicPlayerDataMapByPosition).forEach(
+  Object.values(gameState.publicPlayerDataMapByTablePosition).forEach(
     (playerData) => {
       if (playerData.id === playerId) {
         isJoinedGame = true;
@@ -30,8 +30,8 @@ export const getTablePropsFromGameState = (
   );
 
   // Second pass: populate seats with rotated positions
-  Object.entries(gameState.publicPlayerDataMapByPosition).forEach(
-    ([__position, playerData]) => {
+  Object.entries(gameState.publicPlayerDataMapByTablePosition).forEach(
+    ([__tablePosition, playerData]) => {
       // Calculate the rotated seat index
       let rotatedSeatIndex =
         (playerData.tableAbsolotePosition - tableRotation + numberOfSeats) %

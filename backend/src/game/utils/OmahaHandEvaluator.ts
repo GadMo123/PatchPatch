@@ -1,6 +1,6 @@
 // src\game\utils\OmahaHandEvaluator.ts - is a helper that caclulate hand strength in showdown
 
-import { Card, Rank, Suit } from "shared";
+import { Card, Rank, Suit } from "@patchpatch/shared";
 
 // Enum for Hand Rankings
 enum HandRank {

@@ -9,7 +9,7 @@ import { ServerStateManager } from "./ServerStateManager";
 import { Game } from "../game/Game";
 import { TableConfig } from "../game/betting/BettingTypes";
 import { getLobbyStatus } from "../lobby/LobbyManager";
-import { GameServerConfig, SocketEvents } from "shared";
+import { GameServerConfig, SocketEvents } from "@patchpatch/shared";
 
 const serverConfig: GameServerConfig = {
   maxGamesPerServer: 3000,

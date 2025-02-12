@@ -1,6 +1,6 @@
 // src\game\arrangeCards\PlayerArrangementValidator.ts - validates that a player's card arrangement input fits game logic (behind type handeling which happens in server handlers)
 
-import { Card } from "shared";
+import { Card } from "@patchpatch/shared";
 import { PlayerInGame } from "../types/PlayerInGame";
 
 interface ValidationResult {

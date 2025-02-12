@@ -1,6 +1,6 @@
 // src/game/utils/Deck.ts - Deck of cards representation
 
-import { Card, RANKS, SUITS } from "shared";
+import { Card, RANKS, SUITS } from "@patchpatch/shared";
 
 export class Deck {
   private _deck: Card[] = [];

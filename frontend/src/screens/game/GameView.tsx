@@ -3,7 +3,6 @@ import "./GameView.css";
 import OpponentCards from "../../gameComponents/playersCardArea/OpponentCards/OpponentCards";
 import PlayerCards from "../../gameComponents/playersCardArea/PlayerCards/PlayerCards";
 import BoardCards from "../../gameComponents/board/BoardCards/BoardCards";
-import { constructBoards } from "../../utils/GameHelpers";
 import BetPanel from "../../gameComponents/betting/BetPanel/BetPanel";
 import { GameContextProvider } from "../../contexts/GameContext";
 import socket from "../../services/socket/Socket";
@@ -13,11 +12,13 @@ import TableAndSeats, {
 } from "../../gameComponents/tableAndSeats/TableAndSeats";
 import {
   BettingStateClientData,
+  BettingTypes,
   Card,
   GameStateServerBroadcast,
   Position,
 } from "@patchpatch/shared";
 import { getTablePropsFromGameState } from "../../utils/TableRotationHelper";
+import { constructBoards } from "../../utils/gameHelpers";
 
 // Displaying the game screen when a player enter a game
 const GameView: React.FC<{ playerId: string; gameId: string }> = ({
@@ -61,15 +62,15 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
         {tableProps && <TableAndSeats {...tableProps} />}
         <div className="game-status">Game ID: {gameId}</div>
         <div className="opponent-area">
-          {gameState?.publicPlayerDataMapByPosition && (
+          {gameState?.publicPlayerDataMapByTablePosition && (
             <OpponentCards
-              opponents={Object.values(gameState.publicPlayerDataMapByPosition)
-                .filter((player) => player.id !== playerId)
+              opponents={gameState.publicPlayerDataMapByTablePosition
+                .filter((player) => player.id && player.id !== playerId)
                 .map((player) => ({
-                  id: player.id,
-                  name: player.name,
+                  id: player.id!,
+                  name: player.name || "Villain",
                   cards: player.cards || [],
-                  position: player.position,
+                  position: player.position!,
                 }))}
             />
           )}
@@ -103,9 +104,9 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
               <BetPanel
                 bettingState={bettingState}
                 defaultAction={
-                  bettingState.playerValidActions.includes("check")
-                    ? "check"
-                    : "fold"
+                  bettingState.playerValidActions.includes(BettingTypes.CHECK)
+                    ? BettingTypes.CHECK
+                    : BettingTypes.FOLD
                 }
               />
             )}

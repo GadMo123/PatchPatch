@@ -1,3 +1,3 @@
 export * from "./Card";
-export * from "./Position";
+export * from "./Types";
 export * from "./SocketProtocol";

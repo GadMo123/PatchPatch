@@ -1,7 +1,7 @@
 // src/game/betting/BettingManager.ts - Handles a single betting round start logic to finish, timings, actions, broadcasting changes, pot updates ect.
 import { Game } from "../Game";
 import { ActionValidator } from "./ActionValidator";
-import { BettingState, TableConfig, PlayerAction } from "./BettingTypes";
+import { BettingState, TableConfig } from "./BettingTypes";
 import { PlayerInGame } from "../types/PlayerInGame";
 import {
   findFirstPlayerToAct,
@@ -10,7 +10,7 @@ import {
 import { GameActionTimerManager } from "../utils/GameActionTimerManager";
 import { BettingRoundPotManager } from "./BettingRoundPotManager";
 import { Mutex } from "async-mutex";
-import { Position } from "shared";
+import { BettingTypes, Position } from "@patchpatch/shared";
 
 export class BettingManager {
   private _awaitingPlayersAction: any;
@@ -86,7 +86,7 @@ export class BettingManager {
 
   async handlePlayerAction(
     playerId: string,
-    action: PlayerAction,
+    action: BettingTypes,
     amount?: number
   ): Promise<boolean> {
     await this._processingAction.acquire();
@@ -115,21 +115,26 @@ export class BettingManager {
 
       if (!validation.isValid) {
         console.log(`Invalid action: ${validation.error}`);
-        action = validActions.includes("check") ? "check" : "fold"; // take default action
+        action = validActions.includes(BettingTypes.CHECK)
+          ? BettingTypes.CHECK
+          : BettingTypes.FOLD; // take default action
         amount = 0;
       }
 
       this._potManager.addContribution(this._currentPlayerToAct, amount || 0);
 
       // When a player raise or bet a valid amount, he has the new biggest bet this round.
-      if ((amount ?? 0 > 0) && (action == "raise" || action == "bet")) {
+      if (
+        (amount ?? 0 > 0) &&
+        (action == BettingTypes.RAISE || action == BettingTypes.BET)
+      ) {
         this._roundEndsCondition = this._currentPlayerToAct;
         this._biggestBetToCall = this._bettingState.potContributions.get(
           this._currentPlayerToAct
         )!;
       }
 
-      if (action == "fold")
+      if (action == BettingTypes.FOLD)
         this._currentPlayerToAct.updatePlayerPublicState({ isFolded: true });
 
       // Update betting state with latest pot contributions
@@ -177,9 +182,9 @@ export class BettingManager {
         this._currentPlayerToAct,
         this._biggestBetToCall
       )
-      .includes("check")
-      ? "check"
-      : "fold";
+      .includes(BettingTypes.CHECK)
+      ? BettingTypes.CHECK
+      : BettingTypes.FOLD;
     this.handlePlayerAction(this._currentPlayerToAct.getId(), defaultAction);
   }
 
@@ -199,7 +204,7 @@ export class BettingManager {
 
   private switchToNextPlayer() {
     this._currentPlayerToAct = findNextPlayerToAct(
-      this._currentPlayerToAct.getPokerPosition(),
+      this._currentPlayerToAct.getPokerPosition()!,
       this._game
     );
     this.updateBettingState({ playerToAct: this._currentPlayerToAct.getId() });

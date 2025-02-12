@@ -1,13 +1,12 @@
 // src/game/betting/BettingTypes.ts - should be moved other places , TODO
 
+import { BettingTypes } from "@patchpatch/shared";
 import { PlayerInGame } from "../types/PlayerInGame";
-
-export type PlayerAction = "fold" | "check" | "call" | "bet" | "raise";
 
 export interface BettingState {
   timeRemaining: number;
   timeCookiesUsedThisRound: number;
-  playerValidActions: PlayerAction[];
+  playerValidActions: BettingTypes[];
   playerToAct: string;
   potContributions: Map<PlayerInGame, number>; //The contribution of each player to the pot this current betting round
   minRaiseAmount?: number;

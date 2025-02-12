@@ -6,7 +6,7 @@ interface OpponentCardsProps {
   opponents: {
     id: string;
     name: string;
-    cards: { rank: string; suit: string }[];
+    cards: Card[];
     position: string;
   }[];
 }
@@ -16,27 +16,28 @@ const OpponentCards: React.FC<OpponentCardsProps> = ({ opponents }) => {
   return (
     <>
       {opponents.map((opponent, index) => (
-        <div key={`opponent-${index}`} className="opponent-section">
-          <div className="player-name">{opponent.name || "Villain"}</div>
+        <div key={`opponent-${opponent.id}`} className="opponent-section">
+          <div className="player-name">{opponent.name}</div>
           <div className="opponent-cards">
-            {opponent.cards?.map((card, cardIndex) => (
-              <CardView
-                key={`opponent-${index}-card-${cardIndex}`}
-                card={card as Card}
-                className="card"
-              />
-            )) ||
-              Array(12)
-                .fill(null)
-                .map((_, i) => (
-                  <div
-                    key={`hidden-card-${i}`}
-                    className="card card-back"
-                    style={{
-                      backgroundImage: 'url("/assets/cards/back.png")',
-                    }}
+            {opponent.cards?.length > 0
+              ? opponent.cards.map((card, cardIndex) => (
+                  <CardView
+                    key={`opponent-${opponent.id}-card-${cardIndex}`}
+                    card={card}
+                    className="card"
                   />
-                ))}
+                ))
+              : Array(12)
+                  .fill(null)
+                  .map((_, i) => (
+                    <div
+                      key={`hidden-card-${i}`}
+                      className="card card-back"
+                      style={{
+                        backgroundImage: 'url("/assets/cards/back.png")',
+                      }}
+                    />
+                  ))}
           </div>
         </div>
       ))}

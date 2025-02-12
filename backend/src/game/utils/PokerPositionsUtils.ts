@@ -1,6 +1,6 @@
 // src\game\utils\PositionsUtils.ts - Helper functions related to position, manage players position and table rotations between hands.
 
-import { Position } from "shared";
+import { Position } from "@patchpatch/shared";
 import { Game } from "../Game";
 import { DetailedGameState, GamePhase } from "../broadcasting/GameState";
 import { PlayerInGame } from "../types/PlayerInGame";

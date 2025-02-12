@@ -33,7 +33,7 @@ PatchPatch is designed to be easily scalable, with plans to support traditional 
 
 ## About This Project
 
-This is a commercial game, and all **code and game rights** are legally protected. The purpose of this repository is to showcase my work as part of my **portfolio** for potential employers. I am open to job opportunities.
+This is a commercial game, and all **code and game rights** are legally protected. The purpose of this repository is to showcase my work as part of my **portfolio** for potential employers.
 
 ---
 

@@ -15,5 +15,5 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./Card"), exports);
-__exportStar(require("./Position"), exports);
+__exportStar(require("./Types"), exports);
 __exportStar(require("./SocketProtocol"), exports);

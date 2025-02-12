@@ -1,9 +1,9 @@
 // src\game\arrangeCards\ArrangePlayerCardsManager.ts - Handles card arrangement phase - timers, broadcasts, validations, default action.
 
+import { Card, Position } from "@patchpatch/shared";
 import { Game } from "../Game";
 import { GameActionTimerManager } from "../utils/GameActionTimerManager";
 import { validateCardsArrangement } from "./PlayerArrangementValidator";
-import { Card, Position } from "shared";
 
 export interface ArrangePlayerCardsState {
   timeRemaining: number;
@@ -68,8 +68,12 @@ export class ArrangePlayerCardsManager {
       return { success: false, error: "Player not found" };
     }
 
-    if (this._state.playerDoneMap.get(player.getPokerPosition()) === true) {
-      return { success: false, error: "Player already submitted arrangement" };
+    const position = player.getPokerPosition();
+    if (!position || this._state.playerDoneMap.get(position) === true) {
+      return {
+        success: false,
+        error: "Player already submitted arrangement or player is inactive",
+      };
     }
 
     const validationResult = validateCardsArrangement(arrangement, player);
@@ -86,7 +90,7 @@ export class ArrangePlayerCardsManager {
     });
 
     // Mark player as done
-    this.markPlayerDone(player.getPokerPosition());
+    this.markPlayerDone(position);
 
     if (this.isAllPlayersDone()) {
       this._timer.handleAction(); // Signal that we received valid actions, cancel timout action

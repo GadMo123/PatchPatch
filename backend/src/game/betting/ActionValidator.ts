@@ -1,7 +1,7 @@
 // src/game/betting/ActionValidator.ts - Validates that player input fits games logic (behind type handling which happens in server handlers).
+import { BettingTypes } from "@patchpatch/shared";
 import { PlayerInGame } from "../types/PlayerInGame";
 import {
-  PlayerAction,
   BettingState,
   ActionValidationResult,
   TableConfig,
@@ -14,29 +14,29 @@ export class ActionValidator {
     bettingState: BettingState,
     player: PlayerInGame,
     biggestBet: number
-  ): PlayerAction[] {
+  ): BettingTypes[] {
     const playersContribution = bettingState.potContributions;
 
     const playerContribution = playersContribution.get(player);
 
     // First to act or BB option in preflop round
     if (playerContribution === biggestBet) {
-      return ["check", "bet"];
+      return [BettingTypes.CHECK, BettingTypes.BET];
     }
 
-    const actions: PlayerAction[] = ["fold", "call"];
+    const actions: BettingTypes[] = [BettingTypes.FOLD, BettingTypes.CALL];
 
     if (player.getStack() + playerContribution! > biggestBet) {
-      actions.push("raise");
+      actions.push(BettingTypes.RAISE);
     }
     return actions;
   }
 
   validateAction(
-    action: PlayerAction,
+    action: BettingTypes,
     amount: number | undefined,
     player: PlayerInGame,
-    validActions: PlayerAction[]
+    validActions: BettingTypes[]
   ): ActionValidationResult {
     if (!validActions.includes(action)) {
       return { isValid: false, error: "Invalid action for current state" };

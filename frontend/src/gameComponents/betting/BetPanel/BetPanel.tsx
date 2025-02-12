@@ -4,13 +4,11 @@ import { useBettingActions } from "../../../hooks/SendPlayerActions";
 import { useGameContext } from "../../../contexts/GameContext";
 import socket from "../../../services/socket/Socket";
 import { useCountdownTimer } from "../../../hooks/TimerHook";
-import { BettingStateClientData } from "@patchpatch/shared";
-
-export type PlayerAction = "fold" | "check" | "call" | "bet" | "raise";
+import { BettingStateClientData, BettingTypes } from "@patchpatch/shared";
 
 interface BetPanelProps {
   bettingState: BettingStateClientData;
-  defaultAction: PlayerAction;
+  defaultAction: BettingTypes;
 }
 
 // Allows player to choose between betting options when its his turn to act, also show time-remaining to act before the defualt action is taken
@@ -26,7 +24,7 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
     onComplete: () => onAction(defaultAction),
   });
 
-  const onAction = async (action: PlayerAction, amount?: number) => {
+  const onAction = async (action: BettingTypes, amount?: number) => {
     if (isProcessing) return;
 
     cancelTimer(); // Cancel timer when manual action is taken
@@ -45,7 +43,7 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
     }
   };
 
-  const handleBerOrRaise = (action: PlayerAction) => {
+  const handleBerOrRaise = (action: BettingTypes) => {
     const amount = prompt("Enter your raise amount:"); // Example for a raise input
     if (amount && !isNaN(Number(amount))) {
       onAction(action, Number(amount));
@@ -56,13 +54,13 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
     const { playerValidActions } = bettingState;
 
     // Check if we have check/bet actions
-    const hasCheck = playerValidActions.includes("check");
-    const hasBet = playerValidActions.includes("bet");
+    const hasCheck = playerValidActions.includes(BettingTypes.CHECK);
+    const hasBet = playerValidActions.includes(BettingTypes.BET);
 
     // Check if we have fold/call/raise actions
-    const hasFold = playerValidActions.includes("fold");
-    const hasCall = playerValidActions.includes("call");
-    const hasRaise = playerValidActions.includes("raise");
+    const hasFold = playerValidActions.includes(BettingTypes.FOLD);
+    const hasCall = playerValidActions.includes(BettingTypes.CALL);
+    const hasRaise = playerValidActions.includes(BettingTypes.RAISE);
 
     // Determine which set of buttons to show
     if (hasCheck || hasBet) {
@@ -71,7 +69,7 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
         <>
           {hasCheck && (
             <button
-              onClick={() => onAction("check")}
+              onClick={() => onAction(BettingTypes.CHECK)}
               className="bet-button check"
               disabled={isProcessing}
             >
@@ -80,7 +78,7 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
           )}
           {hasBet && (
             <button
-              onClick={() => handleBerOrRaise("bet")}
+              onClick={() => handleBerOrRaise(BettingTypes.BET)}
               className="bet-button bet"
               disabled={isProcessing}
             >
@@ -96,7 +94,7 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
       <>
         {hasFold && (
           <button
-            onClick={() => onAction("fold")}
+            onClick={() => onAction(BettingTypes.FOLD)}
             className="bet-button fold"
             disabled={isProcessing}
           >
@@ -105,7 +103,7 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
         )}
         {hasCall && (
           <button
-            onClick={() => onAction("call")}
+            onClick={() => onAction(BettingTypes.CALL)}
             className="bet-button call"
             disabled={isProcessing}
           >
@@ -114,7 +112,7 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
         )}
         {hasRaise && (
           <button
-            onClick={() => handleBerOrRaise("raise")}
+            onClick={() => handleBerOrRaise(BettingTypes.RAISE)}
             className="bet-button raise"
             disabled={isProcessing}
           >

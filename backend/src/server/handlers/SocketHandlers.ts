@@ -4,16 +4,15 @@ import { Socket } from "socket.io";
 import { Player } from "../../player/Player";
 import {
   getGameAndPlayer,
-  isBuyIntoGamePayload,
-  isCardArrangementPayload,
-  isInGamePayload,
-  isJoinGamePayload,
-  isLoginPayload,
-  isPlayerActionPayload,
+  validateBuyIntoGame,
+  validateCardArrangement,
+  validateInGamePayload,
+  validateJoinGame,
+  validateLogin,
+  validatePlayerAction,
 } from "./EventsInputValidator";
 import { ServerStateManager } from "../ServerStateManager";
-import { PlayerAction } from "../../game/betting/BettingTypes";
-import { Card, HandlerResponse, LoginResponse } from "shared";
+import { HandlerResponse, LoginResponse } from "@patchpatch/shared";
 
 export class SocketHandlers {
   private static _instance: SocketHandlers;
@@ -30,14 +29,15 @@ export class SocketHandlers {
     return SocketHandlers._instance;
   }
 
-  // Design - move login to a saparated endpoint? connect to socket after login? enable gameview for unregister?
+  // todo  move login to a saparated endpoint? connect to socket after login? enable gameview for unregister?
   async handleLogin(socket: Socket, payload: unknown): Promise<LoginResponse> {
-    if (!isLoginPayload(payload)) {
-      return { success: false, message: "Invalid login payload format" };
+    const validation = validateLogin(payload);
+    if (!validation.success) {
+      return { success: false, message: validation.error };
     }
 
     try {
-      const player = new Player(socket.id, payload.name, socket.id);
+      const player = new Player(socket.id, validation.data.name, socket.id);
       this._stateManager.addPlayer(player);
       return { success: true, playerId: player.getId(), token: "1" };
     } catch (error) {
@@ -49,110 +49,123 @@ export class SocketHandlers {
   }
 
   // Player enters game view as an observer
-  async handleEnterGame(payload: any) {
-    if (!isInGamePayload(payload))
-      return { success: false, message: "Invalid input" };
-    const { game, player } = getGameAndPlayer(payload);
+  async handleEnterGame(payload: unknown): Promise<HandlerResponse> {
+    const validation = validateInGamePayload(payload);
+    if (!validation.success) {
+      return { success: false, message: validation.error };
+    }
+
+    const { game, player } = getGameAndPlayer(validation.data);
     if (!game || !player) {
       return { success: false, message: "Invalid game and player id" };
     }
-    game
-      .addObserver(player)
-      .then(() => {
-        return { success: true };
-      })
-      .catch((error) => {
-        return { success: false, error: error.message };
-      });
+
+    try {
+      await game.addObserver(player);
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        message:
+          error instanceof Error ? error.message : "Failed to enter game",
+      };
+    }
   }
 
-  // Player enter game seat as a Player
   async handleJoinGame(payload: unknown): Promise<HandlerResponse> {
-    if (!isJoinGamePayload(payload))
-      return { success: false, message: "Invalid input" };
-    const { game, player } = getGameAndPlayer(payload);
+    const validation = validateJoinGame(payload);
+    if (!validation.success) {
+      return { success: false, message: validation.error };
+    }
+
+    const { game, player } = getGameAndPlayer(validation.data);
     if (!game || !player) {
       return { success: false, message: "Invalid game and player id" };
     }
 
-    const success = await game.addPlayer(player, payload.tableAbsolutePosition);
-
+    const success = await game.addPlayer(
+      player,
+      validation.data.tableAbsolutePosition
+    );
     if (!success) return { success: false, message: "Seat is taken" };
-    player.addActiveGame(payload.gameId);
+
+    player.addActiveGame(validation.data.gameId);
     return { success: true };
   }
 
-  // Player is sitting in a game and wants to buyin or add play chips
   async handleGameBuyin(payload: unknown): Promise<HandlerResponse> {
-    if (!isBuyIntoGamePayload(payload))
-      return { success: false, message: "Invalid input" };
+    const validation = validateBuyIntoGame(payload);
+    if (!validation.success) {
+      return { success: false, message: validation.error };
+    }
 
-    const { game, player } = getGameAndPlayer(payload);
+    const { game, player } = getGameAndPlayer(validation.data);
     if (!game || !player) {
       return { success: false, message: "Invalid game and player id" };
     }
 
     const MIN_BUYIN =
       Number(process.env.MIN_BUYIN) || 20 * game.getTableConfig().bbAmount;
-    const amount = payload.amount;
-
-    if (amount < MIN_BUYIN) {
-      return { success: false, message: "Invalid amount" };
+    if (validation.data.amount < MIN_BUYIN) {
+      return { success: false, message: "Buy-in amount below minimum" };
     }
 
     const playerInGame = game.getPlayer(player.getId());
-    if (!playerInGame) return { success: false, message: "Invalid player" };
+    if (!playerInGame) {
+      return { success: false, message: "Player not found in game" };
+    }
 
-    // Reduce Coins from base player layer and add chips to player stack as one transaction.
-    return (await player.buyIntoGame(amount, game))
-      ? { success: false, message: "Invalid Buyin" }
-      : { success: true };
+    return (await player.buyIntoGame(validation.data.amount, game))
+      ? { success: true }
+      : { success: false, message: "Buy-in failed" };
   }
 
   async handlePlayerAction(payload: unknown): Promise<HandlerResponse> {
-    if (!isPlayerActionPayload(payload))
-      return { success: false, message: "Invalid input" };
+    const validation = validatePlayerAction(payload);
+    if (!validation.success) {
+      return { success: false, message: validation.error };
+    }
 
-    const { game, player } = getGameAndPlayer(payload);
+    const { game, player } = getGameAndPlayer(validation.data);
     if (!game || !player) {
       return { success: false, message: "Invalid game and player id" };
     }
 
-    const { playerId, action, amount } = payload;
+    const success = await game
+      .getGameFlowManager()
+      ?.getBettingManager()
+      ?.handlePlayerAction(
+        validation.data.playerId,
+        validation.data.action,
+        validation.data.amount
+      );
 
-    return {
-      success:
-        (await game
-          .getGameFlowManager()
-          ?.getBettingManager()
-          ?.handlePlayerAction(playerId, action as PlayerAction, amount)) ??
-        false,
-    };
+    return { success: !!success };
   }
 
   async handleCardArrangement(payload: unknown): Promise<HandlerResponse> {
-    if (!isCardArrangementPayload(payload)) {
+    const validation = validateCardArrangement(payload);
+    if (!validation.success) {
       return {
         success: false,
-        message: "Invalid payload format for card arrangement",
+        message: validation.error,
       };
     }
-    const { game, player } = getGameAndPlayer(payload);
+
+    const { gameId, playerId, arrangement } = validation.data;
+    const { game, player } = getGameAndPlayer({ gameId, playerId });
+
     if (!game || !player) {
       return { success: false, message: "Invalid game and player id" };
     }
-
-    const { playerId, arrangement } = payload;
-    const validCards: Card[] = arrangement.map(
-      (item) => item as unknown as Card
-    );
 
     const result = (await game
       .getGameFlowManager()
       ?.getArrangeCardManager()
-      ?.handlePlayerArrangedCardsRecived(playerId, validCards)) ?? {
+      ?.handlePlayerArrangedCardsRecived(playerId, arrangement)) ?? {
       success: false,
     };
+
     return { success: result.success, message: result.error };
   }
 
