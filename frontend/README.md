@@ -7,7 +7,7 @@ Handles the client-side logic, protocol calls and UI/UX.
 
 Below are some of the key components that structure the frontend for better orientation:
 
-- **`\screens\game\GameView`**  
+- **`GameView`**  
   The main game screen, which includes all components related to a player's in-game experience.
 
 - **`PlayerCards`**  
@@ -25,7 +25,7 @@ Below are some of the key components that structure the frontend for better orie
 - **`PotDisplay`**  
   Converts the numerical pot value into a visual chip display.
 
-- **`CreateSocketAction`**
+- **`CreateSocketAction`**  
   Create a generic websocket protocol call for each protocol action
 
 ## Development Status
