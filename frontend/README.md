@@ -3,7 +3,7 @@
 This is the frontend of the application, built with React, TypeScript, and CSS.
 Handles the client-side logic, protocol calls and UI/UX.
 
-## Key frontend Elements
+## Key Frontend Elements
 
 Below are some of the key components that structure the frontend for better orientation:
 
