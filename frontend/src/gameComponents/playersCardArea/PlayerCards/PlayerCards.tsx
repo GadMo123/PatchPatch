@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import CardView from "../../../components/common/card/CardView";
 import "./PlayerCards.css";
-import { useArrangedCardActions } from "../../../hooks/SendPlayerActions";
 import { useGameContext } from "../../../contexts/GameContext";
 import socket from "../../../services/socket/Socket";
 import { useCountdownTimer } from "../../../hooks/TimerHook";
 import { Card } from "@patchpatch/shared";
+import { useCardsArrangement } from "../../../hooks/CreateSocketAction";
 
 interface PlayerCardsProps {
   playerCards: Card[];
@@ -24,11 +24,7 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
   const [isArrangementComplete, setIsArrangementComplete] = useState(false);
 
   const { playerId, gameId } = useGameContext();
-  const { sendAarrangement: sendAarrangement } = useArrangedCardActions(
-    gameId,
-    playerId,
-    socket
-  );
+  const { sendAction } = useCardsArrangement();
 
   const [timeLeft, cancelTimer] = useCountdownTimer({
     serverTimeRemaining: arrangeCardsTimeLeft,
@@ -81,8 +77,17 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
   const handleArrangementComplete = () => {
     if (isArrangementComplete) return;
     if (typeof cancelTimer) cancelTimer(); // Cancel timer when manual action is taken
-    const response = sendAarrangement(arrangedCards);
-    setIsArrangementComplete(true);
+    const response = sendAction({
+      gameId: gameId,
+      playerId: playerId,
+      arrangement: arrangedCards,
+    }).then((response) => {
+      if (response.success) {
+        setIsArrangementComplete(true);
+      } else {
+        console.log(response.message); // assuming error is the field name based on your Response interface
+      }
+    });
   };
 
   const getCardWrapperClassName = (absoluteIndex: number) => {

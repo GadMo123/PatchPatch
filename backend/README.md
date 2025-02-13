@@ -1,6 +1,13 @@
 # Backend
 
-This is the server that listens for WebSocket connections from clients and handles protocol calls.
+This is the server that listens for WebSocket connections from clients and handles protocol calls.  
+It maintains player statuses, player data, inventories, and game states. The server is responsible for:
+
+- Running game flow and logic
+- Managing the lobby state
+- Validating and handling protocol calls from clients
+- Broadcasting data to clients
+- Performing CRUD operations on databases
 
 ## Directory Structure
 

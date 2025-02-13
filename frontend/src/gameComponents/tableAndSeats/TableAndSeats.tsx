@@ -3,7 +3,7 @@ import "./TableAndSeats.css";
 import { useGameContext } from "../../contexts/GameContext";
 import { PublicPlayerClientData } from "@patchpatch/shared";
 import socket from "../../services/socket/Socket";
-import { useJoinGame } from "../../hooks/sendJoinGame";
+import { useJoinGame } from "../../hooks/CreateSocketAction";
 
 export interface TableProps {
   numberOfSeats: 2 | 3 | 6;
@@ -19,7 +19,7 @@ const TableAndSeats: React.FC<TableProps> = ({
 }) => {
   const [tableSize, setTableSize] = useState({ width: 0, height: 0 });
   const { gameId, playerId } = useGameContext();
-  const { sendAction } = useJoinGame(gameId, playerId, socket);
+  const { sendAction: joinGame } = useJoinGame();
 
   useEffect(() => {
     const calculateTableSize = () => {
@@ -67,7 +67,16 @@ const TableAndSeats: React.FC<TableProps> = ({
             !isJoinedGame && (
               <button
                 className="join-seat-button"
-                onClick={() => sendAction(seatInfo.tableAbsolotePosition)}
+                onClick={async () => {
+                  const response = await joinGame({
+                    gameId: gameId,
+                    playerId: playerId,
+                    tableAbsolutePosition: seatInfo.tableAbsolotePosition,
+                  });
+                  if (!response.success) {
+                    console.log(response.message);
+                  }
+                }}
               >
                 Seat Here
               </button>

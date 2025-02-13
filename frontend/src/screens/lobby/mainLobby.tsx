@@ -17,12 +17,16 @@ const MainLobby: React.FC<MainLobbyProps> = ({ enterGameView, playerId }) => {
   const fetchLobbyStatus = () => {
     if (!socket) return;
 
-    socket?.emit("lobby-status", (response: LobbyStatusServerResponse) => {
-      console.log(response);
-      if (response.success) {
-        setGames(response.games); // Update games list
-      } else alert("Can't connect, try again leter");
-    });
+    // Todo, change this to protocol standart , this should be changed anyway in backend to cache lobby status by the server and braodcast without requst, so no point in fixing client sise first.
+    socket?.emit(
+      SocketEvents.LOBBY_STATUS,
+      (response: LobbyStatusServerResponse) => {
+        console.log(response);
+        if (response.success) {
+          setGames(response.games); // Update games list
+        } else alert("Can't connect, try again leter");
+      }
+    );
   };
 
   useEffect(() => {

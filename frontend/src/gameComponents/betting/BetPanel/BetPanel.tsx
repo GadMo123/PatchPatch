@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import "./BetPanel.css";
-import { useBettingActions } from "../../../hooks/SendPlayerActions";
 import { useGameContext } from "../../../contexts/GameContext";
-import socket from "../../../services/socket/Socket";
 import { useCountdownTimer } from "../../../hooks/TimerHook";
 import { BettingStateClientData, BettingTypes } from "@patchpatch/shared";
+import { usePlayerAction } from "../../../hooks/CreateSocketAction";
 
 interface BetPanelProps {
   bettingState: BettingStateClientData;
@@ -17,7 +16,7 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
   const [error, setError] = useState<string | null>(null);
 
   const { playerId, gameId } = useGameContext();
-  const { sendAction } = useBettingActions(gameId, playerId, socket);
+  const { sendAction } = usePlayerAction();
 
   const [timeLeft, cancelTimer] = useCountdownTimer({
     serverTimeRemaining: bettingState.timeRemaining,
@@ -31,16 +30,16 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
 
     setIsProcessing(true);
     setError(null);
-    try {
-      const response = await sendAction(action, amount);
-      if (!response.success) {
-        setError(response.error || "Action failed");
-      }
-    } catch (err) {
-      setError("Failed to send action");
-    } finally {
-      setIsProcessing(false);
+    const response = await sendAction({
+      gameId: gameId,
+      playerId: playerId,
+      action: action,
+      amount: amount,
+    });
+    if (!response.success) {
+      console.log(response.message);
     }
+    setIsProcessing(false);
   };
 
   const handleBerOrRaise = (action: BettingTypes) => {

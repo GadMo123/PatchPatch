@@ -16,7 +16,7 @@ export const SocketEvents = {
   SIT_OUT_NEXT_HAND: "sit-out-next-hand", // single not get dealt in next hand
   STAND_UP: "stand-up", // Leave the game as a player, turn into an observer
   EXIT_GAME: "exit-game", // Exit game view back to lobby / homepage
-};
+} as const;
 
 export interface HandlerResponse {
   success: boolean;
@@ -120,3 +120,5 @@ export interface ArrangePlayerCardsStateClientData {
   timeRemaining: number;
   playerDoneMap: Map<Position, boolean>;
 }
+
+export type SocketEventType = (typeof SocketEvents)[keyof typeof SocketEvents];

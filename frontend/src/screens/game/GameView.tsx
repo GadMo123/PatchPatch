@@ -15,10 +15,10 @@ import {
   BettingTypes,
   Card,
   GameStateServerBroadcast,
-  Position,
 } from "@patchpatch/shared";
 import { getTablePropsFromGameState } from "../../utils/TableRotationHelper";
 import { constructBoards } from "../../utils/gameHelpers";
+import { useGameStateUpdates } from "../../hooks/HandleServerBroadcastEvent";
 
 // Displaying the game screen when a player enter a game
 const GameView: React.FC<{ playerId: string; gameId: string }> = ({
@@ -38,19 +38,13 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     [gameState, playerId]
   );
 
-  useEffect(() => {
-    const handleGameState = (state: GameStateServerBroadcast) => {
-      console.log(state);
-      setGameState(state);
-      setBoards(constructBoards(state.flops, state.turns, state.rivers));
-      if (state.bettingState) setBettingState(state.bettingState);
-    };
-
-    socket.on("game-state", handleGameState);
-    return () => {
-      socket.off("game-state", handleGameState);
-    };
-  }, [gameId]);
+  useGameStateUpdates((state) => {
+    if (state.id !== gameId) return; // Ignore updates for other games player is in (for multi-tabling)
+    console.log(state);
+    setGameState(state);
+    setBoards(constructBoards(state.flops, state.turns, state.rivers));
+    if (state.bettingState) setBettingState(state.bettingState);
+  });
 
   function getDisplayCards(): Card[] {
     return gameState?.privatePlayerData?.cards ?? [];

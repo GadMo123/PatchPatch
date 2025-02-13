@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from "react";
 
 interface TimerConfig {
   // Time remaining in seconds, updated from server
@@ -17,7 +17,7 @@ export function useCountdownTimer({
 
   // Handle server time updates
   useEffect(() => {
-    console.log('timer update : ' + serverTimeRemaining);
+    console.log("timer update : " + serverTimeRemaining);
     setTimeLeft(serverTimeRemaining);
     if (serverTimeRemaining > 0) hasInitialized.current = true;
   }, [serverTimeRemaining]);
@@ -38,7 +38,7 @@ export function useCountdownTimer({
     }
 
     timerRef.current = setInterval(() => {
-      setTimeLeft(prev => {
+      setTimeLeft((prev) => {
         const newTime = prev - 1000;
         if (newTime <= 0) {
           clearInterval(timerRef.current as NodeJS.Timeout);

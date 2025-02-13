@@ -1,18 +1,18 @@
 import { Card } from "./Card";
 import { BettingTypes, Position } from "./Types";
 export declare const SocketEvents: {
-    LOGIN: string;
-    ENTER_GAME: string;
-    JOIN_GAME: string;
-    GAME_BUYIN: string;
-    PLAYER_ACTION: string;
-    CARDS_ARRANGEMENT: string;
-    LOBBY_STATUS: string;
-    USE_TIMEBANK: string;
-    GAME_STATE_UPDATE: string;
-    SIT_OUT_NEXT_HAND: string;
-    STAND_UP: string;
-    EXIT_GAME: string;
+    readonly LOGIN: "login";
+    readonly ENTER_GAME: "enter-game";
+    readonly JOIN_GAME: "join-game";
+    readonly GAME_BUYIN: "game-buyin";
+    readonly PLAYER_ACTION: "player-action";
+    readonly CARDS_ARRANGEMENT: "cards-arrangement";
+    readonly LOBBY_STATUS: "lobby-status";
+    readonly USE_TIMEBANK: "use-timebank";
+    readonly GAME_STATE_UPDATE: "game-state-update";
+    readonly SIT_OUT_NEXT_HAND: "sit-out-next-hand";
+    readonly STAND_UP: "stand-up";
+    readonly EXIT_GAME: "exit-game";
 };
 export interface HandlerResponse {
     success: boolean;
@@ -101,3 +101,4 @@ export interface ArrangePlayerCardsStateClientData {
     timeRemaining: number;
     playerDoneMap: Map<Position, boolean>;
 }
+export type SocketEventType = (typeof SocketEvents)[keyof typeof SocketEvents];
