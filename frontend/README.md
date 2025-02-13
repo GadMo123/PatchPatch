@@ -3,7 +3,7 @@
 This is the frontend of the application, built with React, TypeScript, and CSS.
 Handles the client-side logic, protocol calls and UI/UX.
 
-## Key View Elements
+## Key frontend Elements
 
 Below are some of the key components that structure the frontend for better orientation:
 
@@ -16,14 +16,17 @@ Below are some of the key components that structure the frontend for better orie
 - **`TableAndSeats`**  
   Represents the table and seating view, allowing players to choose a seat. Poker positions rotate each hand, while absolute seating remains consistent.
 
-- **`PotDisplay`**  
-  Converts the numerical pot value into a visual chip display.
-
 - **`BetPanel`**  
   Displays a player's betting options when it is their turn to act.
 
 - **`MainLobby`**  
   Displays the lobby, allowing players to choose and enter a game.
+
+- **`PotDisplay`**  
+  Converts the numerical pot value into a visual chip display.
+
+- **`CreateSocketAction`**
+  Create a generic websocket protocol call for each protocol action
 
 ## Development Status
 
