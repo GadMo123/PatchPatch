@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_WEBSOCKET_URL=ws://localhost:5000
+    networks:
+      - patchpatch-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      # Game server specific configurations
+      - MAX_GAMES_PER_SERVER=100
+      - HEALTH_CHECK_INTERVAL=30000
+      - SERVER_REGION=default
+      - SERVER_ID=server1
+    networks:
+      - patchpatch-network
+
+networks:
+  patchpatch-network:
+    driver: bridge
