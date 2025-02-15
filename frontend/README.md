@@ -1,33 +1,42 @@
 # Frontend
 
-This is the frontend of the application, built with React, TypeScript, and CSS.
-Handles the client-side logic, protocol calls and UI/UX.
+This is the frontend of the application, built with React, TypeScript, and CSS. It handles client-side logic, protocol calls, and UI/UX.
 
-## Key Frontend Elements
+## Key Components
 
-Below are some of the key components that structure the frontend for better orientation:
+- **`GameView`** – The main game screen displaying all in-game elements.
+- **`PlayerCards`** – Displays a player's 12 private cards and allows rearrangement during the arrangement phase.
+- **`TableAndSeats`** – Represents the table and seating view. Poker positions rotate each hand, while absolute seating remains consistent.
+- **`BetPanel`** – Displays a player's betting options when it’s their turn to act.
+- **`MainLobby`** – Displays the game lobby for selecting and entering a game.
+- **`PotDisplay`** – Converts numerical pot values into a visual chip display.
+- **`CreateSocketAction`** – Creates generic WebSocket protocol calls for each protocol action.
 
-- **`GameView`**  
-  The main game screen, which includes all components related to a player's in-game experience.
+## Compile and Run
 
-- **`PlayerCards`**  
-  Displays a player's 12 private cards and allows them to rearrange them during the card arrangement phase.
+### 1. Install Dependencies and Compile
 
-- **`TableAndSeats`**  
-  Represents the table and seating view, allowing players to choose a seat. Poker positions rotate each hand, while absolute seating remains consistent.
+Ensure the `shared` module is compiled and available at `/shared/dist-esm/`. Adjust the path in `.tsconfig` if necessary.
 
-- **`BetPanel`**  
-  Displays a player's betting options when it is their turn to act.
+```bash
+npm install
+npm run build
+```
 
-- **`MainLobby`**  
-  Displays the lobby, allowing players to choose and enter a game.
+### 2. Start the Client
 
-- **`PotDisplay`**  
-  Converts the numerical pot value into a visual chip display.
+```bash
+npm start
+```
 
-- **`CreateSocketAction`**  
-  Create a generic websocket protocol call for each protocol action
+### 3. Open Multiple Clients
+
+Open additional clients in your browser:
+
+```bash
+http://localhost:3000/
+```
 
 ## Development Status
 
-The frontend is actively being developed. While core game functionality is in place, UI refinements, animations, and additional features are being improved constantly.
+The frontend is actively being developed. While core game functionality is in place, UI refinements, animations, and additional features are continuously being improved.
