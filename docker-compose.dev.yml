@@ -11,7 +11,7 @@ services:
       - REACT_APP_WEBSOCKET_URL=ws://localhost:5000
     volumes:
       - ./frontend:/app/frontend
-      - ./shared:/app/shared
+      # - ./shared:/app/shared
     restart: unless-stopped
 
   backend:
@@ -29,5 +29,5 @@ services:
       - CORS_ORIGIN=http://localhost:3000
     volumes:
       - ./backend:/app/backend
-      - ./shared:/app/shared
+      # - ./shared:/app/shared
     restart: unless-stopped

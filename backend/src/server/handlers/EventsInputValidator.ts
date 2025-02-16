@@ -37,9 +37,12 @@ const validateBasePayload = (
 export const validateLogin = (
   payload: unknown
 ): ValidationResult<LoginPayload> => {
+  console.log(payload);
   const baseValidation = validateBasePayload(payload);
-  if (!baseValidation.success) return baseValidation;
-
+  if (!baseValidation.success) {
+    console.log(baseValidation);
+    return baseValidation;
+  }
   const { data: p } = baseValidation;
   if (typeof p.name !== "string" || p.name.length === 0) {
     return { success: false, error: "Invalid name format" };

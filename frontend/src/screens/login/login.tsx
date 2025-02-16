@@ -1,6 +1,5 @@
-import { SocketEvents } from "@patchpatch/shared";
-import socket from "../../services/socket/Socket";
 import { useState } from "react";
+import { useLogin } from "../../hooks/CreateSocketAction";
 
 interface LoginProps {
   onLogin: (playerId: string) => void;
@@ -10,24 +9,23 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
+  const { sendAction } = useLogin();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!name.trim()) {
       setError("Name is required");
       return;
     }
-
-    socket.emit(
-      SocketEvents.LOGIN,
-      name,
-      (response: { success: boolean; playerId?: string; message?: string }) => {
-        if (response.success && response.playerId) {
-          onLogin(response.playerId); // Pass the playerId to the parent component
-        } else {
-          setError(response.message || "Login failed");
-        }
+    try {
+      const response = await sendAction({ name: name });
+      if (response.success && response.playerId) {
+        onLogin(response.playerId);
+      } else {
+        setError(response.message || "Login failed");
       }
-    );
+    } catch (error) {
+      setError("Login failed");
+    }
   };
 
   return (

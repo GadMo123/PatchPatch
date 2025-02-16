@@ -5,7 +5,6 @@ import PlayerCards from "../../gameComponents/playersCardArea/PlayerCards/Player
 import BoardCards from "../../gameComponents/board/BoardCards/BoardCards";
 import BetPanel from "../../gameComponents/betting/BetPanel/BetPanel";
 import { GameContextProvider } from "../../contexts/GameContext";
-import socket from "../../services/socket/Socket";
 import PotDisplay from "../../gameComponents/board/PotDisplay/PotDisplay";
 import TableAndSeats, {
   TableProps,
