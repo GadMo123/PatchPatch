@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LobbyStatusServerResponse, SocketEvents } from "@patchpatch/shared";
 import { useSocket } from "../../contexts/SocketContext";
+import { useEnterGame } from "../../hooks/CreateSocketAction";
 
 interface MainLobbyProps {
   enterGameView: (gameId: string) => void; // Callback to pass gameId back to App
@@ -13,6 +14,7 @@ const MainLobby: React.FC<MainLobbyProps> = ({ enterGameView, playerId }) => {
   const { socket } = useSocket();
   const [games, setGames] = useState<any[]>([]);
   const navigate = useNavigate();
+  const { sendAction } = useEnterGame();
 
   const fetchLobbyStatus = () => {
     if (!socket) return;
@@ -39,25 +41,23 @@ const MainLobby: React.FC<MainLobbyProps> = ({ enterGameView, playerId }) => {
     return () => clearInterval(interval); // Cleanup interval on unmount
   }, []);
 
-  const handleEnterGame = (gameId: string) => {
+  const handleEnterGame = async (gameId: string) => {
     if (!playerId || playerId === "unregistered") {
       navigate("/login"); // Redirect to login
       return;
     }
 
-    socket?.emit(
-      SocketEvents.ENTER_GAME,
-      gameId,
-      playerId,
-      (response: { success: boolean; message?: string }) => {
-        if (response.success) {
-          enterGameView(gameId); // Pass gameId to parent
-          navigate(`/game/${gameId}`);
-        } else {
-          alert(response.message || "Failed to join game");
-        }
+    try {
+      const response = await sendAction({ gameId: gameId, playerId: playerId });
+      if (response.success) {
+        enterGameView(gameId); // Pass gameId to parent
+        navigate(`/game/${gameId}`);
+      } else {
+        alert(response.message || "Failed to enter game");
       }
-    );
+    } catch (error) {
+      alert("Failed to enter game");
+    }
   };
 
   return (
