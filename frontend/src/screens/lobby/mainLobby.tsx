@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LobbyStatusServerResponse, SocketEvents } from "@patchpatch/shared";
 import { useSocket } from "../../contexts/SocketContext";
-import { useEnterGame } from "../../hooks/CreateSocketAction";
+import { useEnterGame, useLobbyStatus } from "../../hooks/CreateSocketAction";
 
 interface MainLobbyProps {
   enterGameView: (gameId: string) => void; // Callback to pass gameId back to App
@@ -14,21 +13,18 @@ const MainLobby: React.FC<MainLobbyProps> = ({ enterGameView, playerId }) => {
   const { socket } = useSocket();
   const [games, setGames] = useState<any[]>([]);
   const navigate = useNavigate();
-  const { sendAction } = useEnterGame();
+  const { sendAction: enterGame } = useEnterGame();
+  const { sendAction: getLobbyStatus } = useLobbyStatus();
 
-  const fetchLobbyStatus = () => {
+  const fetchLobbyStatus = async () => {
     if (!socket) return;
 
-    // Todo, change this to protocol standart , this should be changed anyway in backend to cache lobby status by the server and braodcast without requst, so no point in fixing client sise first.
-    socket?.emit(
-      SocketEvents.LOBBY_STATUS,
-      (response: LobbyStatusServerResponse) => {
-        console.log(response);
-        if (response.success) {
-          setGames(response.games); // Update games list
-        } else alert("Can't connect, try again leter");
-      }
-    );
+    // Todo, should be changed in backend to cache lobby status and braodcast without requests.
+    const response = await getLobbyStatus();
+    console.log(response);
+    if (response.success) {
+      setGames(response.games); // Update games list
+    } else alert("Can't connect, try again leter");
   };
 
   useEffect(() => {
@@ -48,7 +44,7 @@ const MainLobby: React.FC<MainLobbyProps> = ({ enterGameView, playerId }) => {
     }
 
     try {
-      const response = await sendAction({ gameId: gameId, playerId: playerId });
+      const response = await enterGame({ gameId: gameId, playerId: playerId });
       if (response.success) {
         enterGameView(gameId); // Pass gameId to parent
         navigate(`/game/${gameId}`);

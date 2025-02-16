@@ -21,9 +21,16 @@ function createSocketAction<TPayload = void, TResponse = HandlerResponse>(
   return () => {
     const sendAction = (payload: TPayload) => {
       return new Promise<TResponse>((resolve) => {
-        socket.emit(event, payload, (response: TResponse) => {
-          resolve(response);
-        });
+        if (payload === undefined) {
+          // If no payload, only send event and callback
+          socket.emit(event, (response: TResponse) => {
+            resolve(response);
+          });
+        } else {
+          socket.emit(event, payload, (response: TResponse) => {
+            resolve(response);
+          });
+        }
       });
     };
 
