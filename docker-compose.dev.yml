@@ -9,8 +9,10 @@ services:
       - "3000:80"
     environment:
       - REACT_APP_WEBSOCKET_URL=ws://localhost:5000
-    networks:
-      - patchpatch-network
+    volumes:
+      - ./frontend:/app/frontend
+      - ./shared:/app/shared
+    restart: unless-stopped
 
   backend:
     build:
@@ -19,15 +21,13 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - NODE_ENV=production
-      # Game server specific configurations
+      - NODE_ENV=development
       - MAX_GAMES_PER_SERVER=100
       - HEALTH_CHECK_INTERVAL=30000
-      - SERVER_REGION=default
-      - SERVER_ID=server1
-    networks:
-      - patchpatch-network
-
-networks:
-  patchpatch-network:
-    driver: bridge
+      - SERVER_REGION=dev
+      - SERVER_ID=dev-1
+      - CORS_ORIGIN=http://localhost:3000
+    volumes:
+      - ./backend:/app/backend
+      - ./shared:/app/shared
+    restart: unless-stopped

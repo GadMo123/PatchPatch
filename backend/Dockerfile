@@ -3,7 +3,7 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files for all workspaces
+# Copy package files
 COPY package*.json ./
 COPY shared/package*.json ./shared/
 COPY backend/package*.json ./backend/
@@ -12,12 +12,12 @@ COPY backend/package*.json ./backend/
 COPY shared/ ./shared/
 COPY backend/ ./backend/
 
-# Build shared module first
+# Build shared module
 WORKDIR /app/shared
 RUN npm install
 RUN npm run build
 
-# Build and run backend
+# Build backend
 WORKDIR /app/backend
 RUN npm install
 RUN npm run build
@@ -29,10 +29,7 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=3s \
   CMD wget --no-verbose --tries=1 --spider http://localhost:5000/health || exit 1
 
+# Environment variables will be provided at runtime
 ENV NODE_ENV=production
-ENV MAX_GAMES_PER_SERVER=1000
-ENV HEALTH_CHECK_INTERVAL=30000
-ENV SERVER_REGION=us-east-1
-ENV SERVER_ID=prod-1
 
 CMD ["npm", "run", "serve"]

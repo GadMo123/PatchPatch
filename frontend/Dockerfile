@@ -1,10 +1,9 @@
-# Build stage
 FROM node:20-alpine as builder
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files for all workspaces
+# Copy package files
 COPY package*.json ./
 COPY shared/package*.json ./shared/
 COPY frontend/package*.json ./frontend/
@@ -13,7 +12,7 @@ COPY frontend/package*.json ./frontend/
 COPY shared/ ./shared/
 COPY frontend/ ./frontend/
 
-# Build shared module first
+# Build shared module
 WORKDIR /app/shared
 RUN npm install
 RUN npm run build
@@ -26,12 +25,11 @@ RUN npm run build
 # Production stage
 FROM nginx:alpine
 
-# Copy built assets from builder stage
+# Copy built assets
 COPY --from=builder /app/frontend/build /usr/share/nginx/html
-
-# Copy nginx config
 COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
