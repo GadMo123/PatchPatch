@@ -194,9 +194,9 @@ export class Game {
   }
 
   async handleGameStateRequest(player: Player): Promise<boolean> {
-    const playerInGame = this.getPlayer(player.getId());
+    const sittingPlayer = this.getPlayer(player.getId()); // if player is PlayerInGame
     const success = await this._broadcaster.broadcastCachedState(
-      playerInGame || player
+      sittingPlayer || player
     );
     return success;
   }

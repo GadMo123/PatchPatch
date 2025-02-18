@@ -98,6 +98,12 @@ export const useStandUp = createSocketAction<InGamePayload>(
   SocketEvents.STAND_UP
 );
 
+// Ask for game state update (in case of DC or missed braodcast)
+export const useGameStateRequest = createSocketAction<InGamePayload>(
+  socket,
+  SocketEvents.GAME_STATE_UPDATE
+);
+
 // Exit game
 export const useExitGame = createSocketAction<InGamePayload>(
   socket,

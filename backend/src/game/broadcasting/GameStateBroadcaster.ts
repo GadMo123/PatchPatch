@@ -12,15 +12,13 @@ import {
 } from "@patchpatch/shared";
 import { BettingState, TableConfig } from "game/betting/BettingTypes";
 import { ArrangePlayerCardsState } from "game/arrangeCards/ArrangePlayerCardsManager";
-import { PlayerInGame, PlayerPublicState } from "game/types/PlayerInGame";
 import { Player } from "player/Player";
+import { PlayerInGame, PlayerPublicState } from "game/types/PlayerInGame";
 
 export class GameStateBroadcaster {
   private _cachedLastBaseState: GameStateServerBroadcast | null;
 
-  // Todo - prevent clients from reciving an older data, anyway the game logic itself takes care of it and the only risk is for a reconnecting client of getting an older state version - not a priority.
   // Even better solution - attach an Id to game state to mark the oldest state as the correct state for the client.
-  // private _broadcastInProgressLock: Mutex;
 
   constructor(private _io: Server) {
     this._cachedLastBaseState = null;
@@ -83,11 +81,11 @@ export class GameStateBroadcaster {
     }
 
     // If recipient is a PlayerInGame, get their socket ID and private state
-    if (recipient instanceof PlayerInGame) {
+    if (recipient.constructor.name === "PlayerInGame") {
       this.broadcastStateToSocket(
         recipient.getSocketId(),
         this._cachedLastBaseState,
-        recipient.getPlayerPrivateState()
+        (recipient as PlayerInGame).getPlayerPrivateState()
       );
     } else {
       // Recipient is an observer socket ID

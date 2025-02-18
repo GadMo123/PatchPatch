@@ -18,6 +18,7 @@ import {
 import { getTablePropsFromGameState } from "../../utils/TableRotationHelper";
 import { constructBoards } from "../../utils/gameHelpers";
 import { useGameStateUpdates } from "../../hooks/HandleServerBroadcastEvent";
+import { useGameStateRequest } from "../../hooks/CreateSocketAction";
 
 // Displaying the game screen when a player enter a game
 const GameView: React.FC<{ playerId: string; gameId: string }> = ({
@@ -30,6 +31,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
   );
   const [bettingState, setBettingState] =
     useState<BettingStateClientData | null>(null);
+  const { sendAction: getGameState } = useGameStateRequest(); // Force sending game-state on demand
 
   // useMemo to compute table props whenever gameState changes
   const tableProps: TableProps | null = useMemo(
@@ -37,6 +39,21 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     [gameState, playerId]
   );
 
+  // Ask server to send last game-state as long as we don't have one (reconnection / other).
+  useEffect(() => {
+    if (gameState !== null) return; // Don't start polling if we already have the game state
+
+    const interval = setInterval(async () => {
+      const success = await getGameState({ gameId, playerId });
+      if (success) {
+        clearInterval(interval); // Stop polling once we get a valid response
+      }
+    }, 1000);
+
+    return () => clearInterval(interval); // Cleanup when unmounting
+  }, [gameState, getGameState, gameId, playerId]);
+
+  // Recive game-state update from the server
   useGameStateUpdates((state) => {
     if (state.id !== gameId) return; // Ignore updates for other games player is in (for multi-tabling)
     console.log(state);
