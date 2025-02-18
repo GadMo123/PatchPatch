@@ -68,7 +68,6 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
             />
           )}
         </div>
-
         <div className="boards-container">
           <div className="pot-display">
             {gameState?.potSize && gameState?.potSize > 0 && (

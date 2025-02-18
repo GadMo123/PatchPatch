@@ -39,7 +39,6 @@ export class GameStateBroadcaster {
             playerPrivateState,
           }
         : gameState;
-
       this._io.to(socketId).emit(SocketEvents.GAME_STATE_UPDATE, stateToSend);
     } catch (error) {
       console.error(`Error broadcasting to socket ${socketId}:`, error);
