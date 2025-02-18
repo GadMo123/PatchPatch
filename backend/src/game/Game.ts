@@ -22,7 +22,6 @@ export class Game {
   private _gameFlowManager: SingleGameFlowManager | null;
   private _stacksUpdatesForNextHand: Array<[PlayerInGame, number]>;
   private _TableConditionChangeMutex: Mutex; // For any async changes in table resources such as positions, seats ect.
-  private _observersList: Set<Player>;
 
   constructor(
     id: string,
@@ -41,8 +40,8 @@ export class Game {
       flops: [],
       turns: [],
       rivers: [],
-      observers: [],
       potSize: 0,
+      observers: new Set<Player>(),
       playerInPosition: new Map<Position, PlayerInGame | null>(),
       playersAbsolutePosition: new Array<PlayerInGame | null>(
         tableConfig.maxPlayers
@@ -54,7 +53,6 @@ export class Game {
     this._deck = null;
     this._gameFlowManager = null;
     this._stacksUpdatesForNextHand = new Array<[PlayerInGame, number]>();
-    this._observersList = new Set();
   }
 
   async PrepareNextHand() {
@@ -95,7 +93,7 @@ export class Game {
   }
 
   updateGameStateAndBroadcast(
-    updates: Partial<DetailedGameState>,
+    updates: Partial<DetailedGameState> | null,
     afterFunction: (() => void) | null
   ) {
     if (updates) this._state = { ...this._state, ...updates };
@@ -112,9 +110,11 @@ export class Game {
 
   // When a player enter game, first he enter as an observer
   async addObserver(player: Player) {
+    console.log("add : " + player.getSocketId());
     this._TableConditionChangeMutex.runExclusive(async () => {
-      this._observersList.add(player);
+      this._state.observers.add(player);
     });
+    setImmediate(() => this.updateGameStateAndBroadcast(null, null));
   }
 
   // When an observer choose a seat in the game and become a player in the game.
@@ -140,10 +140,10 @@ export class Game {
         newPlayerInGame;
 
       // Remove player as an observers
-      this._observersList.delete(player);
+      this._state.observers.delete(player);
 
       // Broadcast after lock release
-      setImmediate(() => this.updateGameStateAndBroadcast({}, null));
+      setImmediate(() => this.updateGameStateAndBroadcast(null, null));
       return true;
     });
   }
@@ -193,10 +193,18 @@ export class Game {
     return this._state.stakes;
   }
 
+  async handleGameStateRequest(player: Player): Promise<boolean> {
+    const playerInGame = this.getPlayer(player.getId());
+    const success = await this._broadcaster.broadcastCachedState(
+      playerInGame || player
+    );
+    return success;
+  }
+
   private getObserversProperty<T>(
     propertyExtractor: (player: Player) => T
   ): T[] {
-    return Array.from(this._observersList).map(propertyExtractor);
+    return Array.from(this._state.observers).map(propertyExtractor);
   }
 
   getObserversNames(): string[] {

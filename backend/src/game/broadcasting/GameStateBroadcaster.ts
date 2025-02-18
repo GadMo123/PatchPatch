@@ -6,57 +6,98 @@ import {
   ArrangePlayerCardsStateClientData,
   BettingStateClientData,
   GameStateServerBroadcast,
-  Position,
   PublicPlayerClientData,
   SocketEvents,
   TableConfigClientData,
 } from "@patchpatch/shared";
 import { BettingState, TableConfig } from "game/betting/BettingTypes";
 import { ArrangePlayerCardsState } from "game/arrangeCards/ArrangePlayerCardsManager";
-import { PlayerPublicState } from "game/types/PlayerInGame";
+import { PlayerInGame, PlayerPublicState } from "game/types/PlayerInGame";
+import { Player } from "player/Player";
 
 export class GameStateBroadcaster {
-  constructor(private _io: Server) {}
+  private _cachedLastBaseState: GameStateServerBroadcast | null;
+
+  // Todo - prevent clients from reciving an older data, anyway the game logic itself takes care of it and the only risk is for a reconnecting client of getting an older state version - not a priority.
+  // Even better solution - attach an Id to game state to mark the oldest state as the correct state for the client.
+  // private _broadcastInProgressLock: Mutex;
+
+  constructor(private _io: Server) {
+    this._cachedLastBaseState = null;
+  }
+
+  // Helper method to broadcast state to a specific socket
+  private broadcastStateToSocket(
+    socketId: string,
+    gameState: GameStateServerBroadcast,
+    playerPrivateState: any = null
+  ) {
+    try {
+      const stateToSend = playerPrivateState
+        ? {
+            ...gameState,
+            playerPrivateState,
+          }
+        : gameState;
+
+      this._io.to(socketId).emit(SocketEvents.GAME_STATE_UPDATE, stateToSend);
+    } catch (error) {
+      console.error(`Error broadcasting to socket ${socketId}:`, error);
+    }
+  }
 
   broadcastGameState(game: Game, afterFunction: (() => void) | null) {
     const baseState = getBaseGameState(game);
+    // Cache the latest base state
+    this._cachedLastBaseState = baseState;
 
     // Broadcast to players in game
-    game.getPlayersInGame()?.forEach((player, position) => {
+    game.getPlayersInGame()?.forEach((player) => {
       if (player) {
-        const playerGameState = {
-          ...baseState,
-          playerPrivateState: player.getPlayerPrivateState(),
-        };
-        try {
-          this._io
-            .to(player.getSocketId())
-            .emit(SocketEvents.GAME_STATE_UPDATE, playerGameState);
-        } catch (error) {
-          console.error(
-            `Error broadcasting to player ${player.getSocketId()}:`,
-            error
-          );
-        }
+        this.broadcastStateToSocket(
+          player.getSocketId(),
+          baseState,
+          player.getPlayerPrivateState()
+        );
       }
     });
 
     // Broadcast to observers
-    game.getObserversSockets().forEach((observer) => {
-      if (observer)
-        try {
-          this._io.to(observer).emit(SocketEvents.GAME_STATE_UPDATE, baseState);
-        } catch (error) {
-          console.error(`Error broadcasting to observer ${observer}:`, error);
-        }
+    game.getObserversSockets().forEach((observerSocket) => {
+      if (observerSocket) {
+        this.broadcastStateToSocket(observerSocket, baseState);
+      }
     });
 
-    // Call afterFunction with a small delay to allow players recive the state
+    // Call afterFunction with a small delay to allow players receive the state
     if (afterFunction) {
-      setTimeout(() => {
-        afterFunction();
-      }, 10);
+      setTimeout(afterFunction, 10);
     }
+  }
+
+  // Broadcast to a specific player or observer (upon request such as 'reconnection' event)
+  async broadcastCachedState(
+    recipient: PlayerInGame | Player
+  ): Promise<boolean> {
+    if (!this._cachedLastBaseState) {
+      return false;
+    }
+
+    // If recipient is a PlayerInGame, get their socket ID and private state
+    if (recipient instanceof PlayerInGame) {
+      this.broadcastStateToSocket(
+        recipient.getSocketId(),
+        this._cachedLastBaseState,
+        recipient.getPlayerPrivateState()
+      );
+    } else {
+      // Recipient is an observer socket ID
+      this.broadcastStateToSocket(
+        recipient.getSocketId(),
+        this._cachedLastBaseState
+      );
+    }
+    return true;
   }
 }
 
@@ -102,62 +143,43 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
       ? reduceArrangeCardsToClientData(arrangePlayerCardsState)
       : null,
   };
-}
 
-// Add personalized private data for a specific player
-function addPlayerPersonalData(
-  baseState: Object,
-  playerPosition: Position,
-  game: Game
-): Object {
-  const personalizedState = structuredClone(baseState) as any; // Clone the base state
-
-  // Add private player data if the player exists in the game
-  const player = game.getPlayerInPosition(playerPosition);
-
-  if (player) {
-    // Update the map to include both public and private data for this player
-    personalizedState.privatePlayerData = player.getPlayerPrivateState();
+  function reduceTableConfigToClientData(
+    tableConfig: TableConfig
+  ): TableConfigClientData {
+    return {
+      maxPlayers: tableConfig.maxPlayers as 2 | 3 | 6,
+      minBuyin: tableConfig.minBuyin,
+      maxBuyin: tableConfig.maxBuyin,
+    };
   }
 
-  return personalizedState;
-}
+  function reduceBettingStateToClientData(
+    bettingState: BettingState
+  ): BettingStateClientData {
+    return {
+      timeRemaining: bettingState.timeRemaining,
+      timeCookiesUsedThisRound: bettingState.timeCookiesUsedThisRound,
+      playerToAct: bettingState.playerToAct,
+      playerValidActions: bettingState.playerValidActions,
+      minRaiseAmount: bettingState.minRaiseAmount,
+    };
+  }
 
-function reduceTableConfigToClientData(
-  tableConfig: TableConfig
-): TableConfigClientData {
-  return {
-    maxPlayers: tableConfig.maxPlayers as 2 | 3 | 6,
-    minBuyin: tableConfig.minBuyin,
-    maxBuyin: tableConfig.maxBuyin,
-  };
-}
+  function reduceArrangeCardsToClientData(
+    arrangeCardsState: ArrangePlayerCardsState
+  ): ArrangePlayerCardsStateClientData {
+    return {
+      playerDoneMap: arrangeCardsState.playerDoneMap,
+      timeRemaining: arrangeCardsState.timeRemaining,
+    };
+  }
 
-function reduceBettingStateToClientData(
-  bettingState: BettingState
-): BettingStateClientData {
-  return {
-    timeRemaining: bettingState.timeRemaining,
-    timeCookiesUsedThisRound: bettingState.timeCookiesUsedThisRound,
-    playerToAct: bettingState.playerToAct,
-    playerValidActions: bettingState.playerValidActions,
-    minRaiseAmount: bettingState.minRaiseAmount,
-  };
-}
-
-function reduceArrangeCardsToClientData(
-  arrangeCardsState: ArrangePlayerCardsState
-): ArrangePlayerCardsStateClientData {
-  return {
-    playerDoneMap: arrangeCardsState.playerDoneMap,
-    timeRemaining: arrangeCardsState.timeRemaining,
-  };
-}
-
-function reducePlayerPublicStateToClientData(
-  playerState: PlayerPublicState
-): PublicPlayerClientData {
-  return {
-    tableAbsolotePosition: playerState.tablePosition,
-  };
+  function reducePlayerPublicStateToClientData(
+    playerState: PlayerPublicState
+  ): PublicPlayerClientData {
+    return {
+      tableAbsolotePosition: playerState.tablePosition,
+    };
+  }
 }

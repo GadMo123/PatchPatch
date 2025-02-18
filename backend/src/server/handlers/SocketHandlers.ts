@@ -169,6 +169,21 @@ export class SocketHandlers {
     return { success: result.success, message: result.error };
   }
 
+  async handleGameStateUpdate(payload: unknown): Promise<HandlerResponse> {
+    const validation = validateInGamePayload(payload);
+    if (!validation.success) {
+      return { success: false, message: validation.error };
+    }
+
+    const { game, player } = getGameAndPlayer(validation.data);
+    if (!game || !player) {
+      return { success: false, message: "Invalid game or player id" };
+    }
+
+    const result = await game.handleGameStateRequest(player);
+    return { success: result };
+  }
+
   //Todo
   async handleDisconnect(socketId: string): Promise<void> {
     const player = this._stateManager.getPlayer(socketId);

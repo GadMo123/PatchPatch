@@ -16,26 +16,23 @@ const MainLobby: React.FC<MainLobbyProps> = ({ enterGameView, playerId }) => {
   const { sendAction: enterGame } = useEnterGame();
   const { sendAction: getLobbyStatus } = useLobbyStatus();
 
-  const fetchLobbyStatus = async () => {
+  useEffect(() => {
     if (!socket) return;
 
-    // Todo, should be changed in backend to cache lobby status and braodcast without requests.
-    const response = await getLobbyStatus();
-    console.log(response);
-    if (response.success) {
-      setGames(response.games); // Update games list
-    } else alert("Can't connect, try again leter");
-  };
+    const fetchLobbyStatus = async () => {
+      const response = await getLobbyStatus();
+      console.log(response);
+      if (response.success) {
+        setGames(response.games);
+      } else alert("Can't connect, try again later");
+    };
 
-  useEffect(() => {
     console.log("arrived in lobby");
-    // Fetch initially
     fetchLobbyStatus();
-
-    // Fetch every 5 seconds
     const interval = setInterval(fetchLobbyStatus, 5000);
-    return () => clearInterval(interval); // Cleanup interval on unmount
-  }, []);
+
+    return () => clearInterval(interval);
+  }, [socket]);
 
   const handleEnterGame = async (gameId: string) => {
     if (!playerId || playerId === "unregistered") {
@@ -64,11 +61,11 @@ const MainLobby: React.FC<MainLobbyProps> = ({ enterGameView, playerId }) => {
           {games?.map((game) => (
             <li key={game.id}>
               <h2>{game.blindLevel} Big Blinds</h2>
-              <p>Players: {game.players?.join(", ")}</p>
-              <p>Status: {game.status}</p>maxPlayers
-              <p>Max Players: {game.blindLevel}</p>
-              <p>blindLevel: {game.minBuyIn}</p>
               <p>id: {game.id}</p>
+              <p>blindLevel: {game.blindLevel}</p>
+              <p>Status: {game.status}</p>
+              <p>Players: {game.players?.join(", ")}</p>
+              <p>Max Players: {game.maxPlayers}</p>
               <button onClick={() => handleEnterGame(game.id)}>
                 Enter Game
               </button>

@@ -4,6 +4,7 @@ import { PlayerInGame } from "../types/PlayerInGame";
 import { TableConfig, BettingState } from "../betting/BettingTypes";
 import { ArrangePlayerCardsState } from "../arrangeCards/ArrangePlayerCardsManager";
 import { Card, Position } from "@patchpatch/shared";
+import { Player } from "player/Player";
 
 export enum GamePhase {
   Waiting = "waiting",
@@ -28,7 +29,7 @@ export interface DetailedGameState {
   rivers: Card[]; // Array of 3 river cards
 
   // Observers list
-  observers: String[];
+  observers: Set<Player>;
 
   // Map of players playing by poker position
   playerInPosition: Map<Position, PlayerInGame | null>;

@@ -1,4 +1,4 @@
-import { GameStateServerBroadcast } from "@patchpatch/shared";
+import { GameStateServerBroadcast, SocketEvents } from "@patchpatch/shared";
 import { useEffect } from "react";
 import { Socket } from "socket.io-client";
 import socket from "../services/socket/Socket";
@@ -23,9 +23,9 @@ export const useGameStateUpdates = (
   onGameState: (state: GameStateServerBroadcast) => void
 ) => {
   useEffect(() => {
-    socket.on("game-state", onGameState);
+    socket.on(SocketEvents.GAME_STATE_UPDATE, onGameState);
     return () => {
-      socket.off("game-state", onGameState);
+      socket.off(SocketEvents.GAME_STATE_UPDATE, onGameState);
     };
   }, [onGameState]);
 };

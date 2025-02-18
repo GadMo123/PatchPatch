@@ -104,6 +104,12 @@ io.on("connection", (socket) => {
     const games = ServerStateManager.getInstance().getGames();
     callback(getLobbyStatus(games));
   });
+
+  // Allow a player to request the current game-state at any time (used for reconection and missed server broadcast)
+  socket.on(SocketEvents.GAME_STATE_UPDATE, async (payload, callback) => {
+    const result = await socketHandlers.handleGameStateUpdate(payload);
+    callback(result);
+  });
 });
 
 // Health check endpoint
