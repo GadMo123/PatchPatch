@@ -49,7 +49,7 @@ export class GameStateBroadcaster {
     this._cachedLastBaseState = baseState;
 
     // Broadcast to players in game
-    game.getPlayersInGame()?.forEach((player) => {
+    game.getPlayersBySeat()?.forEach((player) => {
       if (player) {
         this.broadcastStateToSocket(
           player.getSocketId(),
@@ -100,7 +100,7 @@ export class GameStateBroadcaster {
 
 // Exclude private data from the game state to broadcast to everyone
 function getBaseGameState(game: Game): GameStateServerBroadcast {
-  const seatMap = game.getSeatMap();
+  const seatMap = game.getPlayersBySeat();
 
   // Map each player to their public state for broadcasting
   const publicPlayerByPositions = seatMap.map((player, index) => {
@@ -176,6 +176,10 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
     playerState: PlayerPublicState
   ): PublicPlayerClientData {
     return {
+      name: playerState.name,
+      position: playerState.pokerPosition || undefined,
+      stack: playerState.currentStack || 0,
+      id: playerState.id,
       tableAbsolotePosition: playerState.tablePosition,
     };
   }

@@ -123,13 +123,14 @@ export class Game {
     tableAbsolutePosition: number
   ): Promise<boolean> {
     return await this._TableConditionChangeMutex.runExclusive(async () => {
+      console.log("addPlayer 1 at position : " + tableAbsolutePosition);
       // Check if the position is available
       if (
-        this._state.playersAbsolutePosition.length >= tableAbsolutePosition ||
-        this._state.playersAbsolutePosition[tableAbsolutePosition] != null
+        this._state.playersAbsolutePosition.length <= tableAbsolutePosition ||
+        this._state.playersAbsolutePosition[tableAbsolutePosition] !== null
       )
         return false;
-
+      console.log("addPlayer 2 ");
       const newPlayerInGame = new PlayerInGame(
         player,
         this,
@@ -141,7 +142,7 @@ export class Game {
 
       // Remove player as an observers
       this._state.observers.delete(player);
-
+      console.log("addPlayer 3 ");
       // Broadcast after lock release
       setImmediate(() => this.updateGameStateAndBroadcast(null, null));
       return true;
@@ -219,12 +220,14 @@ export class Game {
     return this._state.playerInPosition?.get(position) || null;
   }
 
-  getSeatMap(): Array<PlayerInGame | null> {
-    return this._state.playersAbsolutePosition;
-  }
-
+  // Accsess to players who got dealt into the current hand
   getPlayersInGame(): Map<Position, PlayerInGame | null> | null {
     return this._state.playerInPosition;
+  }
+
+  // Allows additional access (relative to getPlayersInGame()) to all seating players, including new and sitting-out player
+  getPlayersBySeat(): Array<PlayerInGame | null> {
+    return this._state.playersAbsolutePosition;
   }
 
   getPotSize(): number {

@@ -4,7 +4,7 @@
   border-radius: 50%; /* Makes it an ellipse */
   border: 2px solid darkred; /* Adds a border */
   border-color: darkred;
-  z-index: -1; /* Ensures it is behind other elements */
+ /* z-index: -1;  Ensures it is behind other elements */
 
   /* Position and size */
   left: 50%;
@@ -14,7 +14,6 @@
   max-width: 1300px;
   width: 90%; 
   height: auto;
-  
 }
 
 
@@ -30,7 +29,6 @@
     color: white;
     font-weight: bold;
     transform: translate(-50%, -50%); /* Center seats properly */
-    z-index: 2;
   }
 
   .occupied-seat {
@@ -49,6 +47,7 @@
   }
   
   .join-seat-button {
+    position: absolute;
     background-color: #4CAF50;
     color: white;
     border: none;

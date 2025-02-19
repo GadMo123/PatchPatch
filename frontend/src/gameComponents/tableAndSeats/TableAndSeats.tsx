@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import "./TableAndSeats.css";
 import { useGameContext } from "../../contexts/GameContext";
 import { PublicPlayerClientData } from "@patchpatch/shared";
-import socket from "../../services/socket/Socket";
 import { useJoinGame } from "../../hooks/CreateSocketAction";
 
 export interface TableProps {
@@ -33,6 +32,22 @@ const TableAndSeats: React.FC<TableProps> = ({
     window.addEventListener("resize", calculateTableSize);
     return () => window.removeEventListener("resize", calculateTableSize);
   }, []);
+
+  const handleJoinGame = async (seatInfo: PublicPlayerClientData) => {
+    try {
+      const response = await joinGame({
+        gameId: gameId,
+        playerId: playerId,
+        tableAbsolutePosition: seatInfo.tableAbsolotePosition,
+      });
+
+      if (!response.success) {
+        console.log(response.message);
+      }
+    } catch (error) {
+      console.error("Error joining game:", error);
+    }
+  };
 
   const renderSeats = () => {
     if (tableSize.width === 0) return null;
@@ -67,15 +82,9 @@ const TableAndSeats: React.FC<TableProps> = ({
             !isJoinedGame && (
               <button
                 className="join-seat-button"
-                onClick={async () => {
-                  const response = await joinGame({
-                    gameId: gameId,
-                    playerId: playerId,
-                    tableAbsolutePosition: seatInfo.tableAbsolotePosition,
-                  });
-                  if (!response.success) {
-                    console.log(response.message);
-                  }
+                onClick={() => {
+                  console.log("clicked join game"); // Test if this works first
+                  handleJoinGame(seatInfo); // We'll create this function
                 }}
               >
                 Seat Here

@@ -6,19 +6,20 @@ import BoardCards from "../../gameComponents/board/BoardCards/BoardCards";
 import BetPanel from "../../gameComponents/betting/BetPanel/BetPanel";
 import { GameContextProvider } from "../../contexts/GameContext";
 import PotDisplay from "../../gameComponents/board/PotDisplay/PotDisplay";
-import TableAndSeats, {
-  TableProps,
-} from "../../gameComponents/tableAndSeats/TableAndSeats";
+
 import {
   BettingStateClientData,
   BettingTypes,
   Card,
   GameStateServerBroadcast,
 } from "@patchpatch/shared";
-import { getTablePropsFromGameState } from "../../utils/TableRotationHelper";
+import { getTablePropsFromGameState } from "../../utils/TableAndRotationHelper";
 import { constructBoards } from "../../utils/gameHelpers";
 import { useGameStateUpdates } from "../../hooks/HandleServerBroadcastEvent";
 import { useGameStateRequest } from "../../hooks/CreateSocketAction";
+import TableAndSeats, {
+  TableProps,
+} from "../../gameComponents/tableAndSeats/TableAndSeats";
 
 // Displaying the game screen when a player enter a game
 const GameView: React.FC<{ playerId: string; gameId: string }> = ({

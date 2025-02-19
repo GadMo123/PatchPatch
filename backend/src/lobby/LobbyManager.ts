@@ -11,9 +11,8 @@ export function getLobbyStatus(
     id: game.getId(),
     blindLevel: game.getStakes(),
     players:
-      Array.from(game.getPlayersInGame()?.values() || []).map(
-        (player) => player?.getName() || "Empty"
-      ) ?? [],
+      game.getPlayersBySeat()?.map((player) => player?.getName() || "Empty") ??
+      [],
     status: game.getStatus() === GamePhase.Waiting ? "waiting" : "running",
     maxPlayers: game.getTableConfig().maxPlayers,
   }));

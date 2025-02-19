@@ -41,7 +41,7 @@ export const getTablePropsFromGameState = (
       seats[rotatedSeatIndex] = playerData;
     }
   );
-
+  console.log("isJoinedGame : " + isJoinedGame);
   return {
     numberOfSeats,
     seatsMap: seats,

@@ -73,6 +73,7 @@ export class SocketHandlers {
   }
 
   async handleJoinGame(payload: unknown): Promise<HandlerResponse> {
+    console.log("handleJoinGame");
     const validation = validateJoinGame(payload);
     if (!validation.success) {
       return { success: false, message: validation.error };
