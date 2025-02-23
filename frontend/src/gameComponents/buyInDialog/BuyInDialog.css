@@ -1,0 +1,113 @@
+.buyin-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .buyin-dialog {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 24rem;
+  }
+  
+  .buyin-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  
+  .buyin-input-group {
+    margin-bottom: 1rem;
+  }
+  
+  .buyin-label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  
+  .buyin-input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.25rem;
+  }
+  
+  .buyin-limits {
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 0.25rem;
+  }
+  
+  .buyin-error {
+    color: #e53e3e;
+    margin-bottom: 1rem;
+  }
+  
+  .buyin-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  
+  .buyin-button {
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    font-weight: 500;
+  }
+  
+  .buyin-button-cancel {
+    background-color: #e2e8f0;
+  }
+  
+  .buyin-button-confirm {
+    background-color: #3b82f6;
+    color: white;
+  }
+  
+  // GameView.css (add these new styles)
+  .buyin-trigger {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: #22c55e;
+    color: white;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition: background-color 0.2s;
+  }
+  
+  .buyin-trigger:hover {
+    background-color: #16a34a;
+  }
+  
+
+  .add-chips-button {
+    margin-top: 0.5rem;
+    background-color: #22c55e;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition: background-color 0.2s;
+  }
+  
+  .add-chips-button:hover {
+    background-color: #16a34a;
+  }

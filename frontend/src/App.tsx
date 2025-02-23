@@ -12,6 +12,7 @@ import GameView from "./screens/game/GameView";
 import Login from "./screens/login/login";
 import MainLobby from "./screens/lobby/mainLobby";
 import { SocketProvider } from "./contexts/SocketContext"; // Wrap the app with SocketProvider
+import { BuyInProvider } from "./contexts/BuyInContext";
 
 const App: React.FC = () => {
   const [playerId, setPlayerId] = useState<string>("unregistered");
@@ -53,7 +54,9 @@ const App: React.FC = () => {
             path="/game/:gameId"
             element={
               playerId && gameId ? (
-                <GameView playerId={playerId} gameId={gameId} />
+                <BuyInProvider>
+                  <GameView playerId={playerId} gameId={gameId} />
+                </BuyInProvider>
               ) : (
                 <Navigate to="/" replace />
               )

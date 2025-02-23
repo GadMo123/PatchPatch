@@ -14,12 +14,15 @@ import {
   GameStateServerBroadcast,
 } from "@patchpatch/shared";
 import { getTablePropsFromGameState } from "../../utils/TableAndRotationHelper";
-import { constructBoards } from "../../utils/gameHelpers";
 import { useGameStateUpdates } from "../../hooks/HandleServerBroadcastEvent";
 import { useGameStateRequest } from "../../hooks/CreateSocketAction";
 import TableAndSeats, {
   TableProps,
 } from "../../gameComponents/tableAndSeats/TableAndSeats";
+import { useBuyInDialog } from "../../contexts/BuyInContext";
+import { BuyInDialog } from "../../gameComponents/buyInDialog/BuyInDialog";
+import { useBuyIn } from "../../utils/BuyInHelpers";
+import { constructBoards } from "../../utils/GameHelpers";
 
 // Displaying the game screen when a player enter a game
 const GameView: React.FC<{ playerId: string; gameId: string }> = ({
@@ -32,7 +35,15 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
   );
   const [bettingState, setBettingState] =
     useState<BettingStateClientData | null>(null);
-  const { sendAction: getGameState } = useGameStateRequest(); // Force sending game-state on demand
+  const { sendAction: getGameState } = useGameStateRequest(); // Ask the server for current game-state on demand (non-standart usage, usfull for dc, lag ect.)
+
+  const { canBuyIn, handleBuyIn, minBuyIn, maxBuyIn } = useBuyIn({
+    gameId,
+    playerId,
+    gameState,
+  });
+
+  const { openBuyInDialog, setBuyInError } = useBuyInDialog();
 
   // useMemo to compute table props whenever gameState changes
   const tableProps: TableProps | null = useMemo(
@@ -63,6 +74,15 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     if (state.bettingState) setBettingState(state.bettingState);
   });
 
+  const onBuyIn = async (amount: number) => {
+    const result = await handleBuyIn(amount);
+    if (result.success) {
+      setBuyInError(undefined);
+    } else {
+      setBuyInError(result.message);
+    }
+  };
+
   function getDisplayCards(): Card[] {
     return gameState?.privatePlayerData?.cards ?? [];
   }
@@ -70,7 +90,13 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
   return (
     <GameContextProvider playerId={playerId} gameId={gameId}>
       <div className="game-container">
-        {tableProps && <TableAndSeats {...tableProps} />}
+        {canBuyIn && (
+          <button onClick={openBuyInDialog} className="buyin-trigger">
+            +
+          </button>
+        )}
+        {tableProps && <TableAndSeats {...tableProps} canBuyIn={canBuyIn} />}
+
         <div className="game-status">Game ID: {gameId}</div>
         <div className="opponent-area">
           {gameState?.publicPlayerDataMapByTablePosition && (
@@ -121,6 +147,11 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
               />
             )}
         </div>
+        <BuyInDialog
+          minBuyIn={minBuyIn}
+          maxBuyIn={maxBuyIn}
+          onBuyIn={onBuyIn}
+        />
       </div>
     </GameContextProvider>
   );

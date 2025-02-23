@@ -18,6 +18,7 @@ export const getTablePropsFromGameState = (
 
   let tableRotation = 0;
   let isJoinedGame = false;
+  let canBuyIn = false;
 
   // First pass: find hero's absolute position to calculate rotation
   Object.values(gameState.publicPlayerDataMapByTablePosition).forEach(
@@ -25,6 +26,9 @@ export const getTablePropsFromGameState = (
       if (playerData.id === playerId) {
         isJoinedGame = true;
         tableRotation = playerData.tableAbsolotePosition;
+        canBuyIn = !!(
+          playerData.stack && playerData.stack < gameState.tableConfig.maxBuyin
+        );
       }
     }
   );
@@ -41,10 +45,11 @@ export const getTablePropsFromGameState = (
       seats[rotatedSeatIndex] = playerData;
     }
   );
-  console.log("isJoinedGame : " + isJoinedGame);
+
   return {
     numberOfSeats,
     seatsMap: seats,
     isJoinedGame,
+    canBuyIn,
   };
 };

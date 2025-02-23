@@ -3,22 +3,26 @@ import "./TableAndSeats.css";
 import { useGameContext } from "../../contexts/GameContext";
 import { PublicPlayerClientData } from "@patchpatch/shared";
 import { useJoinGame } from "../../hooks/CreateSocketAction";
+import { useBuyInDialog } from "../../contexts/BuyInContext";
 
 export interface TableProps {
   numberOfSeats: 2 | 3 | 6;
   seatsMap: { [index: number]: PublicPlayerClientData };
   isJoinedGame: boolean;
+  canBuyIn: boolean;
 }
 
 // Displaying the table and seats with player's info for each seat, keeps hero centered at bottom-center seat, allows player to join empty seats.
 const TableAndSeats: React.FC<TableProps> = ({
   numberOfSeats,
   seatsMap,
-  isJoinedGame: isJoinedGame,
+  isJoinedGame,
+  canBuyIn,
 }) => {
   const [tableSize, setTableSize] = useState({ width: 0, height: 0 });
   const { gameId, playerId } = useGameContext();
   const { sendAction: joinGame } = useJoinGame();
+  const { openBuyInDialog } = useBuyInDialog();
 
   useEffect(() => {
     const calculateTableSize = () => {
@@ -61,6 +65,9 @@ const TableAndSeats: React.FC<TableProps> = ({
       const y = ellipseRadiusY * Math.sin(angle);
       const seatInfo = seatsMap[index];
 
+      const isHeroSeat = seatInfo.id === playerId;
+      const showBuyInButton = isHeroSeat && canBuyIn;
+
       return (
         <div
           key={seatInfo.tableAbsolotePosition}
@@ -73,10 +80,16 @@ const TableAndSeats: React.FC<TableProps> = ({
           {seatInfo.id ? (
             <div className="occupied-seat">
               <div className="player-name">
-                {seatInfo.id === playerId ? "You" : seatInfo.name}
+                {isHeroSeat ? "You" : seatInfo.name}
               </div>
               <div className="player-stack">${seatInfo.stack}</div>
               <div className="player-position">${seatInfo.position}</div>
+
+              {showBuyInButton && (
+                <button onClick={openBuyInDialog} className="add-chips-button">
+                  + Add Chips
+                </button>
+              )}
             </div>
           ) : (
             !isJoinedGame && (

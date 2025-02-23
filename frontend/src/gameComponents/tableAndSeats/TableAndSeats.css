@@ -61,3 +61,20 @@
   .join-seat-button:hover {
     background-color: #45a049;
   }
+
+  .add-chips-button {
+    margin-top: 0.5rem;
+    background-color: #22c55e;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition: background-color 0.2s;
+  }
+  
+  .add-chips-button:hover {
+    background-color: #16a34a;
+  }

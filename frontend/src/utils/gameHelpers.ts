@@ -1,4 +1,4 @@
-import { Card } from "@patchpatch/shared";
+import { Card, GameStateServerBroadcast } from "@patchpatch/shared";
 
 export const constructBoards = (
   flops: Card[][] | null,
@@ -13,4 +13,17 @@ export const constructBoards = (
       return board;
     }) || []
   );
+};
+
+export const getPlayerAbsolutePosition = (
+  playerId: string | null,
+  gameState: GameStateServerBroadcast | null
+) => {
+  if (!playerId || !gameState) return null;
+
+  const player = gameState.publicPlayerDataMapByTablePosition.find(
+    (p) => p.id === playerId
+  );
+
+  return player?.tableAbsolotePosition || null;
 };
