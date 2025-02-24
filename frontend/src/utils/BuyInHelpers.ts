@@ -1,11 +1,11 @@
 import { GameStateServerBroadcast } from "@patchpatch/shared";
 import { useGameBuyIn } from "../hooks/CreateSocketAction";
 import { getPlayerAbsolutePosition } from "./GameHelpers";
+import { useEffect, useState } from "react";
 
 interface BuyInHelperProps {
   gameId: string;
   playerId: string;
-  gameState: GameStateServerBroadcast | null;
 }
 
 interface UseBuyInResult {
@@ -16,27 +16,42 @@ interface UseBuyInResult {
   }>;
   minBuyIn?: number;
   maxBuyIn?: number;
+  updateBuyInState: (state: GameStateServerBroadcast) => void;
 }
 
 export const useBuyIn = ({
   gameId,
   playerId,
-  gameState,
 }: BuyInHelperProps): UseBuyInResult => {
   const { sendAction: doBuyIn } = useGameBuyIn();
+  const [canBuyIn, setCanBuyIn] = useState(false);
+  const [minBuyIn, setMinBuyIn] = useState<number | undefined>(undefined);
+  const [maxBuyIn, setMaxBuyIn] = useState<number | undefined>(undefined);
+  const [playerStack, setPlayerStack] = useState<number | undefined>(undefined);
 
-  const playerAbsolutePosition = getPlayerAbsolutePosition(playerId, gameState);
-  const stack = playerAbsolutePosition
-    ? (gameState?.publicPlayerDataMapByTablePosition[playerAbsolutePosition]
-        ?.stack ?? null)
-    : null;
+  const updateBuyInState = (newGameState: GameStateServerBroadcast) => {
+    const playerAbsolutePosition = getPlayerAbsolutePosition(
+      playerId,
+      newGameState
+    );
+    const stack =
+      playerAbsolutePosition != null
+        ? newGameState?.publicPlayerDataMapByTablePosition?.[
+            playerAbsolutePosition
+          ]?.stack
+        : undefined;
+    if (playerAbsolutePosition !== null) setPlayerStack(stack);
 
-  const minBuyIn = gameState?.tableConfig.minBuyin;
-  const maxBuyIn = gameState?.tableConfig.maxBuyin;
-  const canBuyIn = !!(stack && maxBuyIn && stack < maxBuyIn);
+    const min = newGameState?.tableConfig.minBuyin;
+    const max = newGameState?.tableConfig.maxBuyin;
+    setMinBuyIn(min);
+    setMaxBuyIn(max);
+    setCanBuyIn(!!(stack !== undefined && max && stack < max));
+    console.log("can buyin? " + canBuyIn);
+  };
 
   const handleBuyIn = async (amount: number) => {
-    if (!(stack && minBuyIn && maxBuyIn && canBuyIn)) {
+    if (!(playerStack && minBuyIn && maxBuyIn && canBuyIn)) {
       let message = canBuyIn
         ? "Player or game data not available"
         : "Player stack is full";
@@ -46,7 +61,7 @@ export const useBuyIn = ({
       };
     }
 
-    if (amount < minBuyIn || amount + stack > maxBuyIn) {
+    if (amount < minBuyIn || amount + playerStack > maxBuyIn) {
       return {
         success: false,
         message: `Buy-in amount exceeds the table limit.`,
@@ -77,6 +92,7 @@ export const useBuyIn = ({
     handleBuyIn,
     minBuyIn,
     maxBuyIn,
+    updateBuyInState,
   };
 };
 

@@ -25,5 +25,5 @@ export const getPlayerAbsolutePosition = (
     (p) => p.id === playerId
   );
 
-  return player?.tableAbsolotePosition || null;
+  return player?.tableAbsolotePosition ?? null;
 };

@@ -37,11 +37,11 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     useState<BettingStateClientData | null>(null);
   const { sendAction: getGameState } = useGameStateRequest(); // Ask the server for current game-state on demand (non-standart usage, usfull for dc, lag ect.)
 
-  const { canBuyIn, handleBuyIn, minBuyIn, maxBuyIn } = useBuyIn({
-    gameId,
-    playerId,
-    gameState,
-  });
+  const { canBuyIn, handleBuyIn, minBuyIn, maxBuyIn, updateBuyInState } =
+    useBuyIn({
+      gameId,
+      playerId,
+    });
 
   const { openBuyInDialog, setBuyInError } = useBuyInDialog();
 
@@ -72,6 +72,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     setGameState(state);
     setBoards(constructBoards(state.flops, state.turns, state.rivers));
     if (state.bettingState) setBettingState(state.bettingState);
+    updateBuyInState(state);
   });
 
   const onBuyIn = async (amount: number) => {
