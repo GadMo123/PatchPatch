@@ -37,11 +37,17 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     useState<BettingStateClientData | null>(null);
   const { sendAction: getGameState } = useGameStateRequest(); // Ask the server for current game-state on demand (non-standart usage, usfull for dc, lag ect.)
 
-  const { canBuyIn, handleBuyIn, minBuyIn, maxBuyIn, updateBuyInState } =
-    useBuyIn({
-      gameId,
-      playerId,
-    });
+  const {
+    canBuyIn,
+    handleBuyIn,
+    bigBlindAmount,
+    minBuyIn,
+    maxBuyIn,
+    updateBuyInState,
+  } = useBuyIn({
+    gameId,
+    playerId,
+  });
 
   const { openBuyInDialog, setBuyInError } = useBuyInDialog();
 
@@ -51,7 +57,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     [gameState, playerId]
   );
 
-  // Ask server to send last game-state as long as we don't have one (reconnection / other).
+  // Ask server to send last game-state as long as we don't have one (for reconnection / lag / ect.).
   useEffect(() => {
     if (gameState !== null) return; // Don't start polling if we already have the game state
 
@@ -152,6 +158,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
           minBuyIn={minBuyIn}
           maxBuyIn={maxBuyIn}
           onBuyIn={onBuyIn}
+          bigBlind={bigBlindAmount}
         />
       </div>
     </GameContextProvider>

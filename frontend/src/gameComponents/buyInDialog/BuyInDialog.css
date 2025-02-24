@@ -1,113 +1,136 @@
 .buyin-overlay {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
-  
-  .buyin-dialog {
-    background-color: white;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 24rem;
-  }
-  
-  .buyin-title {
-    font-size: 1.25rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
-  }
-  
-  .buyin-input-group {
-    margin-bottom: 1rem;
-  }
-  
-  .buyin-label {
-    display: block;
-    margin-bottom: 0.5rem;
-  }
-  
-  .buyin-input {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.25rem;
-  }
-  
-  .buyin-limits {
-    font-size: 0.875rem;
-    color: #666;
-    margin-top: 0.25rem;
-  }
-  
-  .buyin-error {
-    color: #e53e3e;
-    margin-bottom: 1rem;
-  }
-  
-  .buyin-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-  }
-  
-  .buyin-button {
-    padding: 0.5rem 1rem;
-    border-radius: 0.25rem;
-    font-weight: 500;
-  }
-  
-  .buyin-button-cancel {
-    background-color: #e2e8f0;
-  }
-  
-  .buyin-button-confirm {
-    background-color: #3b82f6;
-    color: white;
-  }
-  
-  // GameView.css (add these new styles)
-  .buyin-trigger {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    width: 2.5rem;
-    height: 2.5rem;
-    background-color: #22c55e;
-    color: white;
-    border-radius: 9999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    cursor: pointer;
-    border: none;
-    outline: none;
-    transition: background-color 0.2s;
-  }
-  
-  .buyin-trigger:hover {
-    background-color: #16a34a;
-  }
-  
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
 
-  .add-chips-button {
-    margin-top: 0.5rem;
-    background-color: #22c55e;
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 0.875rem;
-    cursor: pointer;
-    border: none;
-    outline: none;
-    transition: background-color 0.2s;
-  }
-  
-  .add-chips-button:hover {
-    background-color: #16a34a;
-  }
+.buyin-dialog {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  width: 320px;
+  max-width: 90vw;
+}
+
+.buyin-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 1.25rem;
+  color: #2563eb;
+  text-align: center;
+}
+
+.buyin-input-group {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.buyin-label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+  color: #1e40af;
+  font-size: 1.1rem;
+}
+
+.buyin-limits {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.buyin-error {
+  color: #dc2626;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  background-color: #fee2e2;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.buyin-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.buyin-button {
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.buyin-button-cancel {
+  background-color: #e2e8f0;
+  color: #475569;
+}
+
+.buyin-button-cancel:hover {
+  background-color: #cbd5e1;
+}
+
+.buyin-button-confirm {
+  background-color: #2563eb;
+  color: white;
+}
+
+.buyin-button-confirm:hover {
+  background-color: #1d4ed8;
+}
+
+/* Center the slider inside the dialog */
+.buyin-dialog .slider-container {
+  width: 80%;
+  margin: 0 auto;
+}
+
+/* Make sure the slider track itself is centered properly */
+.buyin-dialog .slider-track {
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Center the actual slider input */
+.buyin-dialog .slider-input {
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Custom color for the slider */
+.buyin-dialog .slider-input::-webkit-slider-thumb {
+  background: #2563eb;
+}
+
+.buyin-dialog .slider-input::-moz-range-thumb {
+  background: #2563eb;
+}
+
+/* Center the ticks */
+.buyin-dialog .slider-ticks {
+  width: 100%;
+  left: 0;
+}
+
+/* Fix the Slider component styles since we're overriding their default behavior */
+.buyin-dialog .slider-tick {
+  position: absolute;
+  transform: translateX(-50%);
+}

@@ -105,9 +105,8 @@ export class SocketHandlers {
       return { success: false, message: "Invalid game and player id" };
     }
 
-    const MIN_BUYIN =
-      Number(process.env.MIN_BUYIN) || 20 * game.getTableConfig().bbAmount;
-    if (validation.data.amount < MIN_BUYIN) {
+    const minBuyin = game.getTableConfig().minBuyin;
+    if (validation.data.amount < minBuyin) {
       return { success: false, message: "Buy-in amount below minimum" };
     }
 

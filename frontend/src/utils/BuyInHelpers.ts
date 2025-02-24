@@ -1,7 +1,7 @@
 import { GameStateServerBroadcast } from "@patchpatch/shared";
 import { useGameBuyIn } from "../hooks/CreateSocketAction";
 import { getPlayerAbsolutePosition } from "./GameHelpers";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface BuyInHelperProps {
   gameId: string;
@@ -17,6 +17,7 @@ interface UseBuyInResult {
   minBuyIn?: number;
   maxBuyIn?: number;
   updateBuyInState: (state: GameStateServerBroadcast) => void;
+  bigBlindAmount?: number;
 }
 
 export const useBuyIn = ({
@@ -27,6 +28,9 @@ export const useBuyIn = ({
   const [canBuyIn, setCanBuyIn] = useState(false);
   const [minBuyIn, setMinBuyIn] = useState<number | undefined>(undefined);
   const [maxBuyIn, setMaxBuyIn] = useState<number | undefined>(undefined);
+  const [bigBlindAmount, setBigBlindAmount] = useState<number | undefined>(
+    undefined
+  );
   const [playerStack, setPlayerStack] = useState<number | undefined>(undefined);
 
   const updateBuyInState = (newGameState: GameStateServerBroadcast) => {
@@ -44,14 +48,16 @@ export const useBuyIn = ({
 
     const min = newGameState?.tableConfig.minBuyin;
     const max = newGameState?.tableConfig.maxBuyin;
+    const bigBlind = newGameState?.tableConfig.bigBlindAmount;
     setMinBuyIn(min);
     setMaxBuyIn(max);
-    setCanBuyIn(!!(stack !== undefined && max && stack < max));
+    setBigBlindAmount(bigBlind);
+    setCanBuyIn(!!(stack !== undefined && max && min && stack + min <= max));
     console.log("can buyin? " + canBuyIn);
   };
 
   const handleBuyIn = async (amount: number) => {
-    if (!(playerStack && minBuyIn && maxBuyIn && canBuyIn)) {
+    if (playerStack === undefined || !minBuyIn || !maxBuyIn || !canBuyIn) {
       let message = canBuyIn
         ? "Player or game data not available"
         : "Player stack is full";
@@ -93,6 +99,7 @@ export const useBuyIn = ({
     minBuyIn,
     maxBuyIn,
     updateBuyInState,
+    bigBlindAmount,
   };
 };
 

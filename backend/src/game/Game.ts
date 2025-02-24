@@ -123,14 +123,13 @@ export class Game {
     tableAbsolutePosition: number
   ): Promise<boolean> {
     return await this._TableConditionChangeMutex.runExclusive(async () => {
-      console.log("addPlayer 1 at position : " + tableAbsolutePosition);
       // Check if the position is available
       if (
         this._state.playersAbsolutePosition.length <= tableAbsolutePosition ||
         this._state.playersAbsolutePosition[tableAbsolutePosition] !== null
       )
         return false;
-      console.log("addPlayer 2 ");
+
       const newPlayerInGame = new PlayerInGame(
         player,
         this,
@@ -142,7 +141,7 @@ export class Game {
 
       // Remove player as an observers
       this._state.observers.delete(player);
-      console.log("addPlayer 3 ");
+
       // Broadcast after lock release
       setImmediate(() => this.updateGameStateAndBroadcast(null, null));
       return true;
@@ -296,9 +295,10 @@ export class Game {
   }
 
   getPlayer(playerId: string): PlayerInGame | null {
-    for (const [, player] of this._state.playerInPosition ?? []) {
-      if (player?.getId() === playerId) return player;
-    }
-    return null;
+    return (
+      this._state.playersAbsolutePosition.find(
+        (player) => player?.getId() === playerId
+      ) ?? null
+    );
   }
 }

@@ -77,6 +77,8 @@ export interface TableConfigClientData {
     maxPlayers: 2 | 3 | 6;
     minBuyin: number;
     maxBuyin: number;
+    bigBlindAmount: number;
+    smallBlindAmount: number;
 }
 export interface PublicPlayerClientData {
     tableAbsolotePosition: number;

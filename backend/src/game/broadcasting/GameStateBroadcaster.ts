@@ -148,6 +148,8 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
       maxPlayers: tableConfig.maxPlayers as 2 | 3 | 6,
       minBuyin: tableConfig.minBuyin,
       maxBuyin: tableConfig.maxBuyin,
+      bigBlindAmount: tableConfig.bbAmount,
+      smallBlindAmount: tableConfig.sbAmount,
     };
   }
 
