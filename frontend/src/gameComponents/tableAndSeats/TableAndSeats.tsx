@@ -4,6 +4,7 @@ import { useGameContext } from "../../contexts/GameContext";
 import { PublicPlayerClientData } from "@patchpatch/shared";
 import { useJoinGame } from "../../hooks/CreateSocketAction";
 import { useBuyInDialog } from "../../contexts/BuyInContext";
+import { needsBuyIn } from "../../utils/BuyInHelpers";
 
 export interface TableProps {
   numberOfSeats: 2 | 3 | 6;
@@ -85,7 +86,7 @@ const TableAndSeats: React.FC<TableProps> = ({
               <div className="player-stack">${seatInfo.stack}</div>
               <div className="player-position">${seatInfo.position}</div>
 
-              {showBuyInButton && (
+              {showBuyInButton && seatInfo.stack === 0 && (
                 <button onClick={openBuyInDialog} className="add-chips-button">
                   + Add Chips
                 </button>
@@ -96,8 +97,8 @@ const TableAndSeats: React.FC<TableProps> = ({
               <button
                 className="join-seat-button"
                 onClick={() => {
-                  console.log("clicked join game"); // Test if this works first
-                  handleJoinGame(seatInfo); // We'll create this function
+                  console.log("clicked join game");
+                  handleJoinGame(seatInfo);
                 }}
               >
                 Seat Here

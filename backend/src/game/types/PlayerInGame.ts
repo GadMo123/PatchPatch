@@ -41,7 +41,7 @@ export class PlayerInGame {
       pokerPosition: pokerPosition,
       tablePosition: tablePosition,
       currentStack: 0,
-      isSittingOut: true,
+      isSittingOut: false,
       isFolded: false,
       isAllIn: false,
     };
@@ -118,10 +118,9 @@ export class PlayerInGame {
     return this._playerPublicState.isFolded;
   }
 
-  isReadyToStartHand(bbAmount: number): boolean {
-    const minStack = Number(process.env.MIN_BB_TO_PLAY_HAND) || 1;
+  isReadyToStartHand(minStackRequired: number): boolean {
     return (
-      this._playerPublicState.currentStack >= bbAmount &&
+      this._playerPublicState.currentStack >= minStackRequired &&
       !this._playerPublicState.isSittingOut
     );
   }

@@ -289,7 +289,7 @@ export class Game {
       this._state.tableConfig.bbAmount *
       (Number(process.env.MIN_BB_TO_PLAY_HAND) || 1);
     const activePlayers = Array.from(
-      this._state.playerInPosition.values()
+      this._state.playersAbsolutePosition.values()
     ).filter((player) => player?.isReadyToStartHand(minStackRequired)).length;
     return activePlayers >= this._state.tableConfig.minPlayers;
   }
