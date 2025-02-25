@@ -61,7 +61,7 @@ export const Slider: React.FC<SliderProps> = ({
     // If using custom ticks, map the slider's 0-100 to the correct tick value
     if (customTicks) {
       const percentage = newValue / 100;
-      console.log(customTicks.length, customTicks.toString());
+
       // Ensure we can reach exact ends by checking for edges
       if (percentage <= 0) {
         setSliderValue(customTicks[0]);

@@ -53,7 +53,6 @@ export const useBuyIn = ({
     setMaxBuyIn(Math.max(0, max - (stack ?? 0)));
     setBigBlindAmount(bigBlind);
     setCanBuyIn(!!(stack !== undefined && max && min && stack + min <= max));
-    console.log("can buyin? " + canBuyIn);
   };
 
   const handleBuyIn = async (amount: number) => {
@@ -67,7 +66,7 @@ export const useBuyIn = ({
       };
     }
 
-    if (amount < minBuyIn || amount + playerStack > maxBuyIn) {
+    if (amount < minBuyIn || amount > maxBuyIn) {
       return {
         success: false,
         message: `Buy-in amount exceeds the table limit.`,

@@ -63,6 +63,7 @@ export const BuyInDialog: React.FC<BuyInDialogProps> = ({
       // Auto-close after successful buy-in
       closeBuyInDialog();
     } catch (error) {
+      console.error(error);
       // If there's an error, don't close the dialog
       console.error("Buy-in failed:", error);
     } finally {
