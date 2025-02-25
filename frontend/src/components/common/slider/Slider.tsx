@@ -61,10 +61,20 @@ export const Slider: React.FC<SliderProps> = ({
     // If using custom ticks, map the slider's 0-100 to the correct tick value
     if (customTicks) {
       const percentage = newValue / 100;
-      const tickIndex = Math.round(percentage * (ticks.length - 1));
-      const tickValue = ticks[tickIndex];
-      setSliderValue(tickValue);
-      onChange(tickValue);
+      console.log(customTicks.length, customTicks.toString());
+      // Ensure we can reach exact ends by checking for edges
+      if (percentage <= 0) {
+        setSliderValue(customTicks[0]);
+        onChange(customTicks[0]);
+      } else if (percentage >= 1) {
+        setSliderValue(customTicks[customTicks.length - 1]);
+        onChange(customTicks[customTicks.length - 1]);
+      } else {
+        const tickIndex = Math.round(percentage * (customTicks.length - 1));
+        const tickValue = customTicks[tickIndex];
+        setSliderValue(tickValue);
+        onChange(tickValue);
+      }
     } else {
       // For linear slider, find the closest tick if step is defined
       const closestValue = step ? findClosestTick(newValue) : newValue;
@@ -91,7 +101,7 @@ export const Slider: React.FC<SliderProps> = ({
           max={customTicks ? 100 : max}
           value={customTicks ? calculatePercentage(sliderValue) : sliderValue}
           onChange={handleSliderChange}
-          step={customTicks ? 100 / (ticks.length - 1) : step}
+          step={customTicks ? 1 : step} // Use 1% increments for custom ticks
           className="slider-input"
         />
         <div className="slider-ticks">

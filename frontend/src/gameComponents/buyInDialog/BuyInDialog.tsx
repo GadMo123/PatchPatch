@@ -32,10 +32,28 @@ export const BuyInDialog: React.FC<BuyInDialogProps> = ({
     }
   }, [isBuyInDialogOpen, minBuyIn, maxBuyIn, bigBlind]);
 
-  // Generate ticks based on big blind increments - reduced to match the image
+  // Generate ticks based on big blind increments
   const generateTicks = () => {
-    // No visible ticks to match the image
-    return [minBuyIn, maxBuyIn];
+    if (!bigBlind || bigBlind <= 0) return undefined;
+
+    // Create a set of ticks that explicitly includes min and max
+    const ticks = [minBuyIn];
+
+    // Number of intermediate ticks (excluding min and max)
+    const intermediateTickCount = 12;
+    const range = maxBuyIn - minBuyIn;
+    const step = range / (intermediateTickCount + 1);
+
+    for (let i = 1; i <= intermediateTickCount; i++) {
+      // Round to the nearest big blind multiple
+      const value = Math.round((minBuyIn + i * step) / bigBlind) * bigBlind;
+      ticks.push(value);
+    }
+
+    // Explicitly add the max value
+    ticks.push(maxBuyIn);
+
+    return ticks;
   };
 
   const handleBuyIn = async () => {

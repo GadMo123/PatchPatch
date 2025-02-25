@@ -50,7 +50,7 @@ export const useBuyIn = ({
     const max = newGameState?.tableConfig.maxBuyin;
     const bigBlind = newGameState?.tableConfig.bigBlindAmount;
     setMinBuyIn(min);
-    setMaxBuyIn(max);
+    setMaxBuyIn(Math.max(0, max - (stack ?? 0)));
     setBigBlindAmount(bigBlind);
     setCanBuyIn(!!(stack !== undefined && max && min && stack + min <= max));
     console.log("can buyin? " + canBuyIn);
