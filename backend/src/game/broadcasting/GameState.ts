@@ -7,13 +7,14 @@ import { Card, Position } from "@patchpatch/shared";
 import { Player } from "player/Player";
 
 export enum GamePhase {
-  Waiting = "waiting",
+  Waiting = "waiting", // waiting for ready players to join next hand
   PreflopBetting = "preflop-betting",
   ArrangePlayerCards = "arrange-player-cards",
   FlopBetting = "flop-betting",
   TurnBetting = "turn-betting",
   RiverBetting = "river-betting",
   Showdown = "showdown",
+  StartingHand = "StartingHand",
 }
 
 export interface DetailedGameState {

@@ -17,7 +17,7 @@ export class SingleGameFlowManager {
 
   startNextStreet() {
     switch (this._game.getPhase()) {
-      case GamePhase.Showdown:
+      case GamePhase.StartingHand:
         this.prapereNextHand();
       case GamePhase.Waiting:
         this.dealPreflop();
@@ -38,11 +38,9 @@ export class SingleGameFlowManager {
   }
 
   private async prapereNextHand() {
-    await this._game.PrepareNextHand();
-    this._game.updateGameStateAndBroadcast(
-      {},
-      this.startBettingRound.bind(this)
-    );
+    const ready = await this._game.PrepareNextHand();
+    const afterFunction = ready ? this.startBettingRound.bind(this) : null;
+    this._game.updateGameStateAndBroadcast({}, afterFunction);
   }
 
   private dealPreflop() {
@@ -81,7 +79,7 @@ export class SingleGameFlowManager {
       },
       this.startBettingRound.bind(this)
     );
-    // Todo : start cacl winner right here as a microservice to find the winner by the time of showdown
+    // Todo : we can start cacl the winners right here as a microservice to find the winner by the time of showdown
   }
 
   private startBettingRound() {
@@ -121,11 +119,11 @@ export class SingleGameFlowManager {
     if (winner) this._game.handleHandWonWithoutShowdown(winner);
     this._game.updateGameStateAndBroadcast(
       { bettingState: null },
-      this.afterBettingDetermineNextStep.bind(this)
+      this.afterBettingDetermineNextPhase.bind(this)
     );
   }
 
-  private afterBettingDetermineNextStep() {
+  private afterBettingDetermineNextPhase() {
     //hand is done
     if (this._game.isHandWonWithoutShowdown()) {
       if (this._game.isReadyForNextHand()) this.startNextStreet();

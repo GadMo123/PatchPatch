@@ -6,13 +6,16 @@ import { DetailedGameState, GamePhase } from "./broadcasting/GameState";
 import { PlayerInGame } from "./types/PlayerInGame";
 import { GameStateBroadcaster } from "./broadcasting/GameStateBroadcaster";
 
-import { rotatePositionsAndSetupPlayerState } from "./utils/PokerPositionsUtils";
 import { Deck } from "./types/Deck";
 import { TableConfig } from "./betting/BettingTypes";
 import { ArrangePlayerCardsState } from "./arrangeCards/ArrangePlayerCardsManager";
 import { SingleGameFlowManager } from "./utils/SingleGameFlowManager";
 import { Mutex } from "async-mutex";
 import { Card, Position } from "@patchpatch/shared";
+import {
+  assignPositions,
+  RotateButtonPosition,
+} from "./utils/PokerPositionsUtils";
 
 export class Game {
   private _deck: Deck | null;
@@ -55,27 +58,66 @@ export class Game {
     this._stacksUpdatesForNextHand = new Array<[PlayerInGame, number]>();
   }
 
-  async PrepareNextHand() {
+  async PrepareNextHand(): Promise<boolean> {
     this._isHandWonWithoutShowdown = false;
     this._state = {
       ...this._state,
-      phase: GamePhase.Waiting,
       flops: [],
       turns: [],
       rivers: [],
       potSize: 0,
     };
-    await this._TableConditionChangeMutex.runExclusive(async () => {
-      rotatePositionsAndSetupPlayerState(
-        this._state.playerInPosition!,
-        this._state
-      );
+
+    return await this._TableConditionChangeMutex.runExclusive(async () => {
+      // Apply stack updates that we saved during the last hand ( = buyins of active players happens after the hand done)
       this._stacksUpdatesForNextHand.forEach(([player, amount]) => {
         player.updatePlayerPublicState({
           currentStack: player.getStack() + amount,
         });
         player.isReadyToStartHand;
       });
+      // Clear the stacks-update list after applying them
+      this._stacksUpdatesForNextHand = [];
+
+      // Extract the list of next hand players
+      const nextHandPlayers = this._state.playersAbsolutePosition.filter(
+        (
+          player
+        ): player is PlayerInGame => // convince TS compiler that player cannot be null
+          !!player &&
+          player.isReadyToStartHand(this._state.tableConfig.bbAmount)
+      );
+
+      // Players map can change between the check of number of ready players (which runs async with players actions such as sitting out)
+      // in this case we have to stop hand praperation and go into waiting mode.
+      if (nextHandPlayers.length < this._state.tableConfig.minPlayers) {
+        this._state.phase = GamePhase.Waiting;
+        return false; // Releases lock and skips remaining hand prep.
+      }
+
+      const nextHandBTNPlayer = RotateButtonPosition(
+        this._state.playerInPosition
+          .get(Position.BTN || Position.SB)
+          ?.getTablePosition(), // SB for HU.
+        nextHandPlayers
+      );
+
+      this._state.playerInPosition = assignPositions(
+        nextHandPlayers,
+        nextHandBTNPlayer.getId()
+      );
+
+      // Reset all players' state for the next hand
+      this._state.playerInPosition.forEach((player, position) => {
+        if (player) {
+          player.updatePlayerPublicState({
+            isFolded: false,
+            pokerPosition: position,
+            isAllIn: player.getStack() === 0, // Should always be false
+          });
+        }
+      });
+      return true;
     });
   }
 
@@ -104,6 +146,7 @@ export class Game {
     await this._TableConditionChangeMutex.runExclusive(async () => {
       if (this._gameFlowManager) return;
       this._gameFlowManager = new SingleGameFlowManager(this);
+      this._state.phase = GamePhase.StartingHand;
       setImmediate(() => this._gameFlowManager?.startNextStreet());
     });
   }
