@@ -12,6 +12,7 @@
     align-content: center;
     gap: 1rem;
     width: 30%; /* Adjust as needed */
+    z-index: 1;
   }
   
 .board{

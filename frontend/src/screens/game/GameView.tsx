@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import "./GameView.css";
 import OpponentCards from "../../gameComponents/playersCardArea/OpponentCards/OpponentCards";
 import PlayerCards from "../../gameComponents/playersCardArea/PlayerCards/PlayerCards";
@@ -24,12 +24,25 @@ import { BuyInDialog } from "../../gameComponents/buyInDialog/BuyInDialog";
 import { useBuyIn } from "../../utils/BuyInHelpers";
 import { constructBoards } from "../../utils/GameHelpers";
 
+// Memoized OpponentCards component
+const MemoizedOpponentCards = React.memo(OpponentCards);
+// Memoized BoardCards component
+const MemoizedBoardCards = React.memo(BoardCards);
+// Memoized PlayerCards component
+const MemoizedPlayerCards = React.memo(PlayerCards);
+// Memoized BetPanel component
+const MemoizedBetPanel = React.memo(BetPanel);
+// Memoized PotDisplay component
+const MemoizedPotDisplay = React.memo(PotDisplay);
+// Memoized TableAndSeats component
+const MemoizedTableAndSeats = React.memo(TableAndSeats);
+
 // Displaying the game screen when a player enter a game
 const GameView: React.FC<{ playerId: string; gameId: string }> = ({
   playerId,
   gameId,
 }) => {
-  const [boards, setBoards] = useState<Card[][] | null>(null);
+  // const [boards, setBoards] = useState<Card[][] | null>(null);
   const [gameState, setGameState] = useState<GameStateServerBroadcast | null>(
     null
   );
@@ -51,11 +64,68 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
 
   const { openBuyInDialog, setBuyInError } = useBuyInDialog();
 
-  // useMemo to compute table props whenever gameState changes
+  // Compute table props whenever gameState changes
   const tableProps: TableProps | null = useMemo(
     () => getTablePropsFromGameState(gameState, playerId),
     [gameState, playerId]
   );
+
+  const boards = useMemo(() => {
+    if (!gameState?.flops) return null;
+    return constructBoards(gameState.flops, gameState.turns, gameState.rivers);
+  }, [gameState?.flops, gameState?.turns, gameState?.rivers]);
+
+  // Memoize opponent data
+  const opponentData = useMemo(() => {
+    if (!gameState?.publicPlayerDataMapByTablePosition) return null;
+    return gameState.publicPlayerDataMapByTablePosition
+      .filter((player) => player.id && player.id !== playerId)
+      .map((player) => ({
+        id: player.id!,
+        name: player.name || "Villain",
+        cards: player.cards || [],
+        position: player.position!,
+      }));
+  }, [gameState?.publicPlayerDataMapByTablePosition, playerId]);
+
+  // Memoize player cards
+  const playerCards = useMemo(() => {
+    return gameState?.privatePlayerData?.cards ?? [];
+  }, [gameState?.privatePlayerData?.cards]);
+
+  // Memoize game phase arrange cards
+  const gamePhaseArrangeCards = useMemo(() => {
+    return gameState?.phase === "arrange-player-cards";
+  }, [gameState?.phase]);
+
+  // Memoize arrange cards time left
+  const arrangeCardsTimeLeft = useMemo(() => {
+    return gameState?.arrangePlayerCardsState?.timeRemaining ?? 0;
+  }, [gameState?.arrangePlayerCardsState?.timeRemaining]);
+
+  // Memoize pot size
+  const potSize = useMemo(() => {
+    return gameState?.potSize ?? 0;
+  }, [gameState?.potSize]);
+
+  // Memoize betting state props
+  const bettingProps = useMemo(() => {
+    if (
+      !bettingState ||
+      bettingState.playerToAct !== playerId ||
+      bettingState.timeRemaining <= 0
+    ) {
+      return null;
+    }
+    return {
+      bettingState,
+      defaultAction: bettingState.playerValidActions.includes(
+        BettingTypes.CHECK
+      )
+        ? BettingTypes.CHECK
+        : BettingTypes.FOLD,
+    };
+  }, [bettingState, playerId]);
 
   // Ask server to send last game-state as long as we don't have one (for reconnection / lag / ect.).
   useEffect(() => {
@@ -71,13 +141,17 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     return () => clearInterval(interval); // Cleanup when unmounting
   }, [gameState, getGameState, gameId, playerId]);
 
-  // Recive game-state update from the server
+  // Recive game-state update from the server, Todo - many render optimizations are possible if needed
   useGameStateUpdates((state) => {
     if (state.id !== gameId) return; // Ignore updates for other games player is in (for multi-tabling)
     console.log(state);
     setGameState(state);
-    setBoards(constructBoards(state.flops, state.turns, state.rivers));
-    if (state.bettingState) setBettingState(state.bettingState);
+    if (
+      state.bettingState &&
+      JSON.stringify(bettingState) !== JSON.stringify(state.bettingState)
+    ) {
+      setBettingState(state.bettingState);
+    }
     updateBuyInState(state);
   });
 
@@ -90,10 +164,6 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     }
   };
 
-  function getDisplayCards(): Card[] {
-    return gameState?.privatePlayerData?.cards ?? [];
-  }
-
   return (
     <GameContextProvider playerId={playerId} gameId={gameId}>
       <div className="game-container">
@@ -102,57 +172,31 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
             +
           </button>
         )}
-        {tableProps && <TableAndSeats {...tableProps} canBuyIn={canBuyIn} />}
+        {tableProps && (
+          <MemoizedTableAndSeats {...tableProps} canBuyIn={canBuyIn} />
+        )}
 
         <div className="game-status">Game ID: {gameId}</div>
         <div className="opponent-area">
-          {gameState?.publicPlayerDataMapByTablePosition && (
-            <OpponentCards
-              opponents={gameState.publicPlayerDataMapByTablePosition
-                .filter((player) => player.id && player.id !== playerId)
-                .map((player) => ({
-                  id: player.id!,
-                  name: player.name || "Villain",
-                  cards: player.cards || [],
-                  position: player.position!,
-                }))}
-            />
-          )}
+          {opponentData && <MemoizedOpponentCards opponents={opponentData} />}
         </div>
         <div className="boards-container">
           <div className="pot-display">
-            {gameState?.potSize && gameState?.potSize > 0 && (
-              <PotDisplay potSize={gameState?.potSize || 0} />
-            )}
+            {potSize > 0 && <MemoizedPotDisplay potSize={potSize} />}
           </div>
-          {boards && <BoardCards boards={boards} />}
+          {boards && <MemoizedBoardCards boards={boards} />}
         </div>
         <div className="player-area">
           <div className="player-cards">
-            {gameState?.privatePlayerData?.cards && (
-              <PlayerCards
-                playerCards={getDisplayCards()}
-                gamePhaseArrangeCards={
-                  gameState.phase === "arrange-player-cards"
-                }
-                arrangeCardsTimeLeft={
-                  gameState?.arrangePlayerCardsState?.timeRemaining ?? 0
-                }
+            {playerCards.length > 0 && (
+              <MemoizedPlayerCards
+                playerCards={playerCards}
+                gamePhaseArrangeCards={gamePhaseArrangeCards}
+                arrangeCardsTimeLeft={arrangeCardsTimeLeft}
               />
             )}
           </div>
-          {bettingState &&
-            bettingState.playerToAct === playerId &&
-            bettingState.timeRemaining > 0 && (
-              <BetPanel
-                bettingState={bettingState}
-                defaultAction={
-                  bettingState.playerValidActions.includes(BettingTypes.CHECK)
-                    ? BettingTypes.CHECK
-                    : BettingTypes.FOLD
-                }
-              />
-            )}
+          {bettingProps && <MemoizedBetPanel {...bettingProps} />}
         </div>
         <BuyInDialog
           minBuyIn={minBuyIn}

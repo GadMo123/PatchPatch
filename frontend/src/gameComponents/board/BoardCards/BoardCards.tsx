@@ -16,13 +16,16 @@ const BoardCards: React.FC<BoardCardsProps> = ({ boards }) => {
           <div key={`board-${boardIndex}`} className="board-section">
             <div className="board-label">Board {boardIndex + 1}</div>
             <div className="board">
-              {board.map((card, cardIndex) => (
-                <CardView
-                  key={`board-${boardIndex}-card-${cardIndex}`}
-                  card={card}
-                  className="card"
-                />
-              ))}
+              {board.map(
+                (card, cardIndex) =>
+                  card && (
+                    <CardView
+                      key={`board-${boardIndex}-card-${cardIndex}`}
+                      card={card}
+                      className="card"
+                    />
+                  )
+              )}
             </div>
           </div>
         ))}

@@ -1,15 +1,27 @@
-import { Card, GameStateServerBroadcast } from "@patchpatch/shared";
+import { Card, GameStateServerBroadcast, Rank, Suit } from "@patchpatch/shared";
 
 export const constructBoards = (
-  flops: Card[][] | null,
-  turns: Card[] | null,
-  rivers: Card[] | null
+  flops: Object[][] | null | undefined,
+  turns: Object[] | null | undefined,
+  rivers: Object[] | null | undefined
 ) => {
+  console.log("cons boards", flops);
+
   return (
     flops?.map((flop, index) => {
-      const board: Card[] = [...flop];
-      if (turns) board.push(turns[index]);
-      if (rivers) board.push(rivers[index]);
+      const board: Card[] = flop.map(
+        (card) => new Card((card as any)._rank, (card as any)._suit)
+      );
+
+      if (turns && turns[index])
+        board.push(
+          new Card((turns[index] as any)._rank, (turns[index] as any)._suit)
+        );
+      if (rivers && rivers[index])
+        board.push(
+          new Card((rivers[index] as any)._rank, (rivers[index] as any)._suit)
+        );
+
       return board;
     }) || []
   );
