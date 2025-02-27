@@ -16,7 +16,7 @@ export interface PlayerPublicState {
 }
 
 export interface PlayerPrivateState {
-  cards: Card[] | null;
+  cards?: Card[];
   remainingTimeCookies: number;
 }
 
@@ -48,7 +48,7 @@ export class PlayerInGame {
 
     this._player.addActiveGame(_game.getId());
     this._playerPrivateState = {
-      cards: null,
+      cards: undefined,
       remainingTimeCookies: 0,
     };
 

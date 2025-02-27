@@ -107,6 +107,7 @@ export interface PublicPlayerClientData {
 
 export interface PrivatePlayerClientData {
   cards?: Card[]; // Hero cards
+  remainingTimeCookies?: number;
 }
 
 export interface BettingStateClientData {

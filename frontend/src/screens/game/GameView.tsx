@@ -22,7 +22,11 @@ import TableAndSeats, {
 import { useBuyInDialog } from "../../contexts/BuyInContext";
 import { BuyInDialog } from "../../gameComponents/buyInDialog/BuyInDialog";
 import { useBuyIn } from "../../utils/BuyInHelpers";
-import { constructBoards } from "../../utils/GameHelpers";
+import {
+  CardLike,
+  constructBoards,
+  toCardArray,
+} from "../../utils/GameHelpers";
 
 // Memoized OpponentCards component
 const MemoizedOpponentCards = React.memo(OpponentCards);
@@ -90,7 +94,9 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
 
   // Memoize player cards
   const playerCards = useMemo(() => {
-    return gameState?.privatePlayerData?.cards ?? [];
+    return gameState?.privatePlayerData?.cards
+      ? toCardArray(gameState.privatePlayerData.cards as CardLike[])
+      : [];
   }, [gameState?.privatePlayerData?.cards]);
 
   // Memoize game phase arrange cards

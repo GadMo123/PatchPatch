@@ -164,7 +164,6 @@ export class BettingManager {
   }
 
   private onPlayerActionDone() {
-    console.log("onPlayerActionDone ");
     const lastPlayer = this._currentPlayerToAct;
     this.switchToNextPlayer();
     if (this.isBettingRoundComplete()) {

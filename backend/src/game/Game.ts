@@ -117,19 +117,22 @@ export class Game {
           });
         }
       });
+
+      this._state.phase = GamePhase.Waiting;
       return true;
     });
   }
 
   dealNewHand() {
+    console.log("deal new hand");
     this._deck = new Deck();
     this._state.phase = GamePhase.PreflopBetting;
-    this._state.playerInPosition!.forEach((player) => {
+    this._state.playerInPosition.forEach((player) => {
       // As for the current scope - a player can only play a hand with >= 1BB stack
       if (player?.isActive()) {
         player.updatePlayerPrivateState({
           cards: this._deck!.getPlayerCards(),
-        }); // update
+        });
       }
     });
   }
@@ -153,7 +156,6 @@ export class Game {
 
   // When a player enter game, first he enter as an observer
   async addObserver(player: Player) {
-    console.log("add : " + player.getSocketId());
     this._TableConditionChangeMutex.runExclusive(async () => {
       this._state.observers.add(player);
     });

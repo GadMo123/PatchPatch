@@ -9,19 +9,11 @@ export const constructBoards = (
 
   return (
     flops?.map((flop, index) => {
-      const board: Card[] = flop.map(
-        (card) => new Card((card as any)._rank, (card as any)._suit)
-      );
+      const board = toCardArray(flop as CardLike[]);
 
-      if (turns && turns[index])
-        board.push(
-          new Card((turns[index] as any)._rank, (turns[index] as any)._suit)
-        );
+      if (turns && turns[index]) board.push(toCard(turns[index] as CardLike));
       if (rivers && rivers[index])
-        board.push(
-          new Card((rivers[index] as any)._rank, (rivers[index] as any)._suit)
-        );
-
+        board.push(toCard(rivers[index] as CardLike));
       return board;
     }) || []
   );
@@ -39,3 +31,11 @@ export const getPlayerAbsolutePosition = (
 
   return player?.tableAbsolotePosition ?? null;
 };
+
+export type CardLike = { _rank: Rank; _suit: Suit } | Card;
+
+export const toCardArray = (cards: CardLike[]): Card[] =>
+  cards.map((card) => new Card((card as any)._rank, (card as any)._suit));
+
+export const toCard = (card: CardLike): Card =>
+  new Card((card as any)._rank, (card as any)._suit);

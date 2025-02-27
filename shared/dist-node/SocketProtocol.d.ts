@@ -90,6 +90,7 @@ export interface PublicPlayerClientData {
 }
 export interface PrivatePlayerClientData {
     cards?: Card[];
+    remainingTimeCookies?: number;
 }
 export interface BettingStateClientData {
     timeRemaining: number;

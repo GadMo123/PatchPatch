@@ -19,6 +19,7 @@ export class SingleGameFlowManager {
     switch (this._game.getPhase()) {
       case GamePhase.StartingHand:
         this.prapereNextHand();
+        break;
       case GamePhase.Waiting:
         this.dealPreflop();
         break;

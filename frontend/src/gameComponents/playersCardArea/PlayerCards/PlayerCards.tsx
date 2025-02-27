@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import CardView from "../../../components/common/card/CardView";
 import "./PlayerCards.css";
 import { useGameContext } from "../../../contexts/GameContext";
-import socket from "../../../services/socket/Socket";
 import { useCountdownTimer } from "../../../hooks/TimerHook";
 import { Card } from "@patchpatch/shared";
 import { useCardsArrangement } from "../../../hooks/CreateSocketAction";

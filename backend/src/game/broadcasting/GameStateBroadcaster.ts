@@ -6,6 +6,7 @@ import {
   ArrangePlayerCardsStateClientData,
   BettingStateClientData,
   GameStateServerBroadcast,
+  PrivatePlayerClientData,
   PublicPlayerClientData,
   SocketEvents,
   TableConfigClientData,
@@ -13,7 +14,11 @@ import {
 import { BettingState, TableConfig } from "game/betting/BettingTypes";
 import { ArrangePlayerCardsState } from "game/arrangeCards/ArrangePlayerCardsManager";
 import { Player } from "player/Player";
-import { PlayerInGame, PlayerPublicState } from "game/types/PlayerInGame";
+import {
+  PlayerInGame,
+  PlayerPrivateState,
+  PlayerPublicState,
+} from "game/types/PlayerInGame";
 
 export class GameStateBroadcaster {
   private _cachedLastBaseState: GameStateServerBroadcast | null;
@@ -51,11 +56,15 @@ export class GameStateBroadcaster {
     // Broadcast to players in game
     game.getPlayersBySeat()?.forEach((player) => {
       if (player) {
-        this.broadcastStateToSocket(
-          player.getSocketId(),
-          baseState,
-          player.getPlayerPrivateState()
-        );
+        // Create a new object that includes baseState with privatePlayerData updated
+        const playerSpecificState = {
+          ...baseState,
+          privatePlayerData: reducePlayerPrivateStateToClientData(
+            player.getPlayerPrivateState()
+          ),
+        };
+
+        this.broadcastStateToSocket(player.getSocketId(), playerSpecificState);
       }
     });
 
@@ -185,4 +194,13 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
       tableAbsolotePosition: playerState.tablePosition,
     };
   }
+}
+
+function reducePlayerPrivateStateToClientData(
+  privateState: PlayerPrivateState
+): PrivatePlayerClientData {
+  return {
+    cards: privateState.cards,
+    remainingTimeCookies: privateState.remainingTimeCookies ?? 0,
+  };
 }
