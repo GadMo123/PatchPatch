@@ -20,7 +20,7 @@ export class SingleGameFlowManager {
       case GamePhase.StartingHand:
         this.prapereNextHand();
         break;
-      case GamePhase.Waiting:
+      case GamePhase.DealPreflop:
         this.dealPreflop();
         break;
       case GamePhase.PreflopBetting:
@@ -40,7 +40,7 @@ export class SingleGameFlowManager {
 
   private async prapereNextHand() {
     const ready = await this._game.PrepareNextHand();
-    const afterFunction = ready ? this.startBettingRound.bind(this) : null;
+    const afterFunction = ready ? this.startNextStreet.bind(this) : null;
     this._game.updateGameStateAndBroadcast({}, afterFunction);
   }
 
@@ -86,7 +86,6 @@ export class SingleGameFlowManager {
   private startBettingRound() {
     const bettingManager = new BettingManager(
       this._game,
-      this._game.getTableConfig(),
       this.onBettingRoundComplete.bind(this),
       this._game.getPhase() === GamePhase.PreflopBetting
     );

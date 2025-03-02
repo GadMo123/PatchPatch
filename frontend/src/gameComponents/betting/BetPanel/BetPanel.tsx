@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./BetPanel.css";
 import { useGameContext } from "../../../contexts/GameContext";
 import { useCountdownTimer } from "../../../hooks/TimerHook";
@@ -7,13 +7,15 @@ import { usePlayerAction } from "../../../hooks/CreateSocketAction";
 
 interface BetPanelProps {
   bettingState: BettingStateClientData;
-  defaultAction: BettingTypes;
 }
 
 // Allows player to choose between betting options when its his turn to act, also show time-remaining to act before the defualt action is taken
-const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
+const BetPanel: React.FC<BetPanelProps> = ({ bettingState }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [defaultAction, setDefaultAction] = useState<BettingTypes>(
+    BettingTypes.CHECK
+  );
 
   const { playerId, gameId } = useGameContext();
   const { sendAction } = usePlayerAction();
@@ -42,8 +44,19 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
     setIsProcessing(false);
   };
 
+  // Update defaultAction whenever bettingState.playerValidActions changes
+  useEffect(() => {
+    const newDefaultAction = bettingState.playerValidActions.includes(
+      BettingTypes.CHECK
+    )
+      ? BettingTypes.CHECK
+      : BettingTypes.FOLD;
+
+    setDefaultAction(newDefaultAction);
+  }, [bettingState.playerValidActions]);
+
   const handleBerOrRaise = (action: BettingTypes) => {
-    const amount = prompt("Enter your raise amount:"); // Example for a raise input
+    const amount = prompt("Enter your raise amount:");
     if (amount && !isNaN(Number(amount))) {
       onAction(action, Number(amount));
     }
@@ -89,7 +102,7 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, defaultAction }) => {
     }
 
     return (
-      // Facing a bet
+      // Facing a bet - fold call or raise
       <>
         {hasFold && (
           <button

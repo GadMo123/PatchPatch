@@ -16,12 +16,14 @@ import {
   assignPositions,
   RotateButtonPosition,
 } from "./utils/PokerPositionsUtils";
+import { PotManager } from "./utils/PotUtils/PotManager";
 
 export class Game {
   private _deck: Deck | null;
   private _state: DetailedGameState;
   private _broadcaster: GameStateBroadcaster;
   private _isHandWonWithoutShowdown: boolean;
+  private _potManager: PotManager;
   private _gameFlowManager: SingleGameFlowManager | null;
   private _stacksUpdatesForNextHand: Array<[PlayerInGame, number]>;
   private _TableConditionChangeMutex: Mutex; // For any async changes in table resources such as positions, seats ect.
@@ -33,6 +35,7 @@ export class Game {
     tableConfig: TableConfig
   ) {
     this._server = _server;
+    this._potManager = new PotManager();
     this._broadcaster = new GameStateBroadcaster(_server);
     this._TableConditionChangeMutex = new Mutex();
     this._isHandWonWithoutShowdown = false;
@@ -59,6 +62,7 @@ export class Game {
   }
 
   async PrepareNextHand(): Promise<boolean> {
+    this._potManager = new PotManager();
     this._isHandWonWithoutShowdown = false;
     this._state = {
       ...this._state,
@@ -92,7 +96,7 @@ export class Game {
       // in this case we have to stop hand praperation and go into waiting mode.
       if (nextHandPlayers.length < this._state.tableConfig.minPlayers) {
         this._state.phase = GamePhase.Waiting;
-        return false; // Releases lock and skips remaining hand prep.
+        return false; // Releases lock and signal game flow manager to wait for players.
       }
 
       const nextHandBTNPlayer = RotateButtonPosition(
@@ -118,7 +122,7 @@ export class Game {
         }
       });
 
-      this._state.phase = GamePhase.Waiting;
+      this._state.phase = GamePhase.DealPreflop;
       return true;
     });
   }
@@ -323,6 +327,10 @@ export class Game {
 
   getServer() {
     return this._server;
+  }
+
+  getPotManager() {
+    return this._potManager;
   }
 
   getGameFlowManager(): SingleGameFlowManager | null {

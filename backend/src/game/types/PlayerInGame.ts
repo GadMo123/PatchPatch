@@ -13,6 +13,7 @@ export interface PlayerPublicState {
   currentStack: number;
   isFolded: boolean;
   arrangedCardsReady?: boolean;
+  roundPotContributions?: number;
 }
 
 export interface PlayerPrivateState {

@@ -1,68 +1,130 @@
-// src\game\utils\PotUtils\PotManager.ts - Manage game pot, pot splits in case of a player all in.
-
-// !!! Notice that "main-pot" is always the currently active pot, which goes against the normal poker-conventions, for code readability purpose. !!!
+// src\game\utils\PotUtils\PotManager.ts - Manage game pots, splits pots by contributers in case some players are all in, distribute winnings.
+//  notice the convention break - ⚠ ⚠ ⚠.
 
 import { PlayerInGame } from "../../types/PlayerInGame";
 import { PotContribution } from "./PotContribution";
 
 export class PotManager {
   private _sidePots: PotContribution[] = [];
+  //  ⚠ ⚠ ⚠ Notice - "main-pot" as defined here is the currently active pot, which goes against the normal poker-conventions (where main-pot is the pot with most contributors)
+  //  this makes everything more understandable in coding terms.
   private _mainPot: PotContribution;
 
   constructor() {
     this._mainPot = new PotContribution();
   }
 
-  processBettingRound(
-    players: PlayerInGame[],
-    bets: Map<PlayerInGame, number>
-  ) {
-    // Sort players by their contribution amount to the pot increasing
-    const sortedPlayers = [...players].sort(
-      (a, b) => (bets.get(a) || 0) - (bets.get(b) || 0)
-    );
+  // Once betting round complate - collect all players bets and arrange them into side pots by players contributions, the last pot standing will be the main pot until next betting round.
+  processBettingRound(bets: Map<PlayerInGame, number>) {
+    // Extract and sort players by bet amount (increasing order)
+    const players = Array.from(bets.keys());
 
-    let remainingBets = new Map(bets);
+    // Track remaining bets
+    const remainingBets = new Map(bets);
+
+    // Track the last pot with 2+ contributors - to become the main pot at the end of this betting round
+    let lastMultiContributorPot: PotContribution = this._mainPot;
 
     while (remainingBets.size > 0) {
-      // Find the lowest bet amount
-      const lowestBet = Math.min(...Array.from(remainingBets.values()));
+      // Find minimum bet amount among remaining players
+      const minBet = Math.min(...Array.from(remainingBets.values()));
 
-      // Create side pot for players who can contribute at this level
-      const sidePotContributors = sortedPlayers.filter(
-        (player) => (remainingBets.get(player) || 0) >= lowestBet
+      // Get contributors at this level
+      const contributors = players.filter(
+        (player) => (remainingBets.get(player) || 0) > 0
       );
 
-      const sidePot = new PotContribution();
+      // Check if we should add to main pot or create a new pot
+      if (
+        this.sameContributors(
+          this._mainPot.getContributors(),
+          new Set(contributors)
+        )
+      ) {
+        // Add to existing main pot if contributors match
+        for (const player of contributors) {
+          const contribution = Math.min(minBet, remainingBets.get(player) || 0);
+          this._mainPot.addContribution(player, contribution);
+          remainingBets.set(
+            player,
+            (remainingBets.get(player) || 0) - contribution
+          );
+        }
+      } else {
+        // Push current main pot to side pots if it has contributions
+        if (this._mainPot.getTotalPotSize() > 0) {
+          this._sidePots.push(this._mainPot);
+        }
 
-      // Collect contributions to the next side pot
-      for (const player of sidePotContributors) {
-        const playerBet = remainingBets.get(player) || 0;
-        sidePot.addContribution(player, lowestBet);
-        remainingBets.set(player, playerBet - lowestBet);
+        // Create new main pot
+        this._mainPot = new PotContribution();
+        for (const player of contributors) {
+          const contribution = Math.min(minBet, remainingBets.get(player) || 0);
+          this._mainPot.addContribution(player, contribution);
+          remainingBets.set(
+            player,
+            (remainingBets.get(player) || 0) - contribution
+          );
+        }
       }
 
-      // Add side pot if it has contributions
-      if (sidePot.getTotalPotSize() > 0) {
-        this._sidePots.push(sidePot);
+      // Keep track of the last pot with multiple contributors
+      if (contributors.length >= 2) {
+        lastMultiContributorPot = this._mainPot;
       }
 
-      // Remove players with zero remaining bet
-      remainingBets = new Map(
-        Array.from(remainingBets.entries()).filter(([, amount]) => amount > 0)
-      );
+      // Remove players with zero remaining bets
+      for (const player of Array.from(remainingBets.keys())) {
+        if ((remainingBets.get(player) || 0) <= 0) {
+          remainingBets.delete(player);
+        }
+      }
     }
 
-    // Check if main pot contains only one player:
-    // When a player bets more than all-in anount of all other active players -
-    // return the bet diractlly to his stack after the betting round (without processing it as a side pot).
-    const mainPotContributors = this._mainPot.getContributors();
-    if (mainPotContributors.size === 1) {
-      const singlePlayer = Array.from(mainPotContributors)[0];
+    this.finalizeRound(lastMultiContributorPot, players);
+  }
+
+  // Helper to check if two sets of contributors are the same
+  private sameContributors(
+    set1: Set<PlayerInGame>,
+    set2: Set<PlayerInGame>
+  ): boolean {
+    if (set1.size !== set2.size) return false;
+    return Array.from(set1).every((player) => set2.has(player));
+  }
+
+  // Handle end of round, reset players pot contributions and return unchallanged bet.
+  private finalizeRound(
+    lastMultiContributorPot: PotContribution,
+    players: Array<PlayerInGame>
+  ) {
+    // If main pot has only one contributor, return it to the player
+    if (this._mainPot.getContributors().size === 1) {
+      const singlePlayer = Array.from(this._mainPot.getContributors())[0];
       singlePlayer.updatePlayerPublicState({
         currentStack: singlePlayer.getStack() + this._mainPot.getTotalPotSize(),
       });
+
+      // Set the main pot to the last pot with multiple contributors
+
+      const index = this._sidePots.findIndex(
+        // Remove this pot from side pots if it's there
+        (pot) => pot === lastMultiContributorPot
+      );
+      if (index !== -1) {
+        this._sidePots.splice(index, 1);
+      }
+      this._mainPot = lastMultiContributorPot;
+    } else {
+      // Reset main pot if no multi-contributor pot exists (should never happen since we force SB and BB every hand, but this rule might changes in the future)
+      this._mainPot = new PotContribution();
     }
+
+    players.forEach((player) => {
+      player.updatePlayerPublicState({
+        roundPotContributions: 0,
+      });
+    });
   }
 
   distributeWinningsInShowdown(

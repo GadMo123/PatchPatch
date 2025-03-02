@@ -192,6 +192,7 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
       stack: playerState.currentStack || 0,
       id: playerState.id,
       tableAbsolotePosition: playerState.tablePosition,
+      roundPotContributions: playerState.roundPotContributions,
     };
   }
 }

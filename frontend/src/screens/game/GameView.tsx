@@ -125,11 +125,6 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     }
     return {
       bettingState,
-      defaultAction: bettingState.playerValidActions.includes(
-        BettingTypes.CHECK
-      )
-        ? BettingTypes.CHECK
-        : BettingTypes.FOLD,
     };
   }, [bettingState, playerId]);
 

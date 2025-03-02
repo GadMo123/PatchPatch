@@ -8,9 +8,14 @@ export class BettingRoundPotManager {
   addContribution(player: PlayerInGame, amount: number): boolean {
     const updatedStack = player.getPlayerPublicState().currentStack - amount;
     if (updatedStack < 0) return false;
+
+    const roundPotContributions =
+      (player.getPlayerPublicState().roundPotContributions ?? 0) + amount;
+
     player.updatePlayerPublicState({
       currentStack: updatedStack,
       isAllIn: updatedStack === 0,
+      roundPotContributions: roundPotContributions,
     });
 
     const currentContribution = this._playerContributions.get(player) || 0;
@@ -33,7 +38,7 @@ export class BettingRoundPotManager {
     return new Map(this._playerContributions);
   }
 
-  // We forced that BB and SB players have enough stack to put the full preflop bets before sitting into a new hand.
+  // Assuning we forced that BB and SB players have enough stack to put the full preflop blind-bets before sitting into a new hand, this is a simplification at the current scope and should change at some point.
   takeBlinds(
     sbPlayer: PlayerInGame,
     bbPlayer: PlayerInGame,

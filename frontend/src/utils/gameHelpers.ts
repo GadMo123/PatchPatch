@@ -5,8 +5,6 @@ export const constructBoards = (
   turns: Object[] | null | undefined,
   rivers: Object[] | null | undefined
 ) => {
-  console.log("cons boards", flops);
-
   return (
     flops?.map((flop, index) => {
       const board = toCardArray(flop as CardLike[]);

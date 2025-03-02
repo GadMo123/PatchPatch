@@ -87,6 +87,7 @@ export interface PublicPlayerClientData {
     name?: string;
     stack?: number;
     cards?: Card[];
+    roundPotContributions?: number;
 }
 export interface PrivatePlayerClientData {
     cards?: Card[];

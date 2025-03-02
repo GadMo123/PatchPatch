@@ -15,6 +15,7 @@ export enum GamePhase {
   RiverBetting = "river-betting",
   Showdown = "showdown",
   StartingHand = "StartingHand",
+  DealPreflop = "dealPreflop",
 }
 
 export interface DetailedGameState {

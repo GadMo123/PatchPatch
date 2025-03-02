@@ -103,6 +103,7 @@ export interface PublicPlayerClientData {
   name?: string;
   stack?: number;
   cards?: Card[]; // Other players cards for showdown phase
+  roundPotContributions?: number; // total Contributions to the pot in the current ongoing betting round
 }
 
 export interface PrivatePlayerClientData {

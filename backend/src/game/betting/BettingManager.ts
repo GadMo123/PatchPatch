@@ -20,17 +20,16 @@ export class BettingManager {
   private _processingAction: Mutex;
   private _timerManager: GameActionTimerManager;
   private _biggestBetToCall: number; // The amount a player have to complate to the pot to call (reducing previous contributions)
-  private _potManager: BettingRoundPotManager;
+  private _bettingRoundPotManager: BettingRoundPotManager;
   // This is a marker pointing to the last player to take an aggresive action, if the action returns to him without more aggrestion - we know the betting round ends.
   private _roundEndsCondition: PlayerInGame;
 
   constructor(
     private _game: Game,
-    tableConfig: TableConfig,
     private _onBettingRoundComplete: (winner: PlayerInGame | null) => void,
     isPreflop: boolean
   ) {
-    this._actionValidator = new ActionValidator(tableConfig);
+    this._actionValidator = new ActionValidator(_game.getTableConfig());
     this._currentPlayerToAct = findFirstPlayerToAct(this._game);
     this._roundEndsCondition = this._currentPlayerToAct;
     this._biggestBetToCall = 0;
@@ -48,12 +47,12 @@ export class BettingManager {
           .map((player) => [player!, 0])
       ),
     };
-    this._potManager = new BettingRoundPotManager();
+    this._bettingRoundPotManager = new BettingRoundPotManager();
     const timebanksPerRound = parseInt(process.env.COOKIES_PER_ROUND ?? "3");
     this._timerManager = new GameActionTimerManager({
-      duration: tableConfig.timePerAction,
+      duration: _game.getTableConfig().timePerAction,
       networkBuffer: 1000,
-      timeCookieEffect: tableConfig.timeCookieEffect,
+      timeCookieEffect: _game.getTableConfig().timeCookieEffect,
       maxCookiesPerRound: timebanksPerRound,
       updateTimeRemianing: (timeRemaining: number) =>
         this.updateBettingState({ timeRemaining: timeRemaining }),
@@ -61,13 +60,13 @@ export class BettingManager {
       onComplete: this.cleanupTimerState.bind(this),
     });
     if (isPreflop) {
-      this._potManager.takeBlinds(
+      this._bettingRoundPotManager.takeBlinds(
         _game.getPlayerInPosition(Position.SB)!,
         _game.getPlayerInPosition(Position.BB)!,
-        tableConfig.sbAmount,
-        tableConfig.bbAmount
+        _game.getTableConfig().sbAmount,
+        _game.getTableConfig().bbAmount
       );
-      this._biggestBetToCall = tableConfig.bbAmount; // for the current scope, we force the BB player (in hand preparation) to have at least 1BB in order to play a hand.
+      this._biggestBetToCall = _game.getTableConfig().bbAmount; // for the current scope, we force the BB player (in hand preparation) to have at least 1BB in order to play a hand.
     }
   }
 
@@ -104,7 +103,9 @@ export class BettingManager {
 
       // Calculate call amount in case of 'call' action
       if (action === "call")
-        amount = this._potManager.getRemainingToCall(this._currentPlayerToAct);
+        amount = this._bettingRoundPotManager.getRemainingToCall(
+          this._currentPlayerToAct
+        );
 
       const validation = this._actionValidator.validateAction(
         action,
@@ -121,7 +122,10 @@ export class BettingManager {
         amount = 0;
       }
 
-      this._potManager.addContribution(this._currentPlayerToAct, amount || 0);
+      this._bettingRoundPotManager.addContribution(
+        this._currentPlayerToAct,
+        amount || 0
+      );
 
       // When a player raise or bet a valid amount, he has the new biggest bet this round.
       if (
@@ -139,7 +143,7 @@ export class BettingManager {
 
       // Update betting state with latest pot contributions
       this.updateBettingState({
-        potContributions: this._potManager.getContributions(),
+        potContributions: this._bettingRoundPotManager.getContributions(),
       });
 
       this._timerManager.handleAction(); // Signal timer that we recived a valid action from the player
@@ -167,8 +171,14 @@ export class BettingManager {
     const lastPlayer = this._currentPlayerToAct;
     this.switchToNextPlayer();
     if (this.isBettingRoundComplete()) {
+      // Winner? if so, pass it on.
       const winner =
         this._currentPlayerToAct === lastPlayer ? lastPlayer : null;
+
+      // Collect all pot contributions made this round and add them to the game main and side pots accordingly, update all states. (Todo - rake?).
+      this._game
+        .getPotManager()
+        .processBettingRound(this._bettingRoundPotManager.getContributions());
       this._onBettingRoundComplete(winner);
     } else this.startNextPlayerTurn();
   }
