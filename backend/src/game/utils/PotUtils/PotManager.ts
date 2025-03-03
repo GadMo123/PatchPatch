@@ -51,7 +51,7 @@ export class PotManager {
           );
         }
       } else {
-        // Push current main pot to side pots if it has contributions
+        // Push current main pot to side pot if it has contributions
         if (this._mainPot.getTotalPotSize() > 0) {
           this._sidePots.push(this._mainPot);
         }

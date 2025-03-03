@@ -1,4 +1,5 @@
 import React from "react";
+import "./PotDisplay.css";
 
 const CHIP_COLORS = {
   1: { main: "#005C8B", secondary: "#ADD8E6" }, // Blue
@@ -18,17 +19,20 @@ const ChipSVG: React.FC<{
   value: number;
   count?: number;
   className?: string;
-}> = ({ value, count = 1, className = "" }) => {
+  small?: boolean;
+}> = ({ value, count = 1, className = "", small = false }) => {
   const colors =
     CHIP_COLORS[value as keyof typeof CHIP_COLORS] || CHIP_COLORS[1];
+
+  const chipSize = small ? "20" : "30";
 
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 50 50"
       className={`chip chip-${value} ${className}`}
-      width="30"
-      height="30"
+      width={chipSize}
+      height={chipSize}
     >
       {Array.from({ length: count }).map((_, i) => (
         <g key={i} transform={`translate(${i * 1.7}, 0)`}>
@@ -45,7 +49,7 @@ const ChipSVG: React.FC<{
             x="25"
             y="30"
             textAnchor="middle"
-            fontSize="12"
+            fontSize={small ? "10" : "12"}
             fill={colors.main}
           >
             {value}
@@ -57,7 +61,10 @@ const ChipSVG: React.FC<{
 };
 
 // Displaying the pot - adding to the numerical value a casino chips display
-const PotDisplay: React.FC<{ potSize: number }> = ({ potSize }) => {
+const PotDisplay: React.FC<{
+  potSize: number;
+  isPlayerContribution?: boolean; // player contibution or Main pot?
+}> = ({ potSize, isPlayerContribution = false }) => {
   if (!potSize) return null;
 
   const denominations = [
@@ -71,8 +78,13 @@ const PotDisplay: React.FC<{ potSize: number }> = ({ potSize }) => {
     remainingPot %= denom;
   });
 
+  // For player contributions, we make the display more compact
+  const containerClass = isPlayerContribution
+    ? "player-pot-display"
+    : "pot-display";
+
   return (
-    <div className="pot-display">
+    <div className={containerClass}>
       <span className="font-bold">${potSize.toLocaleString()}</span>
       <div className="flex space-x-1">
         {denominations
@@ -83,6 +95,7 @@ const PotDisplay: React.FC<{ potSize: number }> = ({ potSize }) => {
               key={denom}
               value={denom}
               count={chipCounts[denom]}
+              small={isPlayerContribution}
             />
           ))}
       </div>

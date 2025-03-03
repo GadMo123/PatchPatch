@@ -4,7 +4,7 @@ import { useGameContext } from "../../contexts/GameContext";
 import { PublicPlayerClientData } from "@patchpatch/shared";
 import { useJoinGame } from "../../hooks/CreateSocketAction";
 import { useBuyInDialog } from "../../contexts/BuyInContext";
-import { needsBuyIn } from "../../utils/BuyInHelpers";
+import PotDisplay from "../../components/common/PotDisplay/PotDisplay";
 
 export interface TableProps {
   numberOfSeats: 2 | 3 | 6;
@@ -69,43 +69,70 @@ const TableAndSeats: React.FC<TableProps> = ({
       const isHeroSeat = seatInfo.id === playerId;
       const showBuyInButton = isHeroSeat && canBuyIn;
 
-      return (
-        <div
-          key={seatInfo.tableAbsolotePosition}
-          className="table-seat"
-          style={{
-            left: `calc(50% + ${x}px)`,
-            top: `calc(50% + ${y}px)`,
-          }}
-        >
-          {seatInfo.id ? (
-            <div className="occupied-seat">
-              <div className="player-name">
-                {isHeroSeat ? "You" : seatInfo.name}
-              </div>
-              <div className="player-stack">${seatInfo.stack}</div>
-              <div className="player-position">${seatInfo.position}</div>
+      // Calculate pot position (closer to the center of the table)
+      const potDistanceRatio = 0.6; // How far from the seat toward the center (0.6 means 60% of the way to the center)
+      const potX = x * potDistanceRatio;
+      const potY = y * potDistanceRatio;
 
-              {showBuyInButton && seatInfo.stack === 0 && (
-                <button onClick={openBuyInDialog} className="add-chips-button">
-                  + Add Chips
+      return (
+        <React.Fragment key={seatInfo.tableAbsolotePosition}>
+          <div
+            className="table-seat"
+            style={{
+              left: `calc(50% + ${x}px)`,
+              top: `calc(50% + ${y}px)`,
+            }}
+          >
+            {seatInfo.id ? (
+              <div className="occupied-seat">
+                <div className="player-name">
+                  {isHeroSeat ? "You" : seatInfo.name}
+                </div>
+                <div className="player-stack">${seatInfo.stack}</div>
+                <div className="player-position">${seatInfo.position}</div>
+
+                {showBuyInButton && seatInfo.stack === 0 && (
+                  <button
+                    onClick={openBuyInDialog}
+                    className="add-chips-button"
+                  >
+                    + Add Chips
+                  </button>
+                )}
+              </div>
+            ) : (
+              !isJoinedGame && (
+                <button
+                  className="join-seat-button"
+                  onClick={() => {
+                    console.log("clicked join game");
+                    handleJoinGame(seatInfo);
+                  }}
+                >
+                  Seat Here
                 </button>
-              )}
-            </div>
-          ) : (
-            !isJoinedGame && (
-              <button
-                className="join-seat-button"
-                onClick={() => {
-                  console.log("clicked join game");
-                  handleJoinGame(seatInfo);
+              )
+            )}
+          </div>
+
+          {/* Player's betting round pot contribution display */}
+          {seatInfo.id &&
+            seatInfo.roundPotContributions &&
+            seatInfo.roundPotContributions > 0 && (
+              <div
+                className="player-pot-contribution"
+                style={{
+                  position: "absolute",
+                  left: `calc(50% + ${potX}px)`,
+                  top: `calc(50% + ${potY}px)`,
+                  transform: "translate(-50%, -50%)",
+                  zIndex: 10,
                 }}
               >
-                Seat Here
-              </button>
-            )
-          )}
-        </div>
+                <PotDisplay potSize={seatInfo.roundPotContributions} />
+              </div>
+            )}
+        </React.Fragment>
       );
     };
 

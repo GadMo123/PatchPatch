@@ -16,7 +16,6 @@ export class ActionValidator {
     biggestBet: number
   ): BettingTypes[] {
     const playersContribution = bettingState.potContributions;
-
     const playerContribution = playersContribution.get(player);
 
     // First to act or BB option in preflop round

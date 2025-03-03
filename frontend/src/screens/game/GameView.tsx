@@ -1,18 +1,12 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "./GameView.css";
 import OpponentCards from "../../gameComponents/playersCardArea/OpponentCards/OpponentCards";
 import PlayerCards from "../../gameComponents/playersCardArea/PlayerCards/PlayerCards";
 import BoardCards from "../../gameComponents/board/BoardCards/BoardCards";
 import BetPanel from "../../gameComponents/betting/BetPanel/BetPanel";
 import { GameContextProvider } from "../../contexts/GameContext";
-import PotDisplay from "../../gameComponents/board/PotDisplay/PotDisplay";
 
-import {
-  BettingStateClientData,
-  BettingTypes,
-  Card,
-  GameStateServerBroadcast,
-} from "@patchpatch/shared";
+import { GameStateServerBroadcast } from "@patchpatch/shared";
 import { getTablePropsFromGameState } from "../../utils/TableAndRotationHelper";
 import { useGameStateUpdates } from "../../hooks/HandleServerBroadcastEvent";
 import { useGameStateRequest } from "../../hooks/CreateSocketAction";
@@ -27,6 +21,7 @@ import {
   constructBoards,
   toCardArray,
 } from "../../utils/GameHelpers";
+import PotDisplay from "../../components/common/PotDisplay/PotDisplay";
 
 // Memoized OpponentCards component
 const MemoizedOpponentCards = React.memo(OpponentCards);
@@ -50,8 +45,6 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
   const [gameState, setGameState] = useState<GameStateServerBroadcast | null>(
     null
   );
-  const [bettingState, setBettingState] =
-    useState<BettingStateClientData | null>(null);
   const { sendAction: getGameState } = useGameStateRequest(); // Ask the server for current game-state on demand (non-standart usage, usfull for dc, lag ect.)
 
   const {
@@ -71,7 +64,11 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
   // Compute table props whenever gameState changes
   const tableProps: TableProps | null = useMemo(
     () => getTablePropsFromGameState(gameState, playerId),
-    [gameState, playerId]
+    [
+      gameState?.publicPlayerDataMapByTablePosition,
+      gameState?.publicPlayerDataMapByTablePosition,
+      playerId,
+    ]
   );
 
   const boards = useMemo(() => {
@@ -99,36 +96,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
       : [];
   }, [gameState?.privatePlayerData?.cards]);
 
-  // Memoize game phase arrange cards
-  const gamePhaseArrangeCards = useMemo(() => {
-    return gameState?.phase === "arrange-player-cards";
-  }, [gameState?.phase]);
-
-  // Memoize arrange cards time left
-  const arrangeCardsTimeLeft = useMemo(() => {
-    return gameState?.arrangePlayerCardsState?.timeRemaining ?? 0;
-  }, [gameState?.arrangePlayerCardsState?.timeRemaining]);
-
-  // Memoize pot size
-  const potSize = useMemo(() => {
-    return gameState?.potSize ?? 0;
-  }, [gameState?.potSize]);
-
-  // Memoize betting state props
-  const bettingProps = useMemo(() => {
-    if (
-      !bettingState ||
-      bettingState.playerToAct !== playerId ||
-      bettingState.timeRemaining <= 0
-    ) {
-      return null;
-    }
-    return {
-      bettingState,
-    };
-  }, [bettingState, playerId]);
-
-  // Ask server to send last game-state as long as we don't have one (for reconnection / lag / ect.).
+  // Force (request) server to send last game-state as long as we don't have one (for reconnection / lag / ect.).
   useEffect(() => {
     if (gameState !== null) return; // Don't start polling if we already have the game state
 
@@ -147,12 +115,6 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     if (state.id !== gameId) return; // Ignore updates for other games player is in (for multi-tabling)
     console.log(state);
     setGameState(state);
-    if (
-      state.bettingState &&
-      JSON.stringify(bettingState) !== JSON.stringify(state.bettingState)
-    ) {
-      setBettingState(state.bettingState);
-    }
     updateBuyInState(state);
   });
 
@@ -183,7 +145,9 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
         </div>
         <div className="boards-container">
           <div className="pot-display">
-            {potSize > 0 && <MemoizedPotDisplay potSize={potSize} />}
+            {(gameState?.potSize ?? 0) > 0 && (
+              <MemoizedPotDisplay potSize={gameState?.potSize ?? 0} />
+            )}
           </div>
           {boards && <MemoizedBoardCards boards={boards} />}
         </div>
@@ -192,12 +156,16 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
             {playerCards.length > 0 && (
               <MemoizedPlayerCards
                 playerCards={playerCards}
-                gamePhaseArrangeCards={gamePhaseArrangeCards}
-                arrangeCardsTimeLeft={arrangeCardsTimeLeft}
+                gamePhaseArrangeCards={!!gameState?.arrangePlayerCardsState}
+                arrangeCardsTimeLeft={
+                  gameState?.arrangePlayerCardsState?.timeRemaining ?? 0
+                }
               />
             )}
           </div>
-          {bettingProps && <MemoizedBetPanel {...bettingProps} />}
+          {gameState?.bettingState?.playerToAct === playerId && (
+            <MemoizedBetPanel bettingState={gameState.bettingState} />
+          )}
         </div>
         <BuyInDialog
           minBuyIn={minBuyIn}
