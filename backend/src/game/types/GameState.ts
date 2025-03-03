@@ -1,6 +1,6 @@
 // src\game\broadcasting\GameState.ts - Server side version of game state representation
 
-import { PlayerInGame } from "../types/PlayerInGame";
+import { PlayerInGame } from "./PlayerInGame";
 import { TableConfig, BettingState } from "../betting/BettingTypes";
 import { ArrangePlayerCardsState } from "../arrangeCards/ArrangePlayerCardsManager";
 import { Card, Position } from "@patchpatch/shared";

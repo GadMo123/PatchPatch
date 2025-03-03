@@ -1,7 +1,7 @@
 // src/lobby/LobbyManager.ts - Provides accessible lobby status representation for clients.
 
 import { LobbyStatusServerResponse } from "@patchpatch/shared";
-import { GamePhase } from "../game/broadcasting/GameState";
+import { GamePhase } from "../game/types/GameState";
 import { Game } from "../game/Game";
 
 export function getLobbyStatus(

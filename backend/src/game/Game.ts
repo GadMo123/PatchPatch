@@ -2,7 +2,7 @@
 
 import { Server } from "socket.io";
 import { Player } from "../player/Player";
-import { DetailedGameState, GamePhase } from "./broadcasting/GameState";
+import { DetailedGameState, GamePhase } from "./types/GameState";
 import { PlayerInGame } from "./types/PlayerInGame";
 import { GameStateBroadcaster } from "./broadcasting/GameStateBroadcaster";
 

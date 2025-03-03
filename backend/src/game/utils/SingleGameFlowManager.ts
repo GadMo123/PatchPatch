@@ -3,7 +3,7 @@
 import { ArrangePlayerCardsManager } from "../arrangeCards/ArrangePlayerCardsManager";
 import { BettingManager } from "../betting/BettingManager";
 import { Game } from "../Game";
-import { GamePhase } from "../broadcasting/GameState";
+import { GamePhase } from "../types/GameState";
 import { PlayerInGame } from "../types/PlayerInGame";
 
 export class SingleGameFlowManager {
