@@ -43,6 +43,10 @@ export class Card {
   public get suit(): Suit {
     return this._suit;
   }
+
+  public equals(other: Card): boolean {
+    return this._rank === other._rank && this._suit === other._suit;
+  }
 }
 
 export const isValidSuit = (suit: string): suit is Suit =>
@@ -50,3 +54,20 @@ export const isValidSuit = (suit: string): suit is Suit =>
 
 export const isValidRank = (rank: string): rank is Rank =>
   RANKS.includes(rank as Rank);
+
+export const parseCard = (item: unknown): Card | null => {
+  if (typeof item === "object" && item !== null) {
+    const rank = (item as any).rank ?? (item as any)._rank;
+    const suit = (item as any).suit ?? (item as any)._suit;
+
+    if (
+      typeof rank === "string" &&
+      typeof suit === "string" &&
+      isValidRank(rank) &&
+      isValidSuit(suit)
+    ) {
+      return new Card(rank, suit);
+    }
+  }
+  return null;
+};

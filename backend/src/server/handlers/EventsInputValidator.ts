@@ -10,7 +10,10 @@ import {
   isValidSuit,
   JoinGamePayload,
   LoginPayload,
+  parseCard,
   PlayerActionPayload,
+  Rank,
+  Suit,
 } from "@patchpatch/shared";
 import { Game } from "../../game/Game";
 import { Player } from "../../player/Player";
@@ -114,22 +117,19 @@ export const validateCardArrangement = (
       error: "Arrangement must contain exactly 12 cards",
     };
   }
+  const cardArrangement: Card[] = [];
 
-  const isValidCard = (item: unknown): item is Card => {
-    if (!(item instanceof Card)) return false;
-    return isValidSuit(item.suit) && isValidRank(item.rank);
-  };
-
-  if (!p.arrangement.every(isValidCard)) {
-    return { success: false, error: "Invalid card in arrangement" };
+  for (const item of p.arrangement) {
+    const card = parseCard(item);
+    if (!card) {
+      return { success: false, error: "Invalid card in arrangement" };
+    }
+    cardArrangement.push(card);
   }
 
   return {
     success: true,
-    data: {
-      ...baseValidation.data,
-      arrangement: p.arrangement,
-    },
+    data: { ...baseValidation.data, arrangement: cardArrangement },
   };
 };
 

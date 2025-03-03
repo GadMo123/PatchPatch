@@ -8,6 +8,8 @@ export declare class Card {
     constructor(_rank: Rank, _suit: Suit);
     get rank(): Rank;
     get suit(): Suit;
+    equals(other: Card): boolean;
 }
 export declare const isValidSuit: (suit: string) => suit is Suit;
 export declare const isValidRank: (rank: string) => rank is Rank;
+export declare const parseCard: (item: unknown) => Card | null;
