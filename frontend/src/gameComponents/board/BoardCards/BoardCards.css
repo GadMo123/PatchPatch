@@ -1,35 +1,93 @@
-.boards{
-    display: flex;
-    flex-direction: column;
-    align-content: center;
-    justify-content: center;
-    gap: 0.6vh
+.boards {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+  gap: 0.6vh
 }
 
 .board-section {
-    display: flex;
-    flex-direction: row;
-    align-content: center;
-    gap: 1rem;
-    width: 30%; /* Adjust as needed */
-    z-index: 1;
-  }
-  
-.board{
-    display: flex;
-    flex-direction: row; /* Horizontal layout for cards within each board */
-    justify-content: center;
-    align-content: center;
-    gap: 3px
-  }
-  
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  width: 30%; /* Adjust as needed */
+  z-index: 1;
+  border-radius: 8px;
+  padding: 4px 8px;
+  transition: all 0.3s ease;
+  margin-bottom: 2px; /* Minimal vertical spacing */
+}
+
+/* Color-coded board sections */
+.board-section:nth-child(1) {
+  border-left: 4px solid #3498db; /* Blue */
+  background: rgba(52, 152, 219, 0.05);
+  background-image: radial-gradient(circle at 10px 10px, rgba(52, 152, 219, 0.1) 2px, transparent 2px);
+  background-size: 20px 20px;
+}
+
+.board-section:nth-child(2) {
+  border-left: 4px solid #e67e22; /* Orange */
+  background: rgba(230, 126, 34, 0.05);
+  background-image: radial-gradient(circle at 10px 10px, rgba(230, 126, 34, 0.1) 2px, transparent 2px);
+  background-size: 20px 20px;
+}
+
+.board-section:nth-child(3) {
+  border-left: 4px solid #2ecc71; /* Green */
+  background: rgba(46, 204, 113, 0.05);
+  background-image: radial-gradient(circle at 10px 10px, rgba(46, 204, 113, 0.1) 2px, transparent 2px);
+  background-size: 20px 20px;
+}
+
+.board-section.highlighted {
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+  border-width: 4px;
+  transform: translateX(2px);
+}
+
+.board {
+  display: flex;
+  flex-direction: row; /* Horizontal layout for cards within each board */
+  justify-content: center;
+  align-content: center;
+  gap: 3px
+}
+
 .board-label {
-    font-size: 1rem;
-    margin-right: 1vw;
-    width: 5vw;
-  }
-  
+  font-size: 0.9rem;
+  min-width: 4vw;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  margin: 0; /* Remove margins */
+  padding: 0 8px 0 4px; /* Add some padding on sides only */
+  white-space: nowrap; /* Prevent wrapping */
+}
+
+/* Add color to board labels to match borders */
+.board-section:nth-child(1) .board-label {
+  color: #3498db;
+}
+
+.board-section:nth-child(2) .board-label {
+  color: #e67e22;
+}
+
+.board-section:nth-child(3) .board-label {
+  color: #2ecc71;
+}
+
 .board .card {
-    height: 12vh;
-    width: calc(12vh * 0.618); /* Golden ratio */
-  }
+  height: 12vh;
+  width: calc(12vh * 0.618); /* Golden ratio */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+.board .card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}

@@ -5,6 +5,7 @@ import { useGameContext } from "../../../contexts/GameContext";
 import { useCountdownTimer } from "../../../hooks/TimerHook";
 import { Card } from "@patchpatch/shared";
 import { useCardsArrangement } from "../../../hooks/CreateSocketAction";
+import { HIGHLIGHT_BOARD_EVENT } from "../../board/BoardCards/BoardCards";
 
 interface PlayerCardsProps {
   playerCards: Card[];
@@ -21,6 +22,7 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [arrangedCards, setArrangedCards] = useState<Card[]>([]);
   const [isArrangementComplete, setIsArrangementComplete] = useState(false);
+  const [highlightedBoard, setHighlightedBoard] = useState<number | null>(null);
 
   const { playerId, gameId } = useGameContext();
   const { sendAction } = useCardsArrangement();
@@ -104,6 +106,21 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
     return classes.join(" ");
   };
 
+  // Helper to handle row hover for visual feedback
+  const handleRowMouseEnter = (rowIndex: number) => {
+    // Dispatch custom event to highlight the corresponding board
+    const highlightEvent = new CustomEvent(HIGHLIGHT_BOARD_EVENT, {
+      detail: { boardIndex: rowIndex },
+    });
+    window.dispatchEvent(highlightEvent);
+  };
+
+  const handleRowMouseLeave = () => {
+    // Dispatch event to clear the board highlighting
+    const clearEvent = new CustomEvent("clear-highlight-board");
+    window.dispatchEvent(clearEvent);
+  };
+
   return (
     <div className="player-cards-container">
       {gamePhaseArrangeCards && !isArrangementComplete && (
@@ -126,7 +143,12 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
           const cardsForRow = cardSource.slice(startIndex, startIndex + 4);
 
           return (
-            <div key={`player-row-${rowIndex}`} className="player-row">
+            <div
+              key={`player-row-${rowIndex}`}
+              className="player-row"
+              onMouseEnter={() => handleRowMouseEnter(rowIndex)}
+              onMouseLeave={handleRowMouseLeave}
+            >
               <div className="player-board-label">
                 Your cards for Board {rowIndex + 1}
               </div>
