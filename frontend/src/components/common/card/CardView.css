@@ -4,6 +4,8 @@
     border-radius: 4px;
     background-color: #FFFFFF; /* Glossy white background */
     padding: 8px;
+    flex-grow: 1;
+    height: 100%; 
     display: flex;
     cursor: pointer;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */

@@ -167,18 +167,16 @@
 .bet-panel.--high:hover,
 .player-area.--high:hover,
 .buyin-trigger.--high:hover {
-  transform: scale(1.02); /* Slight scale for interactivity */
-  box-shadow: 0 0 10px #00FF9D; /* Neon green glow */
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  /* transform: scale(1.02);  */
+  /* box-shadow: 0 0 10px #00FF9D; /* Neon green glow 
+  transition: transform 5s ease, box-shadow 0.1s ease; */
 }
 
 .boards-container.--mid:hover,
 .bet-panel.--mid:hover,
 .player-area.--mid:hover,
 .buyin-trigger.--mid:hover {
-  transform: scale(1.01); /* Reduced scale */
-  box-shadow: 0 0 5px #00FF9D; /* Reduced glow */
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+
 }
 
 .boards-container.--low:hover,
