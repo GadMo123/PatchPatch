@@ -1,59 +1,185 @@
-.container{
+/* Base styles remain the same, but add animation levels */
+.container {
     border: 0.5px solid #3d3d3d;
-    border-radius: 4px; 
-    background-color: black;
+    border-radius: 4px;
+    background-color: #FFFFFF; /* Glossy white background */
     padding: 8px;
-    border: 0.5px solid #3d3d3d;
-    background-color: #f3f3f3;
     display: flex;
     cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    position: relative; /* For glass-like overlay and hover effects */
 }
 
-.container.d{
-    background-color :rgb(74, 144, 226);
-}
-.container.s{
-    background-color :rgb(74, 74, 74);
-}
-.container.h{
-    background-color :rgb(242, 76, 100);
-}
-.container.c{
-    background-color :rgb(126, 211, 33);
+/* Glass-like effect with semi-transparent overlay (remove for low) */
+.container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.2); /* Semi-transparent white overlay */
+    border-radius: 4px;
+    z-index: 1;
 }
 
-.upper-rank{
-    color: black;
+/* Neon suit colors with gradients for depth (remove gradient for low/mid) */
+.container.h { /* Hearts - Neon Pink */
+    background-image: linear-gradient(to bottom, #FF007A 0%, #FF4D4F 100%);
+    border: 1px solid #FF007A; /* Faint neon pink border */
+}
+
+.container.d { /* Diamonds - Neon Blue (blueish) */
+    background-image: linear-gradient(to bottom, #00D2FF 0%, #008CBA 100%);
+    border: 1px solid #00D2FF; /* Faint neon blue border */
+}
+
+.container.c { /* Clubs - Neon Green */
+    background-image: linear-gradient(to bottom, #00FF9D 0%, #00A86B 100%);
+    border: 1px solid #00FF9D; /* Faint neon green border */
+}
+
+.container.s { /* Spades - Deep Charcoal with Neon Blue glow on hover */
+    background-image: linear-gradient(to bottom, #1A1A1A 0%, #0D0D0D 100%);
+    border: 1px solid #1A1A1A; /* Charcoal border */
+}
+
+/* Animation levels */
+.container--high:hover {
+    transform: translateY(-4px); /* Lift effect */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Enhanced shadow */
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Full animations */
+}
+
+.container--mid:hover {
+    transform: translateY(-2px); /* Reduced lift */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Lighter shadow */
+    transition: transform 0.1s ease, box-shadow 0.1s ease; /* Shorter transitions */
+}
+
+.container--low:hover {
+    transform: none; /* No lift */
+    box-shadow: none; /* No shadow */
+    transition: none; /* No transitions */
+}
+
+/* Spades-specific hover for neon blue glow (only for high) */
+.container.s--high:hover {
+    box-shadow: 0 0 15px #00D2FF, 0 4px 8px rgba(0, 0, 0, 0.3); /* Neon blue glow */
+}
+
+.container.s--mid:hover {
+    box-shadow: 0 0 8px #00D2FF; /* Reduced glow */
+    transition: box-shadow 0.1s ease; /* Shorter transition */
+}
+
+.container.s--low:hover {
+    box-shadow: none; /* No glow */
+    transition: none; /* No transition */
+}
+
+/* Selected state (only for high) */
+.container--high.selected {
+    transform: translateY(-8px);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.7); /* Golden glow */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.container--mid.selected {
+    transform: translateY(-4px);
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.7); /* Reduced glow */
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.container--low.selected {
+    transform: none;
+    box-shadow: none; /* No glow */
+    transition: none;
+}
+
+/* Rank and Suit Text (remove glow for low) */
+.upper-rank, .rank, .suit {
+    color: #000000; /* Bold black text for contrast */
+    font-size: 21px; /* Maintain size */
+}
+
+.upper-rank, .rank {
+    font-weight: bold; /* Ensure bold text for readability */
+}
+
+/* Neon outline on hover (only for high/mid) */
+.container--high:hover .upper-rank,
+.container--high:hover .rank,
+.container--high:hover .suit {
+    text-shadow: 
+        0 0 5px #FF007A, /* Neon pink for hearts */
+        0 0 5px #00D2FF, /* Neon blue for diamonds */
+        0 0 5px #00FF9D, /* Neon green for clubs */
+        0 0 5px #00D2FF; /* Neon blue for spades */
+    transition: text-shadow 0.2s ease;
+}
+
+.container--mid:hover .upper-rank,
+.container--mid:hover .rank,
+.container--mid:hover .suit {
+    text-shadow: 
+        0 0 3px #FF007A, /* Reduced glow */
+        0 0 3px #00D2FF,
+        0 0 3px #00FF9D,
+        0 0 3px #00D2FF;
+    transition: text-shadow 0.1s ease;
+}
+
+.container--low:hover .upper-rank,
+.container--low:hover .rank,
+.container--low:hover .suit {
+    text-shadow: none; /* No glow */
+    transition: none;
+}
+
+/* Upper and lower sections (no changes) */
+.upper {
     display: flex;
-    align-items: center; /* Align text and image */
-    justify-content: center; /* Center content horizontally */
-    gap: 4px; /* Space between rank and image */
+    flex-direction: column;
+    align-items: center;
+    z-index: 2; /* Above the glass-like overlay */
 }
 
-.rank{
-    color: black;
-    font-size: 21;
-}
-
-.suit{
-    color: black;
-    font-size: 21;
-}
-
-.upper{
-    display: flex;
-    flex-direction: column; /* Stack the rank and image vertically */
-    align-items: center; /* Center-align both elements horizontally */
-}
-
-.lower{
-    align-self: self-end;
-    justify-self: end;
+.lower {
+    align-self: flex-end;
+    justify-self: flex-end;
     margin-left: auto;
+    z-index: 2; /* Above the glass-like overlay */
 }
 
+/* Suit Icon (SVG) (remove glow for low) */
 .suit-icon {
     width: 1em; /* Match the font size of the rank */
     height: 1em; /* Match the font size of the rank */
     margin-top: 4px; /* Add a small gap between the rank and the image */
-  }
+}
+
+.container--high:hover .suit-icon {
+    filter: drop-shadow(0 0 5px 
+        #FF007A /* Neon pink for hearts */
+        #00D2FF /* Neon blue for diamonds */
+        #00FF9D /* Neon green for clubs */
+        #00D2FF /* Neon blue for spades */
+    );
+    transition: filter 0.2s ease;
+}
+
+.container--mid:hover .suit-icon {
+    filter: drop-shadow(0 0 3px 
+        #FF007A /* Reduced glow */
+        #00D2FF
+        #00FF9D
+        #00D2FF
+    );
+    transition: filter 0.1s ease;
+}
+
+.container--low:hover .suit-icon {
+    filter: none; /* No glow */
+    transition: none;
+}

@@ -1,82 +1,112 @@
 .slider-container {
-    width: 100%;
-    margin: 1.5rem 0;
-  }
-  
-  .slider-track {
-    position: relative;
-    width: 100%;
-    padding: 1rem 0;
-  }
-  
-  .slider-input {
-    width: 100%;
-    -webkit-appearance: none;
-    appearance: none;
-    height: 4px;
-    background: #e2e8f0;
-    outline: none;
-    border-radius: 2px;
-    z-index: 2;
-    position: relative;
-  }
-  
-  .slider-input::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    background: #3b82f6;
-    border-radius: 50%;
-    cursor: pointer;
-    z-index: 3;
-  }
-  
-  .slider-input::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    background: #3b82f6;
-    border-radius: 50%;
-    cursor: pointer;
-    z-index: 3;
-  }
-  
-  .slider-ticks {
-    position: absolute;
-    width: 100%;
-    bottom: 0;
-    height: 20px;
-  }
-  
-  .slider-tick {
-    position: absolute;
-    transform: translateX(-50%);
-  }
-  
-  .tick-mark {
-    width: 2px;
-    height: 8px;
-    background-color: #cbd5e0;
-    margin: 0 auto;
-  }
-  
-  .tick-label {
-    font-size: 0.75rem;
-    color: #718096;
-    text-align: center;
-    margin-top: 3px;
-  }
-  
-  .slider-value-input {
-    display: flex;
-    justify-content: center;
-    margin-top: 1rem;
-  }
-  
-  .value-input {
-    width: 80px;
-    text-align: center;
-    padding: 0.5rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.25rem;
-  }
+  width: 100%;
+  margin: 1.5rem 0;
+}
+
+.slider-track {
+  position: relative;
+  width: 100%;
+  padding: 1rem 0;
+}
+
+.slider-input {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px; /* Slightly thicker for visibility */
+  background: #00FFFF; /* Neon cyan track */
+  outline: none;
+  border-radius: 3px;
+  box-shadow: 0 0 5px #00FFFF; /* Neon cyan glow */
+  z-index: 2;
+  position: relative;
+  transition: box-shadow 0.2s ease; /* Smooth glow transition */
+}
+
+.slider-input:hover {
+  box-shadow: 0 0 10px #00FFFF; /* Enhanced neon cyan glow on hover */
+}
+
+.slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #FF00FF; /* Neon magenta thumb */
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 5px #FF00FF; /* Neon magenta glow */
+  z-index: 3;
+  transition: box-shadow 0.2s ease; /* Smooth glow transition */
+}
+
+.slider-input::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 10px #FF00FF; /* Enhanced neon magenta glow on hover */
+}
+
+.slider-input::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #FF00FF; /* Neon magenta thumb */
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 5px #FF00FF; /* Neon magenta glow */
+  z-index: 3;
+  transition: box-shadow 0.2s ease; /* Smooth glow transition */
+}
+
+.slider-input::-moz-range-thumb:hover {
+  box-shadow: 0 0 10px #FF00FF; /* Enhanced neon magenta glow on hover */
+}
+
+.slider-ticks {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  height: 20px;
+}
+
+.slider-tick {
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.tick-mark {
+  width: 2px;
+  height: 8px;
+  background-color: #00FFFF; /* Neon cyan for tick marks */
+  margin: 0 auto;
+}
+
+.tick-label {
+  font-size: 0.75rem;
+  color: #F5F5F5; /* White text for readability */
+  text-shadow: 0 0 3px #A3FF00; /* Neon lime glow for emphasis */
+  margin-top: 3px;
+  text-align: center;
+}
+
+.slider-value-input {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.value-input {
+  width: 80px;
+  text-align: center;
+  padding: 0.5rem;
+  border: 1px solid #00FFFF; /* Neon cyan border */
+  border-radius: 0.25rem;
+  background-color: #1A1A1A; /* Glossy black for input */
+  color: #F5F5F5; /* White text */
+  font-size: 1rem;
+  box-shadow: 0 0 5px #A3FF00; /* Neon lime glow */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.value-input:focus {
+  outline: none;
+  border-color: #A3FF00; /* Neon lime on focus */
+  box-shadow: 0 0 10px #A3FF00; /* Enhanced neon lime glow on focus */
+}

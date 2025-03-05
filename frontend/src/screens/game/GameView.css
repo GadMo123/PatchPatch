@@ -1,118 +1,254 @@
-.game-container {
-    position: fixed;
-    width: 100%;
-    height: 100%; 
-    display: flex;
-    flex-direction: column;
-    padding: 0.3vh;
-    background-color: #8ec28e;
-    color: white;
-  } 
+.game-view {
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0.3vh;
+  background-color: #1A2333; /* Deep midnight blue as the base */
+  color: #F5F5F5; /* Soft white text for contrast */
+  position: relative; /* For glass-like overlay */
+  overflow: visible;
+}
 
-  .boards-container {
-    height: 50vh;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-content: center;
-    padding: 1rem 2rem;
-    gap : 2rem;
-  }
+.upper-row {
+  height: 3vh;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1vw;
+  position: relative;
+  z-index: 10;
+}
 
-  .bet-panel{
-    background-color: #8ec28e;
-  }
+.game-status {
+  font-size: 1.2rem;
+  color: #F5F5F5;
+}
 
-  .player-area {
-    height: 48vh;
-    display: flex;
-    align-content: flex-end;
-    justify-content: center;
-    gap: 2rem;  /* Creates space between cards and bet panel */
-    margin-bottom: 20px;
-    padding: 0 20px;
-  }
+.settings {
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+  position: absolute;
+  right: 1vw;
+  top: 50%;
+  transform: translateY(-50%);
+}
 
-  .buyin-trigger {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    width: 2.5rem;
-    height: 2.5rem;
-    background-color: #22c55e;
-    color: white;
-    border-radius: 9999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    cursor: pointer;
-    border: none;
-    outline: none;
-    transition: background-color 0.2s;
-  }
-  
-  .buyin-trigger:hover {
-    background-color: #16a34a;
-  }
-  
-  /* Player Cards Section (60-98%) */
-  .player-cards {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 1vh 2vw;
-    margin-top: 2vh;
-  }
-  
-  .player-row {
-    display: flex;
-    align-items: center;
-    gap: 1vw;
-  }
-  
-  .player-board-label {
-    font-size: 1rem;
-    margin-right: 1vw;
-    width: 5vw;
-  }
-  
-  .player-cards-row {
-    display: flex;
-    gap: 1vw;
-  }
-  
-  .player-cards-row .card {
-    height: 14vh;
-    width: calc(14vh * 0.618); /* Golden ratio */
-  }
-  
-  /* Utility classes */
-  .card {
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease;
-  }
-  
-  .card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  }
+.buyin-trigger {
+  position: fixed;
+  right: calc(var(--animation-control-width) + 1rem + 3vh);
+  z-index: 10;
+  background-color: #22C55E; /* Neon green */
+  color: #F5F5F5; /* Soft white */
+  border: none;
+  border-radius: 4px;
+  padding: 0.2vh 0.5vw;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
 
-  /* Scrollbar styling */
-  ::-webkit-scrollbar {
-    height: 6px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: #2a2a2a;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: #444;
-    border-radius: 3px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
+
+.table-area {
+  flex: 1; /* Takes remaining space between upper row and player area */
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: visible;
+}
+
+/* Placeholder for animation settings slider (from top-level app) */
+.animation-slider {
+  position: absolute;
+  right: 1vw;
+  top: 50%;
+  transform: translateY(-50%);
+  /* Add slider-specific styles as needed */
+}
+
+/* Glass-like effect with semi-transparent overlay (remove for low) */
+.game-view::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1); /* Subtle semi-transparent white overlay */
+  z-index: 1;
+}
+
+.game-view--high {
+  background-image: 
+      radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.25) 1px, transparent 1px),
+      radial-gradient(circle at 60% 60%, rgba(128, 0, 128, 0.55) 1px, transparent 1px);
+  background-size: 100px 100px;
+  background-position: 0 0, 50px 50px; 
+  background-repeat: repeat; 
+  animation: sparkleTwinkle 10s infinite;
+}
+
+.game-view--mid {
+  background-image: 
+      radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+      radial-gradient(circle at 60% 60%, rgba(128, 0, 128, 0.25) 1px, transparent 1px);
+  background-size: 150px 150px; /* Larger spacing for fewer sparkles */
+  background-position: 0 0, 75px 75px; 
+  background-repeat: repeat; 
+  animation: sparkleTwinkle 15s infinite; /* Slower animation */
+}
+
+.game-view--low {
+  background-image: none; /* No sparkles */
+  background-color: #1A2333; /* Solid color */
+  animation: none; /* No animation */
+}
+
+@keyframes sparkleTwinkle {
+  0%, 100% { background-size: 100px 100px; }
+  50% { background-size: 105px 105px; }
+}
+
+.boards-container {
+  position: absolute;
+  top: 27%; /* Adjusted to fit within table */
+  left: 15%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6vh;
+  width: 50%; /* Space for 5 cards */
+  max-width: 500px; /* Limit size to avoid overlap */
+  z-index: 3; /* above table and below seats*/
+}
+
+.player-area {
+  height: 30vh;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.player-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3vh;
+  width: 50vw; /* Adjust as needed */
+  max-width: 600px;
+}
+
+.boards-container--high,
+.bet-panel--high,
+.player-area--high,
+.buyin-trigger--high {
+  transition: all 0.3s ease; /* Full transitions */
+}
+
+.boards-container--mid,
+.bet-panel--mid,
+.player-area--mid,
+.buyin-trigger--mid {
+  transition: all 0.1s ease; /* Shorter transitions */
+}
+
+.boards-container--low,
+.bet-panel--low,
+.player-area--low,
+.buyin-trigger--low {
+  transition: none; /* No transitions */
+}
+
+.boards-container--high:hover,
+.bet-panel--high:hover,
+.player-area--high:hover,
+.buyin-trigger--high:hover {
+  transform: scale(1.02); /* Slight scale for interactivity */
+  box-shadow: 0 0 10px #00FF9D; /* Neon green glow */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.boards-container--mid:hover,
+.bet-panel--mid:hover,
+.player-area--mid:hover,
+.buyin-trigger--mid:hover {
+  transform: scale(1.01); /* Reduced scale */
+  box-shadow: 0 0 5px #00FF9D; /* Reduced glow */
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.boards-container--low:hover,
+.bet-panel--low:hover,
+.player-area--low:hover,
+.buyin-trigger--low:hover {
+  transform: none; /* No scale */
+  box-shadow: none; /* No glow */
+  transition: none;
+}
+
+
+.pot-display {
+  position: absolute;
+  top: 20%;
+  right: 10%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 1rem;
+   background-color: rgba(255, 255, 255, 0.2); 
+  border: 2px solid #00D2FF;
+  border-radius: 8px;
+  z-index: 3;
+}
+
+.bet-panel {
+  position: absolute;
+  bottom: 1vh;
+  right: 1vw;
+  display: flex;
+  gap: 1vw;
+  padding: 1vh;
+  background-color: #1A1A1A;
+  border-radius: 8px;
+  z-index: 4;
+}
+
+
+.buyin-trigger--high:hover {
+  background-color: #16A34A; /* Darker neon green */
+  box-shadow: 0 0 10px #00FF9D; /* Enhanced glow */
+}
+
+.buyin-trigger--mid:hover {
+  background-color: #22C55E; /* Less intense green */
+  box-shadow: 0 0 5px #00FF9D; /* Reduced glow */
+}
+
+.buyin-trigger--low:hover {
+  background-color: #22C55E; /* No change */
+  box-shadow: none; /* No glow */
+}
+
+/* Scrollbar styling (no changes for animation levels) */
+::-webkit-scrollbar {
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #2a2a2a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

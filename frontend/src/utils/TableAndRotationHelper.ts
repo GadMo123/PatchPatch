@@ -25,7 +25,7 @@ export const getTablePropsFromGameState = (
     (playerData) => {
       if (playerData.id === playerId) {
         isJoinedGame = true;
-        tableRotation = playerData.tableAbsolotePosition;
+        tableRotation = playerData.tableAbsolutePosition;
         canBuyIn = !!(
           playerData.stack && playerData.stack < gameState.tableConfig.maxBuyin
         );
@@ -38,7 +38,7 @@ export const getTablePropsFromGameState = (
     (playerData) => {
       // Calculate the rotated seat index
       let rotatedSeatIndex =
-        (playerData.tableAbsolotePosition - tableRotation + numberOfSeats) %
+        (playerData.tableAbsolutePosition - tableRotation + numberOfSeats) %
         numberOfSeats;
 
       // Create the seat info

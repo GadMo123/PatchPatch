@@ -1,93 +1,153 @@
 .boards {
   display: flex;
-  flex-direction: column;
-  align-content: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.6vh;
   justify-content: center;
-  gap: 0.6vh
 }
 
+.board-section {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  width: 100%;
+  justify-content: flex-start;
+}
+
+/*
 .board-section {
   display: flex;
   flex-direction: row;
   align-content: center;
   align-items: center;
   gap: 0.5rem;
-  width: 30%; /* Adjust as needed */
+  width: 30%; 
   z-index: 1;
   border-radius: 8px;
   padding: 4px 8px;
-  transition: all 0.3s ease;
+  position: relative;
+  overflow: visible; 
+}*/
+
+.board-section--high {
+  transition: all 0.3s ease; /* Full transitions */
   margin-bottom: 2px; /* Minimal vertical spacing */
 }
 
-/* Color-coded board sections */
-.board-section:nth-child(1) {
-  border-left: 4px solid #3498db; /* Blue */
-  background: rgba(52, 152, 219, 0.05);
-  background-image: radial-gradient(circle at 10px 10px, rgba(52, 152, 219, 0.1) 2px, transparent 2px);
-  background-size: 20px 20px;
+.board-section--mid {
+  transition: all 0.1s ease; /* Shorter transitions */
+  margin-bottom: 1px; /* Reduced spacing */
 }
 
-.board-section:nth-child(2) {
-  border-left: 4px solid #e67e22; /* Orange */
-  background: rgba(230, 126, 34, 0.05);
-  background-image: radial-gradient(circle at 10px 10px, rgba(230, 126, 34, 0.1) 2px, transparent 2px);
-  background-size: 20px 20px;
+.board-section--low {
+  transition: none; /* No transitions */
+  margin-bottom: 0; /* No spacing */
 }
 
-.board-section:nth-child(3) {
-  border-left: 4px solid #2ecc71; /* Green */
-  background: rgba(46, 204, 113, 0.05);
-  background-image: radial-gradient(circle at 10px 10px, rgba(46, 204, 113, 0.1) 2px, transparent 2px);
+/* Color-coded board sections - Updated with neon gradients and sparkles (remove gradient for low) */
+.board-section:nth-child(1)--high,
+.board-section:nth-child(1)--mid {
+  border-left: 4px solid #00D2FF; /* Neon Blue */
+  background: rgba(0, 210, 255, 0.15); /* Faint neon blue tint */
+  background-image: radial-gradient(circle at 10px 10px, rgba(0, 210, 255, 0.1) 2px, transparent 2px); /* Neon blue sparkles */
   background-size: 20px 20px;
+  background-position: -4px 0; /* Extends background just 4px to the left */
 }
 
-.board-section.highlighted {
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
-  border-width: 4px;
+.board-section:nth-child(1)--low {
+  border-left: 4px solid #00D2FF; /* Neon Blue */
+  background: rgba(0, 210, 255, 0.05); /* Very faint tint, no sparkles */
+  background-image: none; /* No sparkles */
+  background-size: auto;
+  background-position: 0 0;
+}
+
+.board-section:nth-child(2)--high,
+.board-section:nth-child(2)--mid {
+  border-left: 4px solid #FFFF00; /* Neon Yellow */
+  background: rgba(255, 255, 0, 0.15); /* Faint neon yellow tint */
+  background-image: radial-gradient(circle at 10px 10px, rgba(255, 255, 0, 0.1) 2px, transparent 2px); /* Neon yellow sparkles */
+  background-size: 20px 20px;
+  background-position: -4px 0; /* Extends background just 4px to the left */
+}
+
+.board-section:nth-child(2)--low {
+  border-left: 4px solid #FFFF00; /* Neon Yellow */
+  background: rgba(255, 255, 0, 0.05); /* Very faint tint, no sparkles */
+  background-image: none; /* No sparkles */
+  background-size: auto;
+  background-position: 0 0;
+}
+
+.board-section:nth-child(3)--high,
+.board-section:nth-child(3)--mid {
+  border-left: 4px solid #00FF9D; /* Neon Green */
+  background: rgba(0, 255, 157, 0.15); /* Faint neon green tint */
+  background-image: radial-gradient(circle at 10px 10px, rgba(0, 255, 157, 0.1) 2px, transparent 2px); /* Neon green sparkles */
+  background-size: 20px 20px;
+  background-position: -4px 0; /* Extends background just 4px to the left */
+}
+
+.board-section:nth-child(3)--low {
+  border-left: 4px solid #00FF9D; /* Neon Green */
+  background: rgba(0, 255, 157, 0.05); /* Very faint tint, no sparkles */
+  background-image: none; /* No sparkles */
+  background-size: auto;
+  background-position: 0 0;
+}
+
+.board-section--high:hover,
+.board-section--high.highlighted {
   transform: translateX(2px);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3); /* Subtle white glow */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.board {
+.board-section--mid:hover,
+.board-section--mid.highlighted {
+  transform: translateX(1px);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.2); /* Reduced glow */
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.board-section--low:hover,
+.board-section--low.highlighted {
+  transform: none;
+  box-shadow: none; /* No glow */
+  transition: none;
+}
+
+.board{
   display: flex;
-  flex-direction: row; /* Horizontal layout for cards within each board */
-  justify-content: center;
-  align-content: center;
-  gap: 3px
+  flex-direction: row;
 }
 
-.board-label {
-  font-size: 0.9rem;
-  min-width: 4vw;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  margin: 0; /* Remove margins */
-  padding: 0 8px 0 4px; /* Add some padding on sides only */
-  white-space: nowrap; /* Prevent wrapping */
+.board--high {
+  transition: all 0.3s ease; /* Full transitions */
 }
 
-/* Add color to board labels to match borders */
-.board-section:nth-child(1) .board-label {
-  color: #3498db;
+.board--mid {
+  transition: all 0.1s ease; /* Shorter transitions */
 }
 
-.board-section:nth-child(2) .board-label {
-  color: #e67e22;
+.board--low {
+  transition: none; /* No transitions */
 }
 
-.board-section:nth-child(3) .board-label {
-  color: #2ecc71;
+.board--high .card:hover {
+  transform: translateY(-4px); /* Full lift */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Enhanced shadow */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.board .card {
-  height: 12vh;
-  width: calc(12vh * 0.618); /* Golden ratio */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s;
+.board--mid .card:hover {
+  transform: translateY(-2px); /* Reduced lift */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Lighter shadow */
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.board .card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+.board--low .card:hover {
+  transform: none; /* No lift */
+  box-shadow: none; /* No shadow */
+  transition: none;
 }

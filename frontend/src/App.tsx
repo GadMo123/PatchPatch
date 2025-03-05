@@ -8,11 +8,12 @@ import {
 import "./App.css";
 
 import GameView from "./screens/game/GameView";
-
 import Login from "./screens/login/login";
 import MainLobby from "./screens/lobby/mainLobby";
-import { SocketProvider } from "./contexts/SocketContext"; // Wrap the app with SocketProvider
+import { SocketProvider } from "./contexts/SocketContext";
 import { BuyInProvider } from "./contexts/BuyInContext";
+import { AnimationThemeProvider } from "./contexts/AnimationThemeProvider";
+import AnimationControl from "./settingsComponents/AnimationControl";
 
 const App: React.FC = () => {
   const [playerId, setPlayerId] = useState<string>("unregistered");
@@ -24,46 +25,55 @@ const App: React.FC = () => {
 
   return (
     <SocketProvider>
-      <Router>
-        <Routes>
-          {/* Default Route: Redirect to Lobby */}
-          <Route path="/" element={<Navigate to="/lobby" replace />} />
+      <AnimationThemeProvider>
+        <Router>
+          <div className="app-container">
+            {/* Animation Settings Slider in Top-Right Corner */}
+            <div className="Animation-control">
+              <AnimationControl />
+            </div>
 
-          {/* Login Route*/}
-          <Route
-            path="/login"
-            element={
-              playerId === "unregistered" ? (
-                <Login onLogin={setPlayerId} />
-              ) : (
-                <Navigate to="/lobby" replace />
-              )
-            }
-          />
+            <Routes>
+              {/* Default Route: Redirect to Lobby */}
+              <Route path="/" element={<Navigate to="/lobby" replace />} />
 
-          {/* Lobby Route */}
-          <Route
-            path="/lobby"
-            element={
-              <MainLobby enterGameView={setGameId} playerId={playerId} />
-            }
-          />
+              {/* Login Route */}
+              <Route
+                path="/login"
+                element={
+                  playerId === "unregistered" ? (
+                    <Login onLogin={setPlayerId} />
+                  ) : (
+                    <Navigate to="/lobby" replace />
+                  )
+                }
+              />
 
-          {/* Game Route */}
-          <Route
-            path="/game/:gameId"
-            element={
-              playerId && gameId ? (
-                <BuyInProvider>
-                  <GameView playerId={playerId} gameId={gameId} />
-                </BuyInProvider>
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-        </Routes>
-      </Router>
+              {/* Lobby Route */}
+              <Route
+                path="/lobby"
+                element={
+                  <MainLobby enterGameView={setGameId} playerId={playerId} />
+                }
+              />
+
+              {/* Game Route */}
+              <Route
+                path="/game/:gameId"
+                element={
+                  playerId && gameId ? (
+                    <BuyInProvider>
+                      <GameView playerId={playerId} gameId={gameId} />
+                    </BuyInProvider>
+                  ) : (
+                    <Navigate to="/" replace />
+                  )
+                }
+              />
+            </Routes>
+          </div>
+        </Router>
+      </AnimationThemeProvider>
     </SocketProvider>
   );
 };

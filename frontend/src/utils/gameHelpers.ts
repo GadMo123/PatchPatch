@@ -27,7 +27,7 @@ export const getPlayerAbsolutePosition = (
     (p) => p.id === playerId
   );
 
-  return player?.tableAbsolotePosition ?? null;
+  return player?.tableAbsolutePosition ?? null;
 };
 
 export type CardLike = { _rank: Rank; _suit: Suit } | Card;

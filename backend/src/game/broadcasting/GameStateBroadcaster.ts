@@ -116,14 +116,14 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
     if (player === null) {
       // For empty seats, return minimal data with just the position
       return {
-        tableAbsolotePosition: index,
+        tableAbsolutePosition: index,
       } as PublicPlayerClientData;
     }
 
     // For occupied seats, get the full public state and convert to client format
     return {
       ...reducePlayerPublicStateToClientData(player.getPlayerPublicState()),
-      tableAbsolotePosition: index,
+      tableAbsolutePosition: index,
     } as PublicPlayerClientData;
   });
 
@@ -191,7 +191,7 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
       position: playerState.pokerPosition || undefined,
       stack: playerState.currentStack || 0,
       id: playerState.id,
-      tableAbsolotePosition: playerState.tablePosition,
+      tableAbsolutePosition: playerState.tablePosition,
       roundPotContributions: playerState.roundPotContributions,
     };
   }

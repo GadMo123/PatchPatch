@@ -4,13 +4,15 @@ import { useGameContext } from "../../../contexts/GameContext";
 import { useCountdownTimer } from "../../../hooks/TimerHook";
 import { BettingStateClientData, BettingTypes } from "@patchpatch/shared";
 import { usePlayerAction } from "../../../hooks/CreateSocketAction";
+import { useAnimationTheme } from "../../../contexts/AnimationThemeProvider"; // Adjust path as needed
 
 interface BetPanelProps {
   bettingState: BettingStateClientData;
 }
 
-// Allows player to choose between betting options when its his turn to act, also show time-remaining to act before the defualt action is taken
+// Allows player to choose between betting options when it's his turn to act, also shows time-remaining to act before the default action is taken
 const BetPanel: React.FC<BetPanelProps> = ({ bettingState }) => {
+  const { animationLevel } = useAnimationTheme();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [defaultAction, setDefaultAction] = useState<BettingTypes>(
@@ -55,7 +57,7 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState }) => {
     setDefaultAction(newDefaultAction);
   }, [bettingState.playerValidActions]);
 
-  const handleBerOrRaise = (action: BettingTypes) => {
+  const handleBetOrRaise = (action: BettingTypes) => {
     const amount = prompt("Enter your raise amount:");
     if (amount && !isNaN(Number(amount))) {
       onAction(action, Number(amount));
@@ -76,13 +78,13 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState }) => {
 
     // Determine which set of buttons to show
     if (hasCheck || hasBet) {
-      //Bet or check
+      // Bet or check
       return (
         <>
           {hasCheck && (
             <button
               onClick={() => onAction(BettingTypes.CHECK)}
-              className="bet-button check"
+              className={`bet-button check --${animationLevel}`}
               disabled={isProcessing}
             >
               Check
@@ -90,8 +92,8 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState }) => {
           )}
           {hasBet && (
             <button
-              onClick={() => handleBerOrRaise(BettingTypes.BET)}
-              className="bet-button bet"
+              onClick={() => handleBetOrRaise(BettingTypes.BET)}
+              className={`bet-button bet --${animationLevel}`}
               disabled={isProcessing}
             >
               Bet
@@ -102,12 +104,12 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState }) => {
     }
 
     return (
-      // Facing a bet - fold call or raise
+      // Facing a bet - fold, call, or raise
       <>
         {hasFold && (
           <button
             onClick={() => onAction(BettingTypes.FOLD)}
-            className="bet-button fold"
+            className={`bet-button fold --${animationLevel}`}
             disabled={isProcessing}
           >
             Fold
@@ -116,7 +118,7 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState }) => {
         {hasCall && (
           <button
             onClick={() => onAction(BettingTypes.CALL)}
-            className="bet-button call"
+            className={`bet-button call --${animationLevel}`}
             disabled={isProcessing}
           >
             Call
@@ -124,8 +126,8 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState }) => {
         )}
         {hasRaise && (
           <button
-            onClick={() => handleBerOrRaise(BettingTypes.RAISE)}
-            className="bet-button raise"
+            onClick={() => handleBetOrRaise(BettingTypes.RAISE)}
+            className={`bet-button raise --${animationLevel}`}
             disabled={isProcessing}
           >
             Raise
@@ -136,8 +138,10 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState }) => {
   };
 
   return (
-    <div className="bet-panel">
-      {<div className="timer">Time left: {timeLeft / 1000}s</div>}
+    <div className={`bet-panel --${animationLevel}`}>
+      <div className={`timer --${animationLevel}`}>
+        Time left: {timeLeft / 1000}s
+      </div>
       {error && <div className="error-message">{error}</div>}
       {renderButtons()}
     </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./BuyInDialog.css";
 import { useBuyInDialog } from "../../contexts/BuyInContext";
 import { Slider } from "../../components/common/slider/Slider";
+import { useAnimationTheme } from "../../contexts/AnimationThemeProvider"; // Adjust path as needed
 
 interface BuyInDialogProps {
   minBuyIn?: number;
@@ -16,6 +17,7 @@ export const BuyInDialog: React.FC<BuyInDialogProps> = ({
   bigBlind,
   onBuyIn,
 }) => {
+  const { animationLevel } = useAnimationTheme();
   const { isBuyInDialogOpen, closeBuyInDialog, buyInError } = useBuyInDialog();
   const [amount, setAmount] = useState(minBuyIn);
   const [isLoading, setIsLoading] = useState(false);
@@ -80,15 +82,17 @@ export const BuyInDialog: React.FC<BuyInDialogProps> = ({
 
   return (
     <div
-      className="buyin-overlay"
+      className={`buyin-overlay --${animationLevel}`}
       onClick={(e) => {
         if (e.target === e.currentTarget) closeBuyInDialog();
       }}
     >
-      <div className="buyin-dialog">
-        <h2 className="buyin-title">Buy In</h2>
-        <div className="buyin-input-group">
-          <label className="buyin-label">{formatCurrency(amount)}</label>
+      <div className={`buyin-dialog --${animationLevel}`}>
+        <h2 className={`buyin-title --${animationLevel}`}>Buy In</h2>
+        <div className={`buyin-input-group --${animationLevel}`}>
+          <label className={`buyin-label --${animationLevel}`}>
+            {formatCurrency(amount)}
+          </label>
           <Slider
             min={minBuyIn}
             max={maxBuyIn}
@@ -99,22 +103,24 @@ export const BuyInDialog: React.FC<BuyInDialogProps> = ({
             formatValue={() => ""} // Hide tick labels to match the image
             showInput={false}
           />
-          <div className="buyin-limits">
+          <div className={`buyin-limits --${animationLevel}`}>
             Min: {formatCurrency(minBuyIn)} - Max: {formatCurrency(maxBuyIn)}
           </div>
         </div>
-        {buyInError && <div className="buyin-error">{buyInError}</div>}
-        <div className="buyin-actions">
+        {buyInError && (
+          <div className={`buyin-error --${animationLevel}`}>{buyInError}</div>
+        )}
+        <div className={`buyin-actions --${animationLevel}`}>
           <button
             onClick={closeBuyInDialog}
-            className="buyin-button buyin-button-cancel"
+            className={`buyin-button buyin-button-cancel --${animationLevel}`}
             disabled={isLoading}
           >
             Cancel
           </button>
           <button
             onClick={handleBuyIn}
-            className="buyin-button buyin-button-confirm"
+            className={`buyin-button buyin-button-confirm --${animationLevel}`}
             disabled={isLoading}
           >
             {isLoading ? "Processing..." : "Buy In"}

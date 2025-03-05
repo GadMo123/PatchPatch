@@ -1,80 +1,162 @@
 .table-ellipse {
-  position: absolute;
-  background-color: darkgreen;
-  border-radius: 50%; /* Makes it an ellipse */
-  border: 2px solid darkred; /* Adds a border */
-  border-color: darkred;
- /* z-index: -1;  Ensures it is behind other elements */
-
-  /* Position and size */
-  left: 50%;
-  transform: translateX(-50%); /* Shift left by 50% of its width for centering */
-  top: 2%;
-  bottom: 45%; /* Stretches from 10% to 60% vertically */
+  position: relative;
+  width: 94vw; /* Matches Math.min(screenWidth * 0.4, 1300) */
   max-width: 1300px;
-  width: 90%; 
-  height: auto;
+  height: 43vh;
+  background-color: #2E7D32;
+  border-radius: 50%;
+  border: 2px solid #00D2FF;
+  margin: 0 auto;
+}
+
+/* Glass-like effect with semi-transparent overlay (remove for low) */
+.table-ellipse::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1); /* Subtle semi-transparent white overlay */
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.table-ellipse--high {
+  box-shadow: 0 0 10px #00FF9D; /* Glowing neon green outline */
+  background-image: radial-gradient(circle at center, #2E7D32 0%, #1B5E20 100%); /* Full gradient */
+  transition: box-shadow 0.3s ease; /* Full animation */
+}
+
+.table-ellipse--mid {
+  box-shadow: 0 0 5px #00FF9D; /* Reduced glow */
+  background-image: linear-gradient(to bottom, #2E7D32 0%, #1B5E20 100%); /* Simplified gradient */
+  transition: box-shadow 0.1s ease; /* Shorter transition */
+}
+
+.table-ellipse--low {
+  box-shadow: none; /* No glow */
+  background-color: #2E7D32; /* Solid color, no gradient */
+  transition: none; /* No transition */
+}
+
+.table-seat {
+  position: absolute;
+  width: 50px; /* Adjust seat size */
+  height: 50px;
+  background-color: #1A1A1A; /* Sleek black for seats */
+  border-radius: 50%; /* Make it circular */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #F5F5F5; /* Soft white text for contrast */
+  font-weight: bold;
+  transform: translate(-50%, -50%); /* Center seats properly */
+  z-index: 5; /* Ensure seats remain clickable */
 }
 
 
-.table-seat {
-    position: absolute;
-    width: 50px; /* Adjust seat size */
-    height: 50px;
-    background-color: darkblue;
-    border-radius: 50%; /* Make it circular */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-weight: bold;
-    transform: translate(-50%, -50%); /* Center seats properly */
-  }
+.table-seat--high {
+  transition: all 0.3s ease; /* Full transitions */
+}
 
-  .occupied-seat {
-    text-align: center;
-    width: 100%;
-  }
-  
-  .player-name {
-    font-weight: bold;
-    margin-bottom: 4px;
-  }
-  
-  .player-stack {
-    font-size: 0.9em;
-    color: #90EE90;
-  }
-  
-  .join-seat-button {
-    position: absolute;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.2s;
-  }
-  
-  .join-seat-button:hover {
-    background-color: #45a049;
-  }
+.table-seat--mid {
+  transition: all 0.1s ease; /* Shorter transitions */
+}
 
-  .add-chips-button {
-    margin-top: 0.5rem;
-    background-color: #22c55e;
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 0.875rem;
-    cursor: pointer;
-    border: none;
-    outline: none;
-    transition: background-color 0.2s;
-  }
-  
-  .add-chips-button:hover {
-    background-color: #16a34a;
-  }
+.table-seat--low {
+  transition: none; /* No transitions */
+}
+
+
+.table-seat.occupied--high {
+  box-shadow: 0 0 8px #FF007A, 0 0 16px #FF007A inset; /* Neon pink highlights */
+  background-color: rgba(255, 0, 122, 0.2); /* Slight neon pink tint */
+  transition: box-shadow 0.3s ease, background-color 0.3s ease; /* Full animation */
+}
+
+.table-seat.occupied--mid {
+  box-shadow: 0 0 4px #FF007A, 0 0 8px #FF007A inset; /* Reduced glow */
+  background-color: rgba(255, 0, 122, 0.1); /* Lighter tint */
+  transition: box-shadow 0.1s ease, background-color 0.1s ease; /* Shorter transition */
+}
+
+.table-seat.occupied--low {
+  box-shadow: none; /* No glow */
+  background-color: #1A1A1A; /* Solid black, no tint */
+  transition: none; /* No transition */
+}
+
+.table-seat.occupied--high:hover {
+  box-shadow: 0 0 12px #FF007A, 0 0 20px #FF007A inset; /* Enhanced glow on hover */
+}
+
+.table-seat.occupied--mid:hover {
+  box-shadow: 0 0 6px #FF007A, 0 0 10px #FF007A inset; /* Reduced glow */
+  transition: box-shadow 0.1s ease; /* Shorter transition */
+}
+
+.table-seat.occupied--low:hover {
+  box-shadow: none; /* No glow */
+  transition: none; /* No transition */
+}
+
+.player-name,
+.player-stack,
+.player-position,
+.join-seat-button,
+.add-chips-button,
+.player-pot-contribution {
+  transition: all 0.3s ease; /* Full transitions for high */
+}
+
+.player-name--mid,
+.player-stack--mid,
+.player-position--mid,
+.join-seat-button--mid,
+.add-chips-button--mid,
+.player-pot-contribution--mid {
+  transition: all 0.1s ease; /* Shorter transitions for mid */
+}
+
+.player-name--low,
+.player-stack--low,
+.player-position--low,
+.join-seat-button--low,
+.add-chips-button--low,
+.player-pot-contribution--low {
+  transition: none; /* No transitions for low */
+}
+
+.join-seat-button {
+  background-color: #22C55E; /* Green for join button */
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  color: #F5F5F5;
+  cursor: pointer;
+}
+
+.join-seat-button--high:hover,
+.add-chips-button--high:hover,
+.player-pot-contribution--high:hover {
+  box-shadow: 0 0 10px #00FF9D; /* Enhanced glow */
+  transform: scale(1.05); /* Slight scale */
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.join-seat-button--mid:hover,
+.add-chips-button--mid:hover,
+.player-pot-contribution--mid:hover {
+  box-shadow: 0 0 5px #00FF9D; /* Reduced glow */
+  transform: scale(1.02); /* Reduced scale */
+  transition: box-shadow 0.1s ease, transform 0.1s ease;
+}
+
+.join-seat-button--low:hover,
+.add-chips-button--low:hover,
+.player-pot-contribution--low:hover {
+  box-shadow: none; /* No glow */
+  transform: none; /* No scale */
+  transition: none;
+}

@@ -81,7 +81,7 @@ export interface TableConfigClientData {
     smallBlindAmount: number;
 }
 export interface PublicPlayerClientData {
-    tableAbsolotePosition: number;
+    tableAbsolutePosition: number;
     position?: Position;
     id?: string;
     name?: string;

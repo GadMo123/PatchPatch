@@ -5,21 +5,24 @@ import { PublicPlayerClientData } from "@patchpatch/shared";
 import { useJoinGame } from "../../hooks/CreateSocketAction";
 import { useBuyInDialog } from "../../contexts/BuyInContext";
 import PotDisplay from "../../components/common/PotDisplay/PotDisplay";
+import { useAnimationTheme } from "../../contexts/AnimationThemeProvider";
 
 export interface TableProps {
   numberOfSeats: 2 | 3 | 6;
   seatsMap: { [index: number]: PublicPlayerClientData };
   isJoinedGame: boolean;
   canBuyIn: boolean;
+  children?: React.ReactNode;
 }
 
-// Displaying the table and seats with player's info for each seat, keeps hero centered at bottom-center seat, allows player to join empty seats.
 const TableAndSeats: React.FC<TableProps> = ({
   numberOfSeats,
   seatsMap,
   isJoinedGame,
   canBuyIn,
+  children,
 }) => {
+  const { animationLevel } = useAnimationTheme();
   const [tableSize, setTableSize] = useState({ width: 0, height: 0 });
   const { gameId, playerId } = useGameContext();
   const { sendAction: joinGame } = useJoinGame();
@@ -29,7 +32,7 @@ const TableAndSeats: React.FC<TableProps> = ({
     const calculateTableSize = () => {
       const screenWidth = window.innerWidth;
       const tableWidth = Math.min(screenWidth * 0.9, 1300);
-      const tableHeight = window.innerHeight * 0.43; // Matches bottom: 45% in CSS
+      const tableHeight = window.innerHeight * 0.43;
       setTableSize({ width: tableWidth, height: tableHeight });
     };
 
@@ -43,7 +46,7 @@ const TableAndSeats: React.FC<TableProps> = ({
       const response = await joinGame({
         gameId: gameId,
         playerId: playerId,
-        tableAbsolutePosition: seatInfo.tableAbsolotePosition,
+        tableAbsolutePosition: seatInfo.tableAbsolutePosition,
       });
 
       if (!response.success) {
@@ -69,15 +72,14 @@ const TableAndSeats: React.FC<TableProps> = ({
       const isHeroSeat = seatInfo.id === playerId;
       const showBuyInButton = isHeroSeat && canBuyIn;
 
-      // Calculate pot position (closer to the center of the table)
-      const potDistanceRatio = 0.6; // How far from the seat toward the center (0.6 means 60% of the way to the center)
+      const potDistanceRatio = 0.6;
       const potX = x * potDistanceRatio;
       const potY = y * potDistanceRatio;
 
       return (
-        <React.Fragment key={seatInfo.tableAbsolotePosition}>
+        <React.Fragment key={seatInfo.tableAbsolutePosition}>
           <div
-            className="table-seat"
+            className={`table-seat ${seatInfo.id ? "occupied" : ""} --${animationLevel}`}
             style={{
               left: `calc(50% + ${x}px)`,
               top: `calc(50% + ${y}px)`,
@@ -85,16 +87,19 @@ const TableAndSeats: React.FC<TableProps> = ({
           >
             {seatInfo.id ? (
               <div className="occupied-seat">
-                <div className="player-name">
+                <div className={`player-name --${animationLevel}`}>
                   {isHeroSeat ? "You" : seatInfo.name}
                 </div>
-                <div className="player-stack">${seatInfo.stack}</div>
-                <div className="player-position">${seatInfo.position}</div>
-
+                <div className={`player-stack --${animationLevel}`}>
+                  ${seatInfo.stack}
+                </div>
+                <div className={`player-position --${animationLevel}`}>
+                  ${seatInfo.position}
+                </div>
                 {showBuyInButton && seatInfo.stack === 0 && (
                   <button
                     onClick={openBuyInDialog}
-                    className="add-chips-button"
+                    className={`add-chips-button --${animationLevel}`}
                   >
                     + Add Chips
                   </button>
@@ -103,7 +108,7 @@ const TableAndSeats: React.FC<TableProps> = ({
             ) : (
               !isJoinedGame && (
                 <button
-                  className="join-seat-button"
+                  className={`join-seat-button --${animationLevel}`}
                   onClick={() => {
                     console.log("clicked join game");
                     handleJoinGame(seatInfo);
@@ -114,13 +119,11 @@ const TableAndSeats: React.FC<TableProps> = ({
               )
             )}
           </div>
-
-          {/* Player's betting round pot contribution display */}
           {seatInfo.id &&
             seatInfo.roundPotContributions &&
             seatInfo.roundPotContributions > 0 && (
               <div
-                className="player-pot-contribution"
+                className={`player-pot-contribution --${animationLevel}`}
                 style={{
                   position: "absolute",
                   left: `calc(50% + ${potX}px)`,
@@ -145,7 +148,18 @@ const TableAndSeats: React.FC<TableProps> = ({
     return seatElements;
   };
 
-  return <div className="table-ellipse">{renderSeats()}</div>;
+  return (
+    <div
+      className={`table-ellipse --${animationLevel}`}
+      style={{
+        width: `${tableSize.width}px`,
+        height: `${tableSize.height}px`,
+      }}
+    >
+      {children}
+      {renderSeats()}
+    </div>
+  );
 };
 
 export default TableAndSeats;

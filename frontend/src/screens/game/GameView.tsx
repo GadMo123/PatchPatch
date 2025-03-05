@@ -5,7 +5,6 @@ import PlayerCards from "../../gameComponents/playersCardArea/PlayerCards/Player
 import BoardCards from "../../gameComponents/board/BoardCards/BoardCards";
 import BetPanel from "../../gameComponents/betting/BetPanel/BetPanel";
 import { GameContextProvider } from "../../contexts/GameContext";
-
 import { GameStateServerBroadcast } from "@patchpatch/shared";
 import { getTablePropsFromGameState } from "../../utils/TableAndRotationHelper";
 import { useGameStateUpdates } from "../../hooks/HandleServerBroadcastEvent";
@@ -22,6 +21,7 @@ import {
   toCardArray,
 } from "../../utils/GameHelpers";
 import PotDisplay from "../../components/common/PotDisplay/PotDisplay";
+import { useAnimationTheme } from "../../contexts/AnimationThemeProvider"; // Adjust path as needed
 
 // Memoized OpponentCards component
 const MemoizedOpponentCards = React.memo(OpponentCards);
@@ -31,17 +31,13 @@ const MemoizedBoardCards = React.memo(BoardCards);
 const MemoizedPlayerCards = React.memo(PlayerCards);
 // Memoized BetPanel component
 const MemoizedBetPanel = React.memo(BetPanel);
-// Memoized PotDisplay component
-const MemoizedPotDisplay = React.memo(PotDisplay);
-// Memoized TableAndSeats component
-const MemoizedTableAndSeats = React.memo(TableAndSeats);
 
 // Displaying the game screen when a player enter a game
 const GameView: React.FC<{ playerId: string; gameId: string }> = ({
   playerId,
   gameId,
 }) => {
-  // const [boards, setBoards] = useState<Card[][] | null>(null);
+  const { animationLevel } = useAnimationTheme();
   const [gameState, setGameState] = useState<GameStateServerBroadcast | null>(
     null
   );
@@ -129,30 +125,45 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
 
   return (
     <GameContextProvider playerId={playerId} gameId={gameId}>
-      <div className="game-container">
-        {canBuyIn && (
-          <button onClick={openBuyInDialog} className="buyin-trigger">
-            +
-          </button>
-        )}
-        {tableProps && (
-          <MemoizedTableAndSeats {...tableProps} canBuyIn={canBuyIn} />
-        )}
-
-        <div className="game-status">Game ID: {gameId}</div>
-        <div className="opponent-area">
-          {opponentData && <MemoizedOpponentCards opponents={opponentData} />}
-        </div>
-        <div className="boards-container">
-          <div className="pot-display">
-            {(gameState?.potSize ?? 0) > 0 && (
-              <MemoizedPotDisplay potSize={gameState?.potSize ?? 0} />
-            )}
+      <div className={`game-view --${animationLevel}`}>
+        <div className="upper-row">
+          <div className={`game-status --${animationLevel}`}>
+            Game ID: {gameId}
           </div>
-          {boards && <MemoizedBoardCards boards={boards} />}
+          <div className="settings">
+            {canBuyIn && (
+              <button
+                onClick={openBuyInDialog}
+                className={`buyin-trigger --${animationLevel}`}
+              >
+                +
+              </button>
+            )}
+            {/* Animation slider assumed to be injected from top-level app */}
+          </div>
         </div>
-        <div className="player-area">
-          <div className="player-cards">
+
+        <div className="table-area">
+          {tableProps && (
+            <TableAndSeats {...tableProps} canBuyIn={canBuyIn}>
+              <div className={`boards-container --${animationLevel}`}>
+                {boards && <MemoizedBoardCards boards={boards} />}
+              </div>
+              {(gameState?.potSize ?? 0) > 0 && (
+                <div className={`pot-display --${animationLevel}`}>
+                  <PotDisplay potSize={gameState?.potSize ?? 0} />
+                </div>
+              )}
+            </TableAndSeats>
+          )}
+        </div>
+
+        {/* <div className={`opponent-area --${animationLevel}`}>
+          {opponentData && <MemoizedOpponentCards opponents={opponentData} />}
+        </div> */}
+
+        <div className={`player-area --${animationLevel}`}>
+          <div className={`player-cards --${animationLevel}`}>
             {playerCards.length > 0 && (
               <MemoizedPlayerCards
                 playerCards={playerCards}
@@ -167,6 +178,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
             <MemoizedBetPanel bettingState={gameState.bettingState} />
           )}
         </div>
+
         <BuyInDialog
           minBuyIn={minBuyIn}
           maxBuyIn={maxBuyIn}

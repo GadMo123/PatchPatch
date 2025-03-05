@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../../contexts/SocketContext";
 import { useEnterGame, useLobbyStatus } from "../../hooks/CreateSocketAction";
+import DebugPotDisplay from "../../TempDebugTestingThings";
 
 interface MainLobbyProps {
   enterGameView: (gameId: string) => void; // Callback to pass gameId back to App
@@ -55,6 +56,9 @@ const MainLobby: React.FC<MainLobbyProps> = ({ enterGameView, playerId }) => {
 
   return (
     <div>
+      <div>
+        <DebugPotDisplay />
+      </div>
       <h1>Lobby</h1>
       {
         <ul>

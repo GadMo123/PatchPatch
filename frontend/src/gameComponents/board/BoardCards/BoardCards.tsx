@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import CardView from "../../../components/common/card/CardView";
 import "./BoardCards.css";
 import { Card } from "@patchpatch/shared";
+import { useAnimationTheme } from "../../../contexts/AnimationThemeProvider"; // Adjust path as needed
 
 interface BoardCardsProps {
   boards: Card[][];
@@ -12,6 +13,7 @@ export const HIGHLIGHT_BOARD_EVENT = "highlight-board";
 
 // Displaying the boards
 const BoardCards: React.FC<BoardCardsProps> = ({ boards }) => {
+  const { animationLevel } = useAnimationTheme();
   const [highlightedBoard, setHighlightedBoard] = useState<number | null>(null);
 
   // Listen for the custom event to highlight a board
@@ -46,14 +48,13 @@ const BoardCards: React.FC<BoardCardsProps> = ({ boards }) => {
 
   return (
     <>
-      <div className="boards">
+      <div className={`boards --${animationLevel}`}>
         {boards.map((board, boardIndex) => (
           <div
             key={`board-${boardIndex}`}
-            className={`board-section ${highlightedBoard === boardIndex ? "highlighted" : ""}`}
+            className={`board-section ${highlightedBoard === boardIndex ? "highlighted" : ""} --${animationLevel}`}
           >
-            <div className="board-label">Board {boardIndex + 1}</div>
-            <div className="board">
+            <div className={`board --${animationLevel}`}>
               {board.map(
                 (card, cardIndex) =>
                   card && (

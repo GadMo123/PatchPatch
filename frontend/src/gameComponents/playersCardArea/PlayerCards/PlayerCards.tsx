@@ -6,6 +6,7 @@ import { useCountdownTimer } from "../../../hooks/TimerHook";
 import { Card } from "@patchpatch/shared";
 import { useCardsArrangement } from "../../../hooks/CreateSocketAction";
 import { HIGHLIGHT_BOARD_EVENT } from "../../board/BoardCards/BoardCards";
+import { useAnimationTheme } from "../../../contexts/AnimationThemeProvider"; // Adjust path as needed
 
 interface PlayerCardsProps {
   playerCards: Card[];
@@ -19,10 +20,11 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
   gamePhaseArrangeCards,
   arrangeCardsTimeLeft,
 }) => {
+  const { animationLevel } = useAnimationTheme();
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [arrangedCards, setArrangedCards] = useState<Card[]>([]);
   const [isArrangementComplete, setIsArrangementComplete] = useState(false);
-  const [highlightedBoard, setHighlightedBoard] = useState<number | null>(null);
+  // const [highlightedBoard, setHighlightedBoard] = useState<number | null>(null);
 
   const { playerId, gameId } = useGameContext();
   const { sendAction } = useCardsArrangement();
@@ -103,7 +105,7 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
       classes.push("non-arrangeable");
     }
 
-    return classes.join(" ");
+    return `${classes.join(" ")} --${animationLevel}`;
   };
 
   // Helper to handle row hover for visual feedback
@@ -122,13 +124,18 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
   };
 
   return (
-    <div className="player-cards-container">
+    <div className={`player-cards-container --${animationLevel}`}>
       {gamePhaseArrangeCards && !isArrangementComplete && (
-        <div className="arrangement-controls">
+        <div className={`arrangement-controls --${animationLevel}`}>
           {timeLeft > 0 && (
-            <div className="timer">Time left: {timeLeft / 1000}s</div>
+            <div className={`timer --${animationLevel}`}>
+              Time left: {timeLeft / 1000}s
+            </div>
           )}
-          <button onClick={handleArrangementComplete} className="ready-button">
+          <button
+            onClick={handleArrangementComplete}
+            className={`ready-button --${animationLevel}`}
+          >
             I'm Ready
           </button>
         </div>
@@ -145,13 +152,10 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
           return (
             <div
               key={`player-row-${rowIndex}`}
-              className="player-row"
+              className={`player-row --${animationLevel}`}
               onMouseEnter={() => handleRowMouseEnter(rowIndex)}
               onMouseLeave={handleRowMouseLeave}
             >
-              <div className="player-board-label">
-                Your cards for Board {rowIndex + 1}
-              </div>
               <div className="player-cards-row">
                 {cardsForRow.map((card, cardIndex) => {
                   const absoluteIndex = startIndex + cardIndex;

@@ -97,7 +97,7 @@ export interface TableConfigClientData {
 }
 
 export interface PublicPlayerClientData {
-  tableAbsolotePosition: number; // How many clockwise rotations ticks from bottom-center position (0 - (maxPlayers - 1) rotations). this is the postion where the player initially set down. for UI purpose, we want each player to keep his absolute table position regardless of his poker-position .
+  tableAbsolutePosition: number; // How many clockwise rotations ticks from bottom-center position (0 - (maxPlayers - 1) rotations). this is the postion where the player initially set down. for UI purpose, we want each player to keep his absolute table position regardless of his poker-position .
   position?: Position; // Poker position (BB / SB / BTN / CO ect.)
   id?: string;
   name?: string;

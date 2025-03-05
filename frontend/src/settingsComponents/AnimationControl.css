@@ -1,0 +1,22 @@
+
+  .animation-settings {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    gap: 0.5rem;
+    z-index: 10;
+    /* width: var(--animation-control-width); */
+    /* max-width: 100%; */
+  }
+
+  .settings-icon {
+    font-size: 1.5rem;
+    text-shadow: 0 0 5px #A3FF00; /* Neon lime glow */
+  }
+  
+  .slider-container {
+    width: 100%; /* Adjust slider width */
+    margin: 0;
+    max-width: 150px; /* Cap to prevent excessive width on large screens */
+  }

@@ -3,159 +3,260 @@
   display: flex;
   flex-direction: column;
   gap: 0.3vh; /* Reduced vertical gap */
+  z-index: 6; /* above table and seats*/
 }
 
 .player-row {
   display: flex;
-  flex-direction: row; /* Changed to row for horizontal layout */
-  align-items: center;
-  border-radius: 8px;
-  padding: 4px 8px;
-  transition: all 0.3s ease;
+  flex-direction: row;
+  gap: 4px;
+  justify-content: center;
+  overflow: visible; /* Allow the border to be visible */
+}
+
+.player-row--high {
+  transition: all 0.3s ease; /* Full transitions */
   margin-bottom: 2px; /* Minimal vertical spacing */
 }
 
-/* Match colors with corresponding board sections */
-.player-row:nth-child(1) {
-  border-left: 4px solid #3498db; /* Blue - matches Board 1 */
-  background: rgba(52, 152, 219, 0.05);
-  background-image: radial-gradient(circle at 10px 10px, rgba(52, 152, 219, 0.1) 2px, transparent 2px);
-  background-size: 20px 20px;
+.player-row--mid {
+  transition: all 0.1s ease; /* Shorter transitions */
+  margin-bottom: 1px; /* Reduced spacing */
 }
 
-.player-row:nth-child(2) {
-  border-left: 4px solid #e67e22; /* Orange - matches Board 2 */
-  background: rgba(230, 126, 34, 0.05);
-  background-image: radial-gradient(circle at 10px 10px, rgba(230, 126, 34, 0.1) 2px, transparent 2px);
-  background-size: 20px 20px;
+.player-row--low {
+  transition: none; /* No transitions */
+  margin-bottom: 0; /* No spacing */
 }
 
-.player-row:nth-child(3) {
-  border-left: 4px solid #2ecc71; /* Green - matches Board 3 */
-  background: rgba(46, 204, 113, 0.05);
-  background-image: radial-gradient(circle at 10px 10px, rgba(46, 204, 113, 0.1) 2px, transparent 2px);
+/* Match colors with corresponding board sections - Updated with neon gradients and sparkles (remove gradient for low) */
+.player-row:nth-child(1)--high,
+.player-row:nth-child(1)--mid {
+  border-left: 4px solid #00D2FF; /* Neon Blue - matches Board 1 */
+  background: rgba(0, 210, 255, 0.15); /* Faint neon blue tint */
+  background-image: radial-gradient(circle at 10px 10px, rgba(0, 210, 255, 0.1) 2px, transparent 2px); /* Neon blue sparkles */
   background-size: 20px 20px;
+  background-position: -4px 0; /* Extends background just 4px to the left */
 }
 
-.player-row:hover {
+.player-row:nth-child(1)--low {
+  border-left: 4px solid #00D2FF; /* Neon Blue - matches Board 1 */
+  background: rgba(0, 210, 255, 0.05); /* Very faint tint, no sparkles */
+  background-image: none; /* No sparkles */
+  background-size: auto;
+  background-position: 0 0;
+}
+
+.player-row:nth-child(2)--high,
+.player-row:nth-child(2)--mid {
+  border-left: 4px solid #FFFF00; /* Neon Yellow - matches Board 2 */
+  background: rgba(255, 255, 0, 0.15); /* Faint neon yellow tint */
+  background-image: radial-gradient(circle at 10px 10px, rgba(255, 255, 0, 0.1) 2px, transparent 2px); /* Neon yellow sparkles */
+  background-size: 20px 20px;
+  background-position: -4px 0; /* Extends background just 4px to the left */
+}
+
+.player-row:nth-child(2)--low {
+  border-left: 4px solid #FFFF00; /* Neon Yellow - matches Board 2 */
+  background: rgba(255, 255, 0, 0.05); /* Very faint tint, no sparkles */
+  background-image: none; /* No sparkles */
+  background-size: auto;
+  background-position: 0 0;
+}
+
+.player-row:nth-child(3)--high,
+.player-row:nth-child(3)--mid {
+  border-left: 4px solid #00FF9D; /* Neon Green - matches Board 3 */
+  background: rgba(0, 255, 157, 0.15); /* Faint neon green tint */
+  background-image: radial-gradient(circle at 10px 10px, rgba(0, 255, 157, 0.1) 2px, transparent 2px); /* Neon green sparkles */
+  background-size: 20px 20px;
+  background-position: -4px 0; /* Extends background just 4px to the left */
+}
+
+.player-row:nth-child(3)--low {
+  border-left: 4px solid #00FF9D; /* Neon Green - matches Board 3 */
+  background: rgba(0, 255, 157, 0.05); /* Very faint tint, no sparkles */
+  background-image: none; /* No sparkles */
+  background-size: auto;
+  background-position: 0 0;
+}
+
+.player-row--high:hover {
   transform: translateX(2px);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); /* Subtle white glow */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.player-row--mid:hover {
+  transform: translateX(1px);
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.2); /* Reduced glow */
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.player-row--low:hover {
+  transform: none;
+  box-shadow: none; /* No glow */
+  transition: none;
 }
 
 .player-cards-row {
   display: flex;
   flex-direction: row;
-  gap: 8px;
+  gap: 4px;
   padding: 0; /* No vertical padding */
   justify-content: flex-start;
   flex: 1;
+  width: 100%; /* Ensure the cards row takes up full width of the parent */
 }
 
-.player-board-label {
-  font-size: 0.9rem;
-  font-weight: bold;
-  white-space: nowrap; /* Prevent wrapping */
-  margin-right: 10px;
-  min-width: 6.5rem; /* Fixed width for labels */
-}
-
-/* Match label colors with borders */
+/* Match label colors with borders - Updated to neon colors for consistency (no changes needed for animation) */
 .player-row:nth-child(1) .player-board-label {
-  color: #3498db;
+  color: #00D2FF; /* Neon Blue */
 }
 
 .player-row:nth-child(2) .player-board-label {
-  color: #e67e22;
+  color: #FFFF00; /* Neon Yellow */
 }
 
 .player-row:nth-child(3) .player-board-label {
-  color: #2ecc71;
+  color: #00FF9D; /* Neon Green */
 }
 
-.arrangement-controls {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
+.arrangement-controls--high {
+  transition: all 0.3s ease; /* Full transitions */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 10px #00FF9D; /* Full glow */
+}
+
+.arrangement-controls--mid {
+  transition: all 0.1s ease; /* Shorter transitions */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2), 0 0 5px #00FF9D; /* Reduced glow */
+}
+
+.arrangement-controls--low {
+  transition: none; /* No transitions */
+  box-shadow: none; /* No glow */
+}
+
+.bet-panel {
+  position: absolute;
+  bottom: 1vh;
+  right: 1vw;
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 0.5rem;
-  gap: 1vw; /* Adds consistent spacing between timer and button */
-  background-color: rgba(0, 0, 0, 0.7);
+  gap: 1vw;
+  padding: 1vh;
+  background-color: #1A1A1A;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  z-index: 10; /* Ensures controls stay on top */
+  z-index: 4;
 }
 
-.time-remaining {
-  font-size: 1.1rem;
-  font-weight: bold;
+.time-remaining--high,
+.timer--high,
+.ready-button--high {
+  transition: all 0.3s ease; /* Full transitions */
+}
+
+.time-remaining--mid,
+.timer--mid,
+.ready-button--mid {
+  transition: all 0.1s ease; /* Shorter transitions */
+}
+
+.time-remaining--low,
+.timer--low,
+.ready-button--low {
+  transition: none; /* No transitions */
+}
+
+.time-remaining--high,
+.timer--high {
+  text-shadow: 0 0 5px #00FF9D; /* Full glow */
+}
+
+.time-remaining--mid,
+.timer--mid {
+  text-shadow: 0 0 3px #00FF9D; /* Reduced glow */
+}
+
+.time-remaining--low,
+.timer--low {
+  text-shadow: none; /* No glow */
+}
+
+.ready-button--high:hover {
+  box-shadow: 0 0 10px #00FF9D; /* Enhanced glow */
+  transform: scale(1.05); /* Full scale */
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.ready-button--mid:hover {
+  box-shadow: 0 0 5px #00FF9D; /* Reduced glow */
+  transform: scale(1.02); /* Reduced scale */
+  transition: box-shadow 0.1s ease, transform 0.1s ease;
+}
+
+.ready-button--low:hover {
+  box-shadow: none; /* No glow */
+  transform: none; /* No scale */
+  transition: none;
 }
 
 .card-wrapper {
-  position: relative;
-  transition: transform 0.2s;
-  border-radius: 4px;
+  width: 10vw; /* Example, adjust based on space */
+  height: calc(10vw * 1.618);
+  max-width: 100px;
+  max-height: 161.8px;
+  pointer-events: auto;
 }
 
-.card-wrapper.selected {
-  transform: translateY(-8px);
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.7); /* Golden glow for selected cards */
+.card-wrapper--high {
+  transition: transform 0.2s; /* Full transition */
 }
 
-.card-wrapper.arrangeable {
-  cursor: pointer;
+.card-wrapper--mid {
+  transition: transform 0.1s; /* Shorter transition */
 }
 
-.card-wrapper.arrangeable:hover {
-  transform: translateY(-4px);
+.card-wrapper--low {
+  transition: none; /* No transition */
 }
 
-.cursor-pointer {
-  cursor: pointer;
+.card-wrapper--high.selected,
+.card-wrapper--high.arrangeable:hover {
+  transform: translateY(-8px); /* Full lift */
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.7); /* Full glow */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.ready-button {
-  background-color: rgb(126, 211, 33);  
-  color: white;
-  padding: 8px 16px;
-  border-radius: 4px;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  border-style: solid;
-  border-width: 1px;
-  border-color: black;
+.card-wrapper--mid.selected,
+.card-wrapper--mid.arrangeable:hover {
+  transform: translateY(-4px); /* Reduced lift */
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.7); /* Reduced glow */
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.ready-button:hover {
-  background-color: rgb(142, 230, 48);
-  box-shadow: 0 0 8px rgba(126, 211, 33, 0.6);
+.card-wrapper--low.selected,
+.card-wrapper--low.arrangeable:hover {
+  transform: none; /* No lift */
+  box-shadow: none; /* No glow */
+  transition: none;
 }
 
-.timer {
-  font-size: 1rem;
-  color: #fff;
-  text-align: center;
-  font-weight: bold;
-}
-
-/* Mobile optimizations */
+/* Mobile optimizations (no changes for animation levels) */
 @media (max-width: 768px) {
   .player-row {
-    width: 95%;
-    margin: 0 auto;
-    flex-direction: column; /* Stack vertically on mobile */
-    align-items: flex-start;
+      width: 95%;
+      margin: 0 auto;
+      flex-direction: column; /* Stack vertically on mobile */
+      align-items: flex-start;
   }
   
   .player-board-label {
-    margin-bottom: 4px;
-    margin-right: 0;
+      margin-bottom: 4px;
+      margin-right: 0;
   }
   
   .player-cards-row {
-    justify-content: center;
-    width: 100%;
+      justify-content: center;
+      width: 100%;
   }
 }
