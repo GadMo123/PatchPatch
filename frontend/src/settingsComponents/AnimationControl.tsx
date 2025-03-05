@@ -34,7 +34,7 @@ const AnimationControl: React.FC = () => {
         onChange={handleAnimationChange}
         step={1}
         customTicks={[0, 1, 2]}
-        formatValue={(val) => animationLevels[val]}
+        formatValue={(val) => ""}
         showInput={false}
       />
     </div>
