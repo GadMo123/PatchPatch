@@ -14,24 +14,24 @@
   overflow: visible; /* Allow the border to be visible */
 }
 
-.player-row--high {
+.player-row.--high {
   transition: all 0.3s ease; /* Full transitions */
   margin-bottom: 2px; /* Minimal vertical spacing */
 }
 
-.player-row--mid {
+.player-row.--mid {
   transition: all 0.1s ease; /* Shorter transitions */
   margin-bottom: 1px; /* Reduced spacing */
 }
 
-.player-row--low {
+.player-row.--low {
   transition: none; /* No transitions */
   margin-bottom: 0; /* No spacing */
 }
 
 /* Match colors with corresponding board sections - Updated with neon gradients and sparkles (remove gradient for low) */
-.player-row:nth-child(1)--high,
-.player-row:nth-child(1)--mid {
+.player-row:nth-child(1).--high,
+.player-row:nth-child(1).--mid {
   border-left: 4px solid #00D2FF; /* Neon Blue - matches Board 1 */
   background: rgba(0, 210, 255, 0.15); /* Faint neon blue tint */
   background-image: radial-gradient(circle at 10px 10px, rgba(0, 210, 255, 0.1) 2px, transparent 2px); /* Neon blue sparkles */
@@ -39,7 +39,7 @@
   background-position: -4px 0; /* Extends background just 4px to the left */
 }
 
-.player-row:nth-child(1)--low {
+.player-row:nth-child(1).--low {
   border-left: 4px solid #00D2FF; /* Neon Blue - matches Board 1 */
   background: rgba(0, 210, 255, 0.05); /* Very faint tint, no sparkles */
   background-image: none; /* No sparkles */
@@ -47,8 +47,8 @@
   background-position: 0 0;
 }
 
-.player-row:nth-child(2)--high,
-.player-row:nth-child(2)--mid {
+.player-row:nth-child(2).--high,
+.player-row:nth-child(2).--mid {
   border-left: 4px solid #FFFF00; /* Neon Yellow - matches Board 2 */
   background: rgba(255, 255, 0, 0.15); /* Faint neon yellow tint */
   background-image: radial-gradient(circle at 10px 10px, rgba(255, 255, 0, 0.1) 2px, transparent 2px); /* Neon yellow sparkles */
@@ -56,7 +56,7 @@
   background-position: -4px 0; /* Extends background just 4px to the left */
 }
 
-.player-row:nth-child(2)--low {
+.player-row:nth-child(2).--low {
   border-left: 4px solid #FFFF00; /* Neon Yellow - matches Board 2 */
   background: rgba(255, 255, 0, 0.05); /* Very faint tint, no sparkles */
   background-image: none; /* No sparkles */
@@ -64,8 +64,8 @@
   background-position: 0 0;
 }
 
-.player-row:nth-child(3)--high,
-.player-row:nth-child(3)--mid {
+.player-row:nth-child(3).--high,
+.player-row:nth-child(3).--mid {
   border-left: 4px solid #00FF9D; /* Neon Green - matches Board 3 */
   background: rgba(0, 255, 157, 0.15); /* Faint neon green tint */
   background-image: radial-gradient(circle at 10px 10px, rgba(0, 255, 157, 0.1) 2px, transparent 2px); /* Neon green sparkles */
@@ -73,7 +73,7 @@
   background-position: -4px 0; /* Extends background just 4px to the left */
 }
 
-.player-row:nth-child(3)--low {
+.player-row:nth-child(3).--low {
   border-left: 4px solid #00FF9D; /* Neon Green - matches Board 3 */
   background: rgba(0, 255, 157, 0.05); /* Very faint tint, no sparkles */
   background-image: none; /* No sparkles */
@@ -81,19 +81,19 @@
   background-position: 0 0;
 }
 
-.player-row--high:hover {
+.player-row.--high:hover {
   transform: translateX(2px);
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); /* Subtle white glow */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.player-row--mid:hover {
+.player-row.--mid:hover {
   transform: translateX(1px);
   box-shadow: 0 0 5px rgba(255, 255, 255, 0.2); /* Reduced glow */
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.player-row--low:hover {
+.player-row.--low:hover {
   transform: none;
   box-shadow: none; /* No glow */
   transition: none;
@@ -122,17 +122,17 @@
   color: #00FF9D; /* Neon Green */
 }
 
-.arrangement-controls--high {
+.arrangement-controls.--high {
   transition: all 0.3s ease; /* Full transitions */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 10px #00FF9D; /* Full glow */
 }
 
-.arrangement-controls--mid {
+.arrangement-controls.--mid {
   transition: all 0.1s ease; /* Shorter transitions */
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2), 0 0 5px #00FF9D; /* Reduced glow */
 }
 
-.arrangement-controls--low {
+.arrangement-controls.--low {
   transition: none; /* No transitions */
   box-shadow: none; /* No glow */
 }
@@ -149,52 +149,52 @@
   z-index: 4;
 }
 
-.time-remaining--high,
-.timer--high,
-.ready-button--high {
+.time-remaining.--high,
+.timer.--high,
+.ready-button.--high {
   transition: all 0.3s ease; /* Full transitions */
 }
 
-.time-remaining--mid,
-.timer--mid,
-.ready-button--mid {
+.time-remaining.--mid,
+.timer.--mid,
+.ready-button.--mid {
   transition: all 0.1s ease; /* Shorter transitions */
 }
 
-.time-remaining--low,
-.timer--low,
-.ready-button--low {
+.time-remaining.--low,
+.timer.--low,
+.ready-button.--low {
   transition: none; /* No transitions */
 }
 
-.time-remaining--high,
-.timer--high {
+.time-remaining.--high,
+.timer.--high {
   text-shadow: 0 0 5px #00FF9D; /* Full glow */
 }
 
-.time-remaining--mid,
-.timer--mid {
+.time-remaining.--mid,
+.timer.--mid {
   text-shadow: 0 0 3px #00FF9D; /* Reduced glow */
 }
 
-.time-remaining--low,
-.timer--low {
+.time-remaining.--low,
+.timer.--low {
   text-shadow: none; /* No glow */
 }
 
-.ready-button--high:hover {
+.ready-button.--high:hover {
   box-shadow: 0 0 10px #00FF9D; /* Enhanced glow */
   transform: scale(1.05); /* Full scale */
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.ready-button--mid:hover {
+.ready-button.--mid:hover {
   box-shadow: 0 0 5px #00FF9D; /* Reduced glow */
   transform: scale(1.02); /* Reduced scale */
   transition: box-shadow 0.1s ease, transform 0.1s ease;
 }
 
-.ready-button--low:hover {
+.ready-button.--low:hover {
   box-shadow: none; /* No glow */
   transform: none; /* No scale */
   transition: none;
@@ -208,34 +208,34 @@
   pointer-events: auto;
 }
 
-.card-wrapper--high {
+.card-wrapper.--high {
   transition: transform 0.2s; /* Full transition */
 }
 
-.card-wrapper--mid {
+.card-wrapper.--mid {
   transition: transform 0.1s; /* Shorter transition */
 }
 
-.card-wrapper--low {
+.card-wrapper.--low {
   transition: none; /* No transition */
 }
 
-.card-wrapper--high.selected,
-.card-wrapper--high.arrangeable:hover {
+.card-wrapper.--high.selected,
+.card-wrapper.--high.arrangeable:hover {
   transform: translateY(-8px); /* Full lift */
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.7); /* Full glow */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card-wrapper--mid.selected,
-.card-wrapper--mid.arrangeable:hover {
+.card-wrapper.--mid.selected,
+.card-wrapper.--mid.arrangeable:hover {
   transform: translateY(-4px); /* Reduced lift */
   box-shadow: 0 0 8px rgba(255, 215, 0, 0.7); /* Reduced glow */
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.card-wrapper--low.selected,
-.card-wrapper--low.arrangeable:hover {
+.card-wrapper.--low.selected,
+.card-wrapper.--low.arrangeable:hover {
   transform: none; /* No lift */
   box-shadow: none; /* No glow */
   transition: none;

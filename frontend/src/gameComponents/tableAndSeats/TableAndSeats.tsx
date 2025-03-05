@@ -150,7 +150,7 @@ const TableAndSeats: React.FC<TableProps> = ({
 
   return (
     <div
-      className={`table-ellipse --${animationLevel}`}
+      className={`table-ellipse  --${animationLevel}`}
       style={{
         width: `${tableSize.width}px`,
         height: `${tableSize.height}px`,

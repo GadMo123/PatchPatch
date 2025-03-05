@@ -83,7 +83,7 @@
   z-index: 1;
 }
 
-.game-view--high {
+.game-view.--high {
   background-image: 
       radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.25) 1px, transparent 1px),
       radial-gradient(circle at 60% 60%, rgba(128, 0, 128, 0.55) 1px, transparent 1px);
@@ -93,7 +93,7 @@
   animation: sparkleTwinkle 10s infinite;
 }
 
-.game-view--mid {
+.game-view.--mid {
   background-image: 
       radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
       radial-gradient(circle at 60% 60%, rgba(128, 0, 128, 0.25) 1px, transparent 1px);
@@ -103,7 +103,7 @@
   animation: sparkleTwinkle 15s infinite; /* Slower animation */
 }
 
-.game-view--low {
+.game-view.--low {
   background-image: none; /* No sparkles */
   background-color: #1A2333; /* Solid color */
   animation: none; /* No animation */
@@ -142,49 +142,49 @@
   max-width: 600px;
 }
 
-.boards-container--high,
-.bet-panel--high,
-.player-area--high,
-.buyin-trigger--high {
+.boards-container.--high,
+.bet-panel.--high,
+.player-area.--high,
+.buyin-trigger.--high {
   transition: all 0.3s ease; /* Full transitions */
 }
 
-.boards-container--mid,
-.bet-panel--mid,
-.player-area--mid,
-.buyin-trigger--mid {
+.boards-container.--mid,
+.bet-panel.--mid,
+.player-area.--mid,
+.buyin-trigger.--mid {
   transition: all 0.1s ease; /* Shorter transitions */
 }
 
-.boards-container--low,
-.bet-panel--low,
-.player-area--low,
-.buyin-trigger--low {
+.boards-container.--low,
+.bet-panel.--low,
+.player-area.--low,
+.buyin-trigger.--low {
   transition: none; /* No transitions */
 }
 
-.boards-container--high:hover,
-.bet-panel--high:hover,
-.player-area--high:hover,
-.buyin-trigger--high:hover {
+.boards-container.--high:hover,
+.bet-panel.--high:hover,
+.player-area.--high:hover,
+.buyin-trigger.--high:hover {
   transform: scale(1.02); /* Slight scale for interactivity */
   box-shadow: 0 0 10px #00FF9D; /* Neon green glow */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.boards-container--mid:hover,
-.bet-panel--mid:hover,
-.player-area--mid:hover,
-.buyin-trigger--mid:hover {
+.boards-container.--mid:hover,
+.bet-panel.--mid:hover,
+.player-area.--mid:hover,
+.buyin-trigger.--mid:hover {
   transform: scale(1.01); /* Reduced scale */
   box-shadow: 0 0 5px #00FF9D; /* Reduced glow */
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.boards-container--low:hover,
-.bet-panel--low:hover,
-.player-area--low:hover,
-.buyin-trigger--low:hover {
+.boards-container.--low:hover,
+.bet-panel.--low:hover,
+.player-area.--low:hover,
+.buyin-trigger.--low:hover {
   transform: none; /* No scale */
   box-shadow: none; /* No glow */
   transition: none;
@@ -220,17 +220,17 @@
 }
 
 
-.buyin-trigger--high:hover {
+.buyin-trigger.--high:hover {
   background-color: #16A34A; /* Darker neon green */
   box-shadow: 0 0 10px #00FF9D; /* Enhanced glow */
 }
 
-.buyin-trigger--mid:hover {
+.buyin-trigger.--mid:hover {
   background-color: #22C55E; /* Less intense green */
   box-shadow: 0 0 5px #00FF9D; /* Reduced glow */
 }
 
-.buyin-trigger--low:hover {
+.buyin-trigger.--low:hover {
   background-color: #22C55E; /* No change */
   box-shadow: none; /* No glow */
 }

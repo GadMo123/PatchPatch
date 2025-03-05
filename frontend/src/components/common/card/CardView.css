@@ -45,53 +45,53 @@
 }
 
 /* Animation levels */
-.container--high:hover {
+.container.--high:hover {
     transform: translateY(-4px); /* Lift effect */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Enhanced shadow */
     transition: transform 0.2s ease, box-shadow 0.2s ease; /* Full animations */
 }
 
-.container--mid:hover {
+.container.--mid:hover {
     transform: translateY(-2px); /* Reduced lift */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Lighter shadow */
     transition: transform 0.1s ease, box-shadow 0.1s ease; /* Shorter transitions */
 }
 
-.container--low:hover {
+.container.--low:hover {
     transform: none; /* No lift */
     box-shadow: none; /* No shadow */
     transition: none; /* No transitions */
 }
 
 /* Spades-specific hover for neon blue glow (only for high) */
-.container.s--high:hover {
+.container.s.--high:hover {
     box-shadow: 0 0 15px #00D2FF, 0 4px 8px rgba(0, 0, 0, 0.3); /* Neon blue glow */
 }
 
-.container.s--mid:hover {
+.container.s.--mid:hover {
     box-shadow: 0 0 8px #00D2FF; /* Reduced glow */
     transition: box-shadow 0.1s ease; /* Shorter transition */
 }
 
-.container.s--low:hover {
+.container.s.--low:hover {
     box-shadow: none; /* No glow */
     transition: none; /* No transition */
 }
 
 /* Selected state (only for high) */
-.container--high.selected {
+.container.--high.selected {
     transform: translateY(-8px);
     box-shadow: 0 0 15px rgba(255, 215, 0, 0.7); /* Golden glow */
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.container--mid.selected {
+.container.--mid.selected {
     transform: translateY(-4px);
     box-shadow: 0 0 8px rgba(255, 215, 0, 0.7); /* Reduced glow */
     transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.container--low.selected {
+.container.--low.selected {
     transform: none;
     box-shadow: none; /* No glow */
     transition: none;
@@ -108,9 +108,9 @@
 }
 
 /* Neon outline on hover (only for high/mid) */
-.container--high:hover .upper-rank,
-.container--high:hover .rank,
-.container--high:hover .suit {
+.container.--high:hover .upper-rank,
+.container.--high:hover .rank,
+.container.--high:hover .suit {
     text-shadow: 
         0 0 5px #FF007A, /* Neon pink for hearts */
         0 0 5px #00D2FF, /* Neon blue for diamonds */
@@ -119,9 +119,9 @@
     transition: text-shadow 0.2s ease;
 }
 
-.container--mid:hover .upper-rank,
-.container--mid:hover .rank,
-.container--mid:hover .suit {
+.container.--mid:hover .upper-rank,
+.container.--mid:hover .rank,
+.container.--mid:hover .suit {
     text-shadow: 
         0 0 3px #FF007A, /* Reduced glow */
         0 0 3px #00D2FF,
@@ -130,9 +130,9 @@
     transition: text-shadow 0.1s ease;
 }
 
-.container--low:hover .upper-rank,
-.container--low:hover .rank,
-.container--low:hover .suit {
+.container.--low:hover .upper-rank,
+.container.--low:hover .rank,
+.container.--low:hover .suit {
     text-shadow: none; /* No glow */
     transition: none;
 }
@@ -159,7 +159,7 @@
     margin-top: 4px; /* Add a small gap between the rank and the image */
 }
 
-.container--high:hover .suit-icon {
+.container.--high:hover .suit-icon {
     filter: drop-shadow(0 0 5px 
         #FF007A /* Neon pink for hearts */
         #00D2FF /* Neon blue for diamonds */
@@ -169,7 +169,7 @@
     transition: filter 0.2s ease;
 }
 
-.container--mid:hover .suit-icon {
+.container.--mid:hover .suit-icon {
     filter: drop-shadow(0 0 3px 
         #FF007A /* Reduced glow */
         #00D2FF
@@ -179,7 +179,7 @@
     transition: filter 0.1s ease;
 }
 
-.container--low:hover .suit-icon {
+.container.--low:hover .suit-icon {
     filter: none; /* No glow */
     transition: none;
 }

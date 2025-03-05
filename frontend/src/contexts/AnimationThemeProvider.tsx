@@ -17,7 +17,7 @@ export const AnimationThemeProvider: React.FC<AnimationThemeProviderProps> = ({
   children,
 }) => {
   const [animationLevel, setAnimationLevel] = useState<"high" | "mid" | "low">(
-    "high"
+    "high" // todo choose default for device abilities
   );
 
   useEffect(() => {

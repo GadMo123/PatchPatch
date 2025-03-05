@@ -1,4 +1,5 @@
-.table-ellipse {
+.table-ellipse
+ {
   position: relative;
   width: 94vw; /* Matches Math.min(screenWidth * 0.4, 1300) */
   max-width: 1300px;
@@ -22,19 +23,19 @@
   z-index: 1;
 }
 
-.table-ellipse--high {
+.table-ellipse.--high {
   box-shadow: 0 0 10px #00FF9D; /* Glowing neon green outline */
   background-image: radial-gradient(circle at center, #2E7D32 0%, #1B5E20 100%); /* Full gradient */
   transition: box-shadow 0.3s ease; /* Full animation */
 }
 
-.table-ellipse--mid {
+.table-ellipse.--mid {
   box-shadow: 0 0 5px #00FF9D; /* Reduced glow */
   background-image: linear-gradient(to bottom, #2E7D32 0%, #1B5E20 100%); /* Simplified gradient */
   transition: box-shadow 0.1s ease; /* Shorter transition */
 }
 
-.table-ellipse--low {
+.table-ellipse.--low {
   box-shadow: none; /* No glow */
   background-color: #2E7D32; /* Solid color, no gradient */
   transition: none; /* No transition */
@@ -56,47 +57,47 @@
 }
 
 
-.table-seat--high {
+.table-seat.--high {
   transition: all 0.3s ease; /* Full transitions */
 }
 
-.table-seat--mid {
+.table-seat.--mid {
   transition: all 0.1s ease; /* Shorter transitions */
 }
 
-.table-seat--low {
+.table-seat.--low {
   transition: none; /* No transitions */
 }
 
 
-.table-seat.occupied--high {
+.table-seat.occupied.--high {
   box-shadow: 0 0 8px #FF007A, 0 0 16px #FF007A inset; /* Neon pink highlights */
   background-color: rgba(255, 0, 122, 0.2); /* Slight neon pink tint */
   transition: box-shadow 0.3s ease, background-color 0.3s ease; /* Full animation */
 }
 
-.table-seat.occupied--mid {
+.table-seat.occupied.--mid {
   box-shadow: 0 0 4px #FF007A, 0 0 8px #FF007A inset; /* Reduced glow */
   background-color: rgba(255, 0, 122, 0.1); /* Lighter tint */
   transition: box-shadow 0.1s ease, background-color 0.1s ease; /* Shorter transition */
 }
 
-.table-seat.occupied--low {
+.table-seat.occupied.--low {
   box-shadow: none; /* No glow */
   background-color: #1A1A1A; /* Solid black, no tint */
   transition: none; /* No transition */
 }
 
-.table-seat.occupied--high:hover {
+.table-seat.occupied.--high:hover {
   box-shadow: 0 0 12px #FF007A, 0 0 20px #FF007A inset; /* Enhanced glow on hover */
 }
 
-.table-seat.occupied--mid:hover {
+.table-seat.occupied.--mid:hover {
   box-shadow: 0 0 6px #FF007A, 0 0 10px #FF007A inset; /* Reduced glow */
   transition: box-shadow 0.1s ease; /* Shorter transition */
 }
 
-.table-seat.occupied--low:hover {
+.table-seat.occupied.--low:hover {
   box-shadow: none; /* No glow */
   transition: none; /* No transition */
 }
@@ -110,21 +111,21 @@
   transition: all 0.3s ease; /* Full transitions for high */
 }
 
-.player-name--mid,
-.player-stack--mid,
-.player-position--mid,
-.join-seat-button--mid,
-.add-chips-button--mid,
-.player-pot-contribution--mid {
+.player-name.--mid,
+.player-stack.--mid,
+.player-position.--mid,
+.join-seat-button.--mid,
+.add-chips-button.--mid,
+.player-pot-contribution.--mid {
   transition: all 0.1s ease; /* Shorter transitions for mid */
 }
 
-.player-name--low,
-.player-stack--low,
-.player-position--low,
-.join-seat-button--low,
-.add-chips-button--low,
-.player-pot-contribution--low {
+.player-name.--low,
+.player-stack.--low,
+.player-position.--low,
+.join-seat-button.--low,
+.add-chips-button.--low,
+.player-pot-contribution.--low {
   transition: none; /* No transitions for low */
 }
 
@@ -137,25 +138,25 @@
   cursor: pointer;
 }
 
-.join-seat-button--high:hover,
-.add-chips-button--high:hover,
-.player-pot-contribution--high:hover {
+.join-seat-button.--high:hover,
+.add-chips-button.--high:hover,
+.player-pot-contribution.--high:hover {
   box-shadow: 0 0 10px #00FF9D; /* Enhanced glow */
   transform: scale(1.05); /* Slight scale */
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.join-seat-button--mid:hover,
-.add-chips-button--mid:hover,
-.player-pot-contribution--mid:hover {
+.join-seat-button.--mid:hover,
+.add-chips-button.--mid:hover,
+.player-pot-contribution.--mid:hover {
   box-shadow: 0 0 5px #00FF9D; /* Reduced glow */
   transform: scale(1.02); /* Reduced scale */
   transition: box-shadow 0.1s ease, transform 0.1s ease;
 }
 
-.join-seat-button--low:hover,
-.add-chips-button--low:hover,
-.player-pot-contribution--low:hover {
+.join-seat-button.--low:hover,
+.add-chips-button.--low:hover,
+.player-pot-contribution.--low:hover {
   box-shadow: none; /* No glow */
   transform: none; /* No scale */
   transition: none;

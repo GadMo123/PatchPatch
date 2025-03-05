@@ -1,8 +1,7 @@
 import React from "react";
 import { Card, Rank, Suit } from "@patchpatch/shared";
 import "./CardView.css";
-import { useAnimationTheme } from "../../../contexts/AnimationThemeProvider"; // Adjust path as needed
-
+import { useAnimationTheme } from "../../../contexts/AnimationThemeProvider";
 interface CardProps {
   card: Card | { _rank: Rank; _suit: Suit };
   className?: string;

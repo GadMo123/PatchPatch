@@ -20,40 +20,40 @@
   position: relative; /* For glass-like overlay */
 }
 
-.player-pot-display--high,
-.pot-display--high {
+.player-pot-display.--high,
+.pot-display.--high {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 10px #00FF9D; /* Neon green glow for a futuristic touch */
   transition: box-shadow 0.3s ease; /* Full animation */
 }
 
-.player-pot-display--mid,
-.pot-display--mid {
+.player-pot-display.--mid,
+.pot-display.--mid {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2), 0 0 5px #00FF9D; /* Reduced glow */
   transition: box-shadow 0.1s ease; /* Shorter transition */
 }
 
-.player-pot-display--low,
-.pot-display--low {
+.player-pot-display.--low,
+.pot-display.--low {
   box-shadow: none; /* No glow */
   transition: none; /* No transition */
 }
 
-.player-pot-display--high:hover,
-.pot-display--high:hover {
+.player-pot-display.--high:hover,
+.pot-display.--high:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 10px #00FF9D; /* Enhanced glow on hover */
   transform: scale(1.02); /* Slight scale for interactivity */
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
-.player-pot-display--mid:hover,
-.pot-display--mid:hover {
+.player-pot-display.--mid:hover,
+.pot-display.--mid:hover {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2), 0 0 5px #00FF9D; /* Reduced glow */
   transform: scale(1.01); /* Reduced scale */
   transition: box-shadow 0.1s ease, transform 0.1s ease;
 }
 
-.player-pot-display--low:hover,
-.pot-display--low:hover {
+.player-pot-display.--low:hover,
+.pot-display.--low:hover {
   box-shadow: none; /* No glow */
   transform: none; /* No scale */
   transition: none; /* No transition */
@@ -77,25 +77,25 @@
   justify-content: flex-end; /* Align stacks at the bottom */
 }
 
-.chip--high {
+.chip.--high {
   transition: transform 0.2s ease, box-shadow 0.2s ease; /* Full animations */
   transform: perspective(500px) rotateX(10deg) translateZ(0); /* 3D perspective and slight tilt */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Subtle shadow for 3D depth */
 }
 
-.chip--mid {
+.chip.--mid {
   transition: transform 0.1s ease, box-shadow 0.1s ease; /* Shorter transitions */
   transform: perspective(300px) rotateX(5deg) translateZ(0); /* Reduced 3D effect */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Lighter shadow */
 }
 
-.chip--low {
+.chip.--low {
   transition: none; /* No transitions */
   transform: none; /* No 3D effect */
   box-shadow: none; /* No shadow */
 }
 
-.chip--high:hover {
+.chip.--high:hover {
   transform: perspective(500px) rotateY(20deg) scale(1.4) translateZ(10px); /* 3D rotation, scale, and depth on hover */
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), 0 0 10px 
       #FF007A, /* Neon pink for white chips */
@@ -109,7 +109,7 @@
       #FFA500; /* Orange glow for orange chips */
 }
 
-.chip--mid:hover {
+.chip.--mid:hover {
   transform: perspective(300px) rotateY(10deg) scale(1.2) translateZ(5px); /* Reduced 3D effect */
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3), 0 0 5px 
       #FF007A, /* Reduced glow */
@@ -124,7 +124,7 @@
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.chip--low:hover {
+.chip.--low:hover {
   transform: none; /* No hover effect */
   box-shadow: none; /* No glow */
   transition: none; /* No transition */
@@ -180,21 +180,21 @@
 }
 
 /* Ensure smaller chips for player contributions (adjust for animation levels) */
-.chip.small--high {
+.chip.small.--high {
   width: 30px !important;
   height: 18px !important;
   transform: perspective(300px) rotateX(10deg) translateZ(0);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.chip.small--mid {
+.chip.small.--mid {
   width: 30px !important;
   height: 18px !important;
   transform: perspective(200px) rotateX(5deg) translateZ(0);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.chip.small--low {
+.chip.small.--low {
   width: 30px !important;
   height: 18px !important;
   transform: none;
@@ -208,14 +208,14 @@
   text-shadow: 0 0 5px #00D2FF; /* Neon blue glow for emphasis */
 }
 
-.font-bold--high {
+.font-bold.--high {
   transition: text-shadow 0.2s ease; /* Full animation */
 }
 
-.font-bold--mid {
+.font-bold.--mid {
   transition: text-shadow 0.1s ease; /* Shorter transition */
 }
 
-.font-bold--low {
+.font-bold.--low {
   transition: none; /* No transition */
 }

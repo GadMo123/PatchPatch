@@ -24,17 +24,17 @@
   z-index: 1;
 }
 
-.bet-panel--high {
+.bet-panel.--high {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 10px #00FF9D; /* Neon green glow */
   transition: box-shadow 0.3s ease; /* Full animation */
 }
 
-.bet-panel--mid {
+.bet-panel.--mid {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2), 0 0 5px #00FF9D; /* Reduced glow */
   transition: box-shadow 0.1s ease; /* Shorter transition */
 }
 
-.bet-panel--low {
+.bet-panel.--low {
   box-shadow: none; /* No glow */
   transition: none; /* No transition */
 }
@@ -47,19 +47,19 @@
   pointer-events: auto;
 }
 
-.bet-button--high {
+.bet-button.--high {
   transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.3s ease; /* Full animations */
 }
 
-.bet-button--mid {
+.bet-button.--mid {
   transition: transform 0.1s ease, background-color 0.1s ease, box-shadow 0.1s ease; /* Shorter transitions */
 }
 
-.bet-button--low {
+.bet-button.--low {
   transition: none; /* No transitions */
 }
 
-.bet-button--high:hover {
+.bet-button.--high:hover {
   transform: translateY(-2px) scale(1.05); /* Full lift and scale */
   box-shadow: 0 0 10px 
       #FF007A, /* Neon pink for fold */
@@ -67,7 +67,7 @@
       #FFFF00; /* Neon yellow for raise/bet */
 }
 
-.bet-button--mid:hover {
+.bet-button.--mid:hover {
   transform: translateY(-1px) scale(1.03); /* Reduced lift and scale */
   box-shadow: 0 0 5px 
       #FF007A, /* Reduced glow */
@@ -76,13 +76,13 @@
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.bet-button--low:hover {
+.bet-button.--low:hover {
   transform: none; /* No lift or scale */
   box-shadow: none; /* No glow */
   transition: none;
 }
 
-.bet-button--high:active {
+.bet-button.--high:active {
   transform: translateY(0) scale(1); /* Reset on click */
   background-color: rgba(0, 0, 0, 0.8); /* Darken on click */
   box-shadow: 0 0 5px 
@@ -91,7 +91,7 @@
       #FFFF00; /* Neon yellow for raise/bet */
 }
 
-.bet-button--mid:active {
+.bet-button.--mid:active {
   transform: translateY(0) scale(1); /* Reset on click */
   background-color: rgba(0, 0, 0, 0.6); /* Lighter darken */
   box-shadow: 0 0 3px 
@@ -101,7 +101,7 @@
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.bet-button--low:active {
+.bet-button.--low:active {
   transform: none; /* No effect */
   background-color: rgba(0, 0, 0, 0.4); /* Minimal darken */
   box-shadow: none; /* No glow */
@@ -126,17 +126,17 @@
   color: #1A1A1A; /* Dark text for contrast */
 }
 
-.timer--high {
+.timer.--high {
   transition: all 0.3s ease; /* Full transition */
   text-shadow: 0 0 5px #00FF9D; /* Full glow */
 }
 
-.timer--mid {
+.timer.--mid {
   transition: all 0.1s ease; /* Shorter transition */
   text-shadow: 0 0 3px #00FF9D; /* Reduced glow */
 }
 
-.timer--low {
+.timer.--low {
   transition: none; /* No transition */
   text-shadow: none; /* No glow */
 }
