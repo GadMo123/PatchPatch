@@ -231,17 +231,12 @@
 }
 
 .card-wrapper.--mid.selected,
-.card-wrapper.--mid.arrangeable:hover {
+.card-wrapper.--mid.arrangeable:hover,
+.card-wrapper.--low.selected,
+.card-wrapper.--low.arrangeable:hover {
   transform: translateY(-4px); /* Reduced lift */
   box-shadow: 0 0 8px rgba(255, 215, 0, 0.7); /* Reduced glow */
   transition: transform 0.1s ease, box-shadow 0.1s ease;
-}
-
-.card-wrapper.--low.selected,
-.card-wrapper.--low.arrangeable:hover {
-  transform: none; /* No lift */
-  box-shadow: none; /* No glow */
-  transition: none;
 }
 
 /* Mobile optimizations (no changes for animation levels) */

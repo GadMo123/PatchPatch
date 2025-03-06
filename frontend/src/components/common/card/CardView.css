@@ -4,7 +4,6 @@
     border-radius: 4px;
     background-color: #FFFFFF; /* Glossy white background */
     padding: 8px;
-    flex-grow: 1;
     height: 100%; 
     display: flex;
     cursor: pointer;
@@ -186,7 +185,8 @@
     transition: none;
 }
 
-.golden-ratio {
+.board-card {
+    margin-right: 4px;
     height: 100%;
     aspect-ratio: 0.618;
     box-sizing: border-box; /* Ensures padding and borders are included in the dimensions */

@@ -61,7 +61,7 @@ const BoardCards: React.FC<BoardCardsProps> = ({ boards }) => {
                     <CardView
                       key={`board-${boardIndex}-card-${cardIndex}`}
                       card={card}
-                      className="card golden-ratio"
+                      className="card board-card"
                     />
                   )
               )}

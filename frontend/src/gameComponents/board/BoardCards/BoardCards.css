@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  flex: 1;
+  /* flex: 1; */
   gap: 0.6vh;
   justify-content: center;
 }
@@ -92,15 +92,15 @@
 .board-section.--mid:hover,
 .board-section.--mid.highlighted {
   transform: translateX(4px);
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.2); /* Reduced glow */
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2); /* Reduced glow */
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .board-section.--low:hover,
 .board-section.--low.highlighted {
-  transform: none;
-  box-shadow: none; /* No glow */
-  transition: none;
+  transform: translateX(4px);
+  box-shadow: none; 
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .board{
