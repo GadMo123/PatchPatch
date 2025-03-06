@@ -8,9 +8,11 @@ This is the frontend of the application, built with React, TypeScript, and CSS. 
 - **`PlayerCards`** – Displays a player's 12 private cards and allows rearrangement during the arrangement phase.
 - **`TableAndSeats`** – Represents the table and seating view. Poker positions rotate each hand, while absolute seating remains consistent.
 - **`BetPanel`** – Displays a player's betting options when it’s their turn to act.
-- **`MainLobby`** – Displays the game lobby for selecting and entering a game.
+- **`MainLobby`** – Displays the game lobby, where players can select and enter a game.
 - **`PotDisplay`** – Converts numerical pot values into a visual chip display.
+- **`BuyInDialog`** – Allows a player sitting in a game to buy or add chips.
 - **`CreateSocketAction`** – Creates generic WebSocket protocol calls for each protocol action.
+- **`AnimationControl`** – Sets the default animation level based on the device and allows the user to adjust the animation level.
 
 ## Compile and Run
 
