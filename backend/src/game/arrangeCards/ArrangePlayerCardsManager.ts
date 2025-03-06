@@ -40,7 +40,7 @@ export class ArrangePlayerCardsManager {
 
     this._playersRemaining = activePlayerCount;
     this._state = {
-      timeRemaining: 60000, // todo table config
+      timeRemaining: _game.getTableConfig().timePerArrangeAction, // todo table config
       playerDoneMap: playerDoneMap,
     };
     this._timer = new GameActionTimerManager({

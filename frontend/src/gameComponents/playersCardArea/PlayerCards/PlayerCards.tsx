@@ -125,21 +125,6 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
 
   return (
     <div className={`player-cards-container --${animationLevel}`}>
-      {gamePhaseArrangeCards && !isArrangementComplete && (
-        <div className={`arrangement-controls --${animationLevel}`}>
-          {timeLeft > 0 && (
-            <div className={`timer --${animationLevel}`}>
-              Time left: {timeLeft / 1000}s
-            </div>
-          )}
-          <button
-            onClick={handleArrangementComplete}
-            className={`ready-button --${animationLevel}`}
-          >
-            I'm Ready
-          </button>
-        </div>
-      )}
       {Array(3) // Create 3 rows
         .fill(null)
         .map((_, rowIndex) => {
@@ -177,6 +162,21 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
             </div>
           );
         })}
+      {gamePhaseArrangeCards && !isArrangementComplete && (
+        <div className={`arrangement-controls --${animationLevel}`}>
+          {timeLeft > 0 && (
+            <div className={`timer --${animationLevel}`}>
+              Time left: {timeLeft / 1000}s
+            </div>
+          )}
+          <button
+            onClick={handleArrangementComplete}
+            className={`ready-button --${animationLevel}`}
+          >
+            I'm Ready
+          </button>
+        </div>
+      )}
     </div>
   );
 };

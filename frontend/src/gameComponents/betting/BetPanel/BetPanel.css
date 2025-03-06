@@ -12,17 +12,17 @@
 }
 
 /* Glass-like effect with semi-transparent overlay (remove for low) */
-.bet-panel::before {
+/* .bet-panel::before {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.1); /* Subtle semi-transparent white overlay */
+  background: rgba(255, 255, 255, 0.1); 
   border-radius: 8px;
   z-index: 1;
-}
+} */
 
 .bet-panel.--high {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 10px #00FF9D; /* Neon green glow */
@@ -34,7 +34,7 @@
   transition: box-shadow 0.1s ease; /* Shorter transition */
 }
 
-.bet-panel.--low {
+.bet-panel--low {
   box-shadow: none; /* No glow */
   transition: none; /* No transition */
 }
@@ -55,7 +55,7 @@
   transition: transform 0.1s ease, background-color 0.1s ease, box-shadow 0.1s ease; /* Shorter transitions */
 }
 
-.bet-button.--low {
+.bet-button--low {
   transition: none; /* No transitions */
 }
 
@@ -76,7 +76,7 @@
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.bet-button.--low:hover {
+.bet-button--low:hover {
   transform: none; /* No lift or scale */
   box-shadow: none; /* No glow */
   transition: none;
@@ -101,7 +101,7 @@
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.bet-button.--low:active {
+.bet-button--low:active {
   transform: none; /* No effect */
   background-color: rgba(0, 0, 0, 0.4); /* Minimal darken */
   box-shadow: none; /* No glow */
@@ -136,7 +136,7 @@
   text-shadow: 0 0 3px #00FF9D; /* Reduced glow */
 }
 
-.timer.--low {
+.timer--low {
   transition: none; /* No transition */
   text-shadow: none; /* No glow */
 }

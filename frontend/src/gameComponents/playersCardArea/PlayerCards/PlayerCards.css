@@ -2,6 +2,9 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  justify-content: center; 
+  align-items: center;
+  height: 100%;
   gap: 0.3vh; /* Reduced vertical gap */
   z-index: 6; /* above table and seats*/
 }

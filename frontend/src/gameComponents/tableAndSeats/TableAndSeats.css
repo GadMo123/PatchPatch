@@ -2,8 +2,7 @@
  {
   position: relative;
   width: 94vw; /* Matches Math.min(screenWidth * 0.4, 1300) */
-  max-width: 1300px;
-  height: 43vh;
+  max-width: 1150px;
   background-color: #2E7D32;
   border-radius: 50%;
   border: 2px solid #00D2FF;

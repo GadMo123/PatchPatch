@@ -185,3 +185,9 @@
     filter: none; /* No glow */
     transition: none;
 }
+
+.golden-ratio {
+    height: 100%;
+    aspect-ratio: 0.618;
+    box-sizing: border-box; /* Ensures padding and borders are included in the dimensions */
+  }

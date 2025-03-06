@@ -1,7 +1,8 @@
 .boards {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: wrap;
+  flex: 1;
   gap: 0.6vh;
   justify-content: center;
 }
@@ -9,25 +10,10 @@
 .board-section {
   display: flex;
   flex-direction: row;
-  gap: 0.5rem;
-  width: 100%;
+  flex: 1;
   justify-content: flex-start;
 }
 
-/*
-.board-section {
-  display: flex;
-  flex-direction: row;
-  align-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  width: 30%; 
-  z-index: 1;
-  border-radius: 8px;
-  padding: 4px 8px;
-  position: relative;
-  overflow: visible; 
-}*/
 
 .board-section.--high {
   transition: all 0.3s ease; /* Full transitions */
@@ -45,8 +31,8 @@
 }
 
 /* Color-coded board sections - Updated with neon gradients and sparkles (remove gradient for low) */
-.board-section:nth-child(1).--high,
-.board-section:nth-child(1).--mid {
+.board-section:nth-child(1).--high .board,
+.board-section:nth-child(1).--mid .board{
   border-left: 4px solid #00D2FF; /* Neon Blue */
   background: rgba(0, 210, 255, 0.15); /* Faint neon blue tint */
   background-image: radial-gradient(circle at 10px 10px, rgba(0, 210, 255, 0.1) 2px, transparent 2px); /* Neon blue sparkles */
@@ -54,7 +40,7 @@
   background-position: -4px 0; /* Extends background just 4px to the left */
 }
 
-.board-section:nth-child(1).--low {
+.board-section:nth-child(1).--low .board{
   border-left: 4px solid #00D2FF; /* Neon Blue */
   background: rgba(0, 210, 255, 0.05); /* Very faint tint, no sparkles */
   background-image: none; /* No sparkles */
@@ -62,8 +48,8 @@
   background-position: 0 0;
 }
 
-.board-section:nth-child(2).--high,
-.board-section:nth-child(2).--mid {
+.board-section:nth-child(2).--high .board,
+.board-section:nth-child(2).--mid .board{
   border-left: 4px solid #FFFF00; /* Neon Yellow */
   background: rgba(255, 255, 0, 0.15); /* Faint neon yellow tint */
   background-image: radial-gradient(circle at 10px 10px, rgba(255, 255, 0, 0.1) 2px, transparent 2px); /* Neon yellow sparkles */
@@ -71,7 +57,7 @@
   background-position: -4px 0; /* Extends background just 4px to the left */
 }
 
-.board-section:nth-child(2).--low {
+.board-section:nth-child(2).--low .board{
   border-left: 4px solid #FFFF00; /* Neon Yellow */
   background: rgba(255, 255, 0, 0.05); /* Very faint tint, no sparkles */
   background-image: none; /* No sparkles */
@@ -79,8 +65,8 @@
   background-position: 0 0;
 }
 
-.board-section:nth-child(3).--high,
-.board-section:nth-child(3).--mid {
+.board-section:nth-child(3).--high .board,
+.board-section:nth-child(3).--mid .board{
   border-left: 4px solid #00FF9D; /* Neon Green */
   background: rgba(0, 255, 157, 0.15); /* Faint neon green tint */
   background-image: radial-gradient(circle at 10px 10px, rgba(0, 255, 157, 0.1) 2px, transparent 2px); /* Neon green sparkles */
@@ -88,7 +74,7 @@
   background-position: -4px 0; /* Extends background just 4px to the left */
 }
 
-.board-section:nth-child(3).--low {
+.board-section:nth-child(3).--low .board{
   border-left: 4px solid #00FF9D; /* Neon Green */
   background: rgba(0, 255, 157, 0.05); /* Very faint tint, no sparkles */
   background-image: none; /* No sparkles */
@@ -98,14 +84,14 @@
 
 .board-section.--high:hover,
 .board-section.--high.highlighted {
-  transform: translateX(2px);
+  transform: translateX(4px);
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.3); /* Subtle white glow */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .board-section.--mid:hover,
 .board-section.--mid.highlighted {
-  transform: translateX(1px);
+  transform: translateX(4px);
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.2); /* Reduced glow */
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }

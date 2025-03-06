@@ -13,6 +13,7 @@ export interface BettingState {
 }
 
 export interface TableConfig {
+  timePerArrangeAction: number;
   timePerAction: number;
   minBet: number;
   maxBet: number;

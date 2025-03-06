@@ -162,35 +162,35 @@ function createDummyGames(server: Server) {
     "admin",
     "5-10",
     server,
-    getTableConfig(10000, 10, Infinity, 10, 5, 10, 2, 2, 50, 500)
+    getTableConfig(10000, 10, Infinity, 10, 5, 10, 2, 2, 50, 500, 600000)
   );
 
   createGame(
     "admin",
     "10-20",
     server,
-    getTableConfig(10000, 20, Infinity, 10, 10, 20, 3, 6, 50, 500)
+    getTableConfig(10000, 20, Infinity, 10, 10, 20, 3, 6, 50, 500, 60000)
   );
 
   createGame(
     "admin",
     "25-50",
     server,
-    getTableConfig(10000, 50, Infinity, 10, 25, 50, 3, 6, 50, 500)
+    getTableConfig(10000, 50, Infinity, 10, 25, 50, 3, 6, 50, 500, 60000)
   );
 
   createGame(
     "admin",
     "50-100",
     server,
-    getTableConfig(10000, 100, Infinity, 10, 50, 100, 4, 3, 50, 500)
+    getTableConfig(10000, 100, Infinity, 10, 50, 100, 4, 3, 50, 500, 60000)
   );
 
   createGame(
     "admin",
     "100-200",
     server,
-    getTableConfig(10000, 200, Infinity, 10, 100, 200, 6, 2, 50, 500)
+    getTableConfig(10000, 200, Infinity, 10, 100, 200, 6, 2, 50, 500, 60000)
   );
 }
 
@@ -204,10 +204,12 @@ export function getTableConfig(
   minPlayers: number,
   maxPlayers: number,
   minBuyin: number,
-  maxBuyin: number
+  maxBuyin: number,
+  timePerArrangeAction: number
 ): TableConfig {
   return {
     timePerAction: timePerAction,
+    timePerArrangeAction: timePerArrangeAction,
     minBet: minBet,
     maxBet: maxBet,
     timeCookieEffect: timeCookieEffect,

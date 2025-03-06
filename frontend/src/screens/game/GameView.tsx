@@ -143,20 +143,18 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
           </div>
         </div>
 
-        <div className="table-area">
-          {tableProps && (
-            <TableAndSeats {...tableProps} canBuyIn={canBuyIn}>
-              <div className={`boards-container --${animationLevel}`}>
-                {boards && <MemoizedBoardCards boards={boards} />}
+        {tableProps && (
+          <TableAndSeats {...tableProps} canBuyIn={canBuyIn}>
+            <div className={`boards-container --${animationLevel}`}>
+              {boards && <MemoizedBoardCards boards={boards} />}
+            </div>
+            {(gameState?.potSize ?? 0) > 0 && (
+              <div className={`pot-display --${animationLevel}`}>
+                <PotDisplay potSize={gameState?.potSize ?? 0} />
               </div>
-              {(gameState?.potSize ?? 0) > 0 && (
-                <div className={`pot-display --${animationLevel}`}>
-                  <PotDisplay potSize={gameState?.potSize ?? 0} />
-                </div>
-              )}
-            </TableAndSeats>
-          )}
-        </div>
+            )}
+          </TableAndSeats>
+        )}
 
         {/* <div className={`opponent-area --${animationLevel}`}>
           {opponentData && <MemoizedOpponentCards opponents={opponentData} />}
