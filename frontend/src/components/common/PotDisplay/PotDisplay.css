@@ -1,9 +1,9 @@
-/* .pot-display {
+.board-pot-display {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: flex-end;
-} */
+}
 
 
 .player-pot-display {
@@ -21,39 +21,39 @@
 }
 
 .player-pot-display.--high,
-.pot-display.--high {
+.board-pot-display.--high {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 10px #00FF9D; /* Neon green glow for a futuristic touch */
   transition: box-shadow 0.3s ease; /* Full animation */
 }
 
 .player-pot-display.--mid,
-.pot-display.--mid {
+.board-pot-display.--mid {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2), 0 0 5px #00FF9D; /* Reduced glow */
   transition: box-shadow 0.1s ease; /* Shorter transition */
 }
 
 .player-pot-display.--low,
-.pot-display.--low {
+.board-pot-display.--low {
   box-shadow: none; /* No glow */
   transition: none; /* No transition */
 }
 
 .player-pot-display.--high:hover,
-.pot-display.--high:hover {
+.board-pot-display.--high:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 10px #00FF9D; /* Enhanced glow on hover */
   transform: scale(1.02); /* Slight scale for interactivity */
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .player-pot-display.--mid:hover,
-.pot-display.--mid:hover {
+.board-pot-display.--mid:hover {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2), 0 0 5px #00FF9D; /* Reduced glow */
   transform: scale(1.01); /* Reduced scale */
   transition: box-shadow 0.1s ease, transform 0.1s ease;
 }
 
 .player-pot-display.--low:hover,
-.pot-display.--low:hover {
+.board-pot-display.--low:hover {
   box-shadow: none; /* No glow */
   transform: none; /* No scale */
   transition: none; /* No transition */

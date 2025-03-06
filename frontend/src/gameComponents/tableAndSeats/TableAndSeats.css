@@ -1,6 +1,9 @@
 .table-ellipse
  {
+  display: flex;
   position: relative;
+  justify-content: center;
+  align-items: center;
   width: 94vw; /* Matches Math.min(screenWidth * 0.4, 1300) */
   max-width: 1150px;
   background-color: #2E7D32;

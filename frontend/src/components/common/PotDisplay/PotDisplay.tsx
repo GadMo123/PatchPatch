@@ -90,7 +90,7 @@ const PotDisplay: React.FC<{
   // For player contributions, we make the display more compact
   const containerClass = isPlayerContribution
     ? "player-pot-display"
-    : "pot-display";
+    : "board-pot-display";
 
   return (
     <div className={`${containerClass} --${animationLevel}`}>
