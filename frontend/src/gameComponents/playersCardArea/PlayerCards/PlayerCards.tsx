@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CardView from "../../../components/common/card/CardView";
 import "./PlayerCards.css";
 import { useGameContext } from "../../../contexts/GameContext";
@@ -24,7 +24,7 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [arrangedCards, setArrangedCards] = useState<Card[]>([]);
   const [isArrangementComplete, setIsArrangementComplete] = useState(false);
-  // const [highlightedBoard, setHighlightedBoard] = useState<number | null>(null);
+  const timerRef = useRef<number | NodeJS.Timeout | null>(null);
 
   const { playerId, gameId } = useGameContext();
   const { sendAction } = useCardsArrangement();
@@ -115,10 +115,24 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
       detail: { boardIndex: rowIndex },
     });
     window.dispatchEvent(highlightEvent);
+
+    // Set a timer to automatically clear highlighting after 5 seconds
+    const timerId = setTimeout(() => {
+      const clearEvent = new CustomEvent("clear-highlight-board");
+      window.dispatchEvent(clearEvent);
+    }, 5000); //
+
+    // Store the timer ID for cleanup if mouse leaves before timeout
+    return timerId;
   };
 
-  const handleRowMouseLeave = () => {
-    // Dispatch event to clear the board highlighting
+  const handleRowMouseLeave = (timerId?: number | NodeJS.Timeout | null) => {
+    // Clear the timeout if mouse leaves before 5 seconds
+    if (timerId) {
+      clearTimeout(timerId);
+    }
+
+    // Dispatch event to clear the board highlighting immediately
     const clearEvent = new CustomEvent("clear-highlight-board");
     window.dispatchEvent(clearEvent);
   };
@@ -138,8 +152,13 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
             <div
               key={`player-row-${rowIndex}`}
               className={`player-row --${animationLevel}`}
-              onMouseEnter={() => handleRowMouseEnter(rowIndex)}
-              onMouseLeave={handleRowMouseLeave}
+              onMouseEnter={() => {
+                timerRef.current = handleRowMouseEnter(rowIndex);
+              }}
+              onMouseLeave={() => {
+                handleRowMouseLeave(timerRef.current);
+                timerRef.current = null;
+              }}
             >
               <div className="player-cards-row">
                 {cardsForRow.map((card, cardIndex) => {

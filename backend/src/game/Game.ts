@@ -17,6 +17,7 @@ import {
   RotateButtonPosition,
 } from "./utils/PokerPositionsUtils";
 import { PotManager } from "./utils/PotUtils/PotManager";
+import { PotContribution } from "./utils/PotUtils/PotContribution";
 
 export class Game {
   private _deck: Deck | null;
@@ -35,7 +36,7 @@ export class Game {
     tableConfig: TableConfig
   ) {
     this._server = _server;
-    this._potManager = new PotManager();
+    this._potManager = new PotManager(new PotContribution());
     this._broadcaster = new GameStateBroadcaster(_server);
     this._TableConditionChangeMutex = new Mutex();
     this._isHandWonWithoutShowdown = false;
@@ -46,7 +47,6 @@ export class Game {
       flops: [],
       turns: [],
       rivers: [],
-      potSize: 0,
       observers: new Set<Player>(),
       playerInPosition: new Map<Position, PlayerInGame | null>(),
       playersAbsolutePosition: new Array<PlayerInGame | null>(
@@ -55,6 +55,7 @@ export class Game {
       tableConfig: tableConfig,
       bettingState: null,
       arrangePlayerCardsState: null,
+      potsWinners: null,
     };
     this._deck = null;
     this._gameFlowManager = null;
@@ -62,14 +63,14 @@ export class Game {
   }
 
   async PrepareNextHand(): Promise<boolean> {
-    this._potManager = new PotManager();
+    this._potManager = new PotManager(new PotContribution());
     this._isHandWonWithoutShowdown = false;
     this._state = {
       ...this._state,
+      potsWinners: null,
       flops: [],
       turns: [],
       rivers: [],
-      potSize: 0,
     };
 
     return await this._TableConditionChangeMutex.runExclusive(async () => {
@@ -85,9 +86,7 @@ export class Game {
 
       // Extract the list of next hand players
       const nextHandPlayers = this._state.playersAbsolutePosition.filter(
-        (
-          player
-        ): player is PlayerInGame => // convince TS compiler that player cannot be null
+        (player): player is PlayerInGame =>
           !!player &&
           player.isReadyToStartHand(this._state.tableConfig.bbAmount)
       );
@@ -102,7 +101,7 @@ export class Game {
       const nextHandBTNPlayer = RotateButtonPosition(
         this._state.playerInPosition
           .get(Position.BTN || Position.SB)
-          ?.getTablePosition(), // SB for HU.
+          ?.getTablePosition(), // SB for HU since in hu poker SB is the BTN.
         nextHandPlayers
       );
 
@@ -111,7 +110,7 @@ export class Game {
         nextHandBTNPlayer.getId()
       );
 
-      // Reset all players' state for the next hand
+      // Reset all players' states for the next hand
       this._state.playerInPosition.forEach((player, position) => {
         if (player) {
           player.updatePlayerPublicState({
@@ -278,8 +277,9 @@ export class Game {
     return this._state.playersAbsolutePosition;
   }
 
-  getPotSize(): number {
-    return this._state.potSize;
+  // main pot is always first in the array.
+  getPotSizes(): number[] | null {
+    return this._potManager.getPotsSizes();
   }
 
   getPhase(): GamePhase {
@@ -304,12 +304,15 @@ export class Game {
   }
 
   handleHandWonWithoutShowdown(winner: PlayerInGame) {
+    console.log("handleHandWonWithoutShowdown");
     this._isHandWonWithoutShowdown = true;
-    winner.updatePlayerPublicState({
-      currentStack: winner.getStack() + this._state.potSize,
-    });
-    this._state.potSize = 0;
-    //todo update stacks, pot, ect
+    const totalPotsSize = this._potManager.getPotsSizes();
+    if (totalPotsSize) {
+      const totalWinAmount = totalPotsSize.reduce((sum, pot) => sum + pot, 0); // Sum all pots
+      this._state.potsWinners = new Map([[winner.getId(), totalWinAmount]]);
+    }
+    this._potManager = new PotManager(new PotContribution());
+    this._state.phase = GamePhase.StartingHand;
   }
 
   isHandWonWithoutShowdown() {
@@ -320,13 +323,17 @@ export class Game {
     return this._state.arrangePlayerCardsState;
   }
 
-  doShowdown() {
+  doShowdown(afterShowdown: () => Promise<void>) {
     this._state.phase = GamePhase.Showdown;
     //todo
   }
 
   getServer() {
     return this._server;
+  }
+
+  getPotsWinners() {
+    return this._state.potsWinners;
   }
 
   getPotManager() {

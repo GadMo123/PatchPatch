@@ -127,12 +127,9 @@ export class SingleGameFlowManager {
     //hand is done
     if (this._game.isHandWonWithoutShowdown()) {
       if (this._game.isReadyForNextHand()) this.startNextStreet();
-      // else wait for players to join, the server will create a new game manager once ready
+      // else game.cleanup(); todo
     } else if (this._game.getPhase() === GamePhase.RiverBetting) {
-      this._game.doShowdown();
-      if (this._game.isReadyForNextHand()) {
-        this.startNextStreet();
-      }
+      this._game.doShowdown(this.prapereNextHand.bind(this));
     }
     // Keep current hand running
     else {

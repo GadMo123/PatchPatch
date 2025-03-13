@@ -120,21 +120,21 @@ const TableAndSeats: React.FC<TableProps> = ({
             )}
           </div>
           {seatInfo.id &&
-            seatInfo.roundPotContributions &&
-            seatInfo.roundPotContributions > 0 && (
-              <div
-                className={`player-pot-contribution --${animationLevel}`}
-                style={{
-                  position: "absolute",
-                  left: `calc(50% + ${potX}px)`,
-                  top: `calc(50% + ${potY}px)`,
-                  transform: "translate(-50%, -50%)",
-                  zIndex: 10,
-                }}
-              >
-                <PotDisplay potSize={seatInfo.roundPotContributions} />
-              </div>
-            )}
+          seatInfo.roundPotContributions &&
+          seatInfo.roundPotContributions > 0 ? (
+            <div
+              className={`player-pot-contribution --${animationLevel}`}
+              style={{
+                position: "absolute",
+                left: `calc(50% + ${potX}px)`,
+                top: `calc(50% + ${potY}px)`,
+                transform: "translate(-50%, -50%)",
+                zIndex: 10,
+              }}
+            >
+              <PotDisplay potSize={seatInfo.roundPotContributions} />
+            </div>
+          ) : null}
         </React.Fragment>
       );
     };

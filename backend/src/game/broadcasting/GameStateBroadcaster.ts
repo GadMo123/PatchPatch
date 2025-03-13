@@ -137,7 +137,7 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
     flops: game.getFlops(),
     turns: game.getTurns(),
     rivers: game.getRivers(),
-    potSize: game.getPotSize(),
+    potSizes: game.getPotSizes(),
     observersNames: game.getObserversNames(),
     privatePlayerData: null,
     publicPlayerDataMapByTablePosition: publicPlayerByPositions,
@@ -148,6 +148,7 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
     arrangePlayerCardsState: arrangePlayerCardsState
       ? reduceArrangeCardsToClientData(arrangePlayerCardsState)
       : null,
+    potWinners: game.getPotsWinners(),
   };
 
   function reduceTableConfigToClientData(
@@ -171,6 +172,7 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
       playerToAct: bettingState.playerToAct,
       playerValidActions: bettingState.playerValidActions,
       minRaiseAmount: bettingState.minRaiseAmount,
+      callAmount: bettingState.callAmount,
     };
   }
 

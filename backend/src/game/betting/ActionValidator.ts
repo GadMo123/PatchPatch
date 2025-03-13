@@ -13,19 +13,18 @@ export class ActionValidator {
   getValidActions(
     bettingState: BettingState,
     player: PlayerInGame,
-    biggestBet: number
+    callAmount: number
   ): BettingTypes[] {
     const playersContribution = bettingState.potContributions;
     const playerContribution = playersContribution.get(player);
 
-    // First to act or BB option in preflop round
-    if (playerContribution === biggestBet) {
+    if (callAmount === 0) {
       return [BettingTypes.CHECK, BettingTypes.BET];
     }
 
     const actions: BettingTypes[] = [BettingTypes.FOLD, BettingTypes.CALL];
 
-    if (player.getStack() + playerContribution! > biggestBet) {
+    if (player.getStack() > callAmount) {
       actions.push(BettingTypes.RAISE);
     }
     return actions;

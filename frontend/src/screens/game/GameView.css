@@ -77,22 +77,22 @@
 
 .game-view.--high {
   background-image: 
-      radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.25) 1px, transparent 1px),
+      radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.35) 1px, transparent 1px),
       radial-gradient(circle at 60% 60%, rgba(128, 0, 128, 0.55) 1px, transparent 1px);
   background-size: 100px 100px;
   background-position: 0 0, 50px 50px; 
   background-repeat: repeat; 
-  animation: sparkleTwinkle 10s infinite;
+  animation: sparkleTwinkle 8s infinite;
 }
 
 .game-view.--mid {
   background-image: 
-      radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+      radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.25) 1px, transparent 1px),
       radial-gradient(circle at 60% 60%, rgba(128, 0, 128, 0.25) 1px, transparent 1px);
-  background-size: 150px 150px; /* Larger spacing for fewer sparkles */
-  background-position: 0 0, 75px 75px; 
+  background-size: 100px 100px; /* Larger spacing for fewer sparkles */
+  background-position: 0 0, 50px 50px; 
   background-repeat: repeat; 
-  animation: sparkleTwinkle 15s infinite; /* Slower animation */
+  animation: sparkleTwinkle 12s infinite; /* Slower animation */
 }
 
 .game-view.--low {
@@ -191,7 +191,7 @@
 
 
 
-.pot-display {
+.pot-displays {
   position: absolute;
   top: 60%;
   height: 25%;
@@ -200,17 +200,16 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.2); 
-  border: 2px solid #00D2FF;
-  border-radius: 8px;
+  /* background-color: rgba(255, 255, 255, 0.2);  */
+  /* border: 2px solid #00D2FF; */
+  /* border-radius: 8px; */
   z-index: 4;
 }
 
 .bet-panel {
   align-self: flex-end;
   position: absolute;
-  bottom: 1vh;
-  right: 1vw;
+  margin-bottom: 30px;
   display: flex;
   gap: 1vw;
   padding: 1vh;

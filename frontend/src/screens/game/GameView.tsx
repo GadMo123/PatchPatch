@@ -148,11 +148,13 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
             <div className={`boards-container --${animationLevel}`}>
               {boards && <MemoizedBoardCards boards={boards} />}
             </div>
-            {(gameState?.potSize ?? 0) > 0 && (
-              <div className={`pot-display --${animationLevel}`}>
-                <PotDisplay potSize={gameState?.potSize ?? 0} />
+            {gameState?.potSizes?.length ? (
+              <div className={`pot-displays --${animationLevel}`}>
+                {gameState.potSizes.map((potSize, index) => (
+                  <PotDisplay key={index} potSize={potSize} />
+                ))}
               </div>
-            )}
+            ) : null}
           </TableAndSeats>
         )}
 

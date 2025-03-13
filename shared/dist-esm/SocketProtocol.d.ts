@@ -65,13 +65,14 @@ export interface GameStateServerBroadcast {
     flops: Card[][] | null;
     turns: Card[] | null;
     rivers: Card[] | null;
-    potSize: number | null;
+    potSizes: number[] | null;
     observersNames: String[] | null;
     publicPlayerDataMapByTablePosition: Array<PublicPlayerClientData>;
     privatePlayerData: PrivatePlayerClientData | null;
     bettingState: BettingStateClientData | null;
     tableConfig: TableConfigClientData;
     arrangePlayerCardsState: ArrangePlayerCardsStateClientData | null;
+    potWinners: Map<string, number> | null;
 }
 export interface TableConfigClientData {
     maxPlayers: 2 | 3 | 6;

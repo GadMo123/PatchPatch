@@ -23,7 +23,6 @@ export interface DetailedGameState {
   id: string;
   phase: GamePhase;
   stakes: string;
-  potSize: number;
 
   // Cards state
   flops: Card[][]; // Array of 3 flops, each with 3 cards
@@ -38,6 +37,9 @@ export interface DetailedGameState {
 
   // Map of players sitting in by table position
   playersAbsolutePosition: Array<PlayerInGame | null>;
+
+  // Winners (Id) and amounts won at the end of a poker hand
+  potsWinners: Map<string, number> | null;
 
   // Betting state
   bettingState: BettingState | null;

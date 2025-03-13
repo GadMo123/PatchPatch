@@ -8,11 +8,7 @@ export class PotManager {
   private _sidePots: PotContribution[] = [];
   //  ⚠ ⚠ ⚠ Notice - "main-pot" as defined here is the currently active pot, which goes against the normal poker-conventions (where main-pot is the pot with most contributors)
   //  this makes everything more understandable in coding terms.
-  private _mainPot: PotContribution;
-
-  constructor() {
-    this._mainPot = new PotContribution();
-  }
+  constructor(private _mainPot: PotContribution) {}
 
   // Once betting round complate - collect all players bets and arrange them into side pots by players contributions, the last pot standing will be the main pot until next betting round.
   processBettingRound(bets: Map<PlayerInGame, number>) {
@@ -21,6 +17,8 @@ export class PotManager {
 
     // Track remaining bets
     const remainingBets = new Map(bets);
+
+    console.log("pot contributions" + Array.from(bets.values()));
 
     // Track the last pot with 2+ contributors - to become the main pot at the end of this betting round
     let lastMultiContributorPot: PotContribution = this._mainPot;
@@ -51,7 +49,7 @@ export class PotManager {
           );
         }
       } else {
-        // Push current main pot to side pot if it has contributions
+        // Push current main pot to side pot if it has contributions (else throw away empty main pot)
         if (this._mainPot.getTotalPotSize() > 0) {
           this._sidePots.push(this._mainPot);
         }
@@ -79,6 +77,7 @@ export class PotManager {
           remainingBets.delete(player);
         }
       }
+      console.log("current main pot: " + this._mainPot.getTotalPotSize());
     }
 
     this.finalizeRound(lastMultiContributorPot, players);
@@ -115,16 +114,19 @@ export class PotManager {
         this._sidePots.splice(index, 1);
       }
       this._mainPot = lastMultiContributorPot;
-    } else {
-      // Reset main pot if no multi-contributor pot exists (should never happen since we force SB and BB every hand, but this rule might changes in the future)
-      this._mainPot = new PotContribution();
     }
 
+    // Update players round contributions to 0
     players.forEach((player) => {
       player.updatePlayerPublicState({
         roundPotContributions: 0,
       });
     });
+
+    console.log("main pot: " + this._mainPot.getTotalPotSize());
+    this._sidePots.forEach((pot) =>
+      console.log("Side pot - ", pot.getTotalPotSize())
+    );
   }
 
   distributeWinningsInShowdown(
@@ -158,21 +160,12 @@ export class PotManager {
     return winnings;
   }
 
-  private getAllPotContributors(): PlayerInGame[] {
-    const allContributors = new Set<PlayerInGame>();
-
-    // Add contributors from main pot
-    for (const player of this._mainPot.getContributors()) {
-      allContributors.add(player);
-    }
-
-    // Add contributors from side pots
-    for (const sidePot of this._sidePots) {
-      for (const player of sidePot.getContributors()) {
-        allContributors.add(player);
-      }
-    }
-
-    return Array.from(allContributors);
+  // get all pots sizes, main is always first in the array
+  getPotsSizes(): number[] | null {
+    if (!this._mainPot) return null;
+    return [
+      this._mainPot.getTotalPotSize(),
+      ...this._sidePots.map((pot) => pot.getTotalPotSize()),
+    ];
   }
 }
