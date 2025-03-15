@@ -96,8 +96,9 @@ export interface PrivatePlayerClientData {
 }
 export interface BettingStateClientData {
     timeRemaining: number;
-    callAmount?: number;
-    minRaiseAmount?: number;
+    callAmount: number;
+    minRaiseAmount: number;
+    allInAmount: number;
     timeCookiesUsedThisRound?: number;
     playerValidActions: BettingTypes[];
     playerToAct: string;

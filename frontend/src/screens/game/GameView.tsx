@@ -175,7 +175,10 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
             )}
           </div>
           {gameState?.bettingState?.playerToAct === playerId && (
-            <MemoizedBetPanel bettingState={gameState.bettingState} />
+            <MemoizedBetPanel
+              bettingState={gameState.bettingState}
+              bigBlind={gameState.tableConfig.bigBlindAmount}
+            />
           )}
         </div>
 

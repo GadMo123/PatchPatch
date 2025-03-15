@@ -112,7 +112,8 @@ export const Slider: React.FC<SliderProps> = ({
               style={{ left: `${calculatePercentage(tick)}%` }}
             >
               <div className="tick-mark"></div>
-              <div className="tick-label">{formatValue(tick)}</div>
+
+              <div className="tick-label">{showInput && formatValue(tick)}</div>
             </div>
           ))}
         </div>

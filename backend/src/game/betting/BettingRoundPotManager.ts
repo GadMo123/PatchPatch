@@ -14,7 +14,7 @@ export class BettingRoundPotManager {
 
     player.updatePlayerPublicState({
       currentStack: updatedStack,
-      isAllIn: updatedStack === 0,
+      isAllIn: Math.abs(updatedStack) < 0.01,
       roundPotContributions: roundPotContributions,
     });
 

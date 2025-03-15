@@ -86,7 +86,7 @@ export interface GameStateServerBroadcast {
   bettingState: BettingStateClientData | null;
   tableConfig: TableConfigClientData;
   arrangePlayerCardsState: ArrangePlayerCardsStateClientData | null;
-  potWinners: Map<string, number> | null; // player id -> amount won
+  potWinners: Map<string, number> | null; // player id -> amount won for showdown pot-distribution
 }
 
 export interface TableConfigClientData {
@@ -114,8 +114,9 @@ export interface PrivatePlayerClientData {
 
 export interface BettingStateClientData {
   timeRemaining: number;
-  callAmount?: number;
-  minRaiseAmount?: number;
+  callAmount: number;
+  minRaiseAmount: number;
+  allInAmount: number;
   timeCookiesUsedThisRound?: number;
   playerValidActions: BettingTypes[];
   playerToAct: string;

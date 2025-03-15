@@ -45,6 +45,7 @@
 .bet-button.raise
 .bet-button.call {
   pointer-events: auto;
+  position: relative; /* Add position relative for reference positioning */
 }
 
 .bet-button.--high {
@@ -139,4 +140,107 @@
 .timer--low {
   transition: none; /* No transition */
   text-shadow: none; /* No glow */
+}
+
+/* Updated overlay for the bet slider */
+.bet-slider-overlay {
+  position: absolute;
+  bottom: 100%; /* Position it above the button */
+  left: 50%; /* Starting point for centering */
+  transform: translateX(-50%); /* Initial centering */
+  background-color: transparent; /* Remove background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  margin-bottom: 10px; /* Add some space between slider and button */
+  pointer-events: none; /* Allow clicks to pass through the overlay */
+}
+
+.bet-slider-container {
+  background-color: #1A2333; /* Deep midnight blue for a darker, glossy background */
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 10px #FFFF00; /* Neon yellow glow for bet actions */
+  border: 2px solid #FFFF00; /* Neon yellow border for bet/raise */
+  width: 320px;
+  max-width: 90vw;
+  position: relative;
+  pointer-events: auto; /* Re-enable pointer events */
+}
+
+/* Add a subtle arrow pointing down to the button */
+.bet-slider-container::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #FFFF00; /* Match the border color */
+}
+
+/* Handle screen edge positioning */
+.bet-slider-overlay.edge-right {
+  transform: translateX(calc(-100% + 50px)); /* Shift to the left when near right edge */
+}
+
+.bet-slider-overlay.edge-right .bet-slider-container::after {
+  left: calc(100% - 50px); /* Move the arrow to align with the button */
+}
+
+.bet-slider-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 1.25rem;
+  color: #FFFF00; /* Neon yellow for bet/raise */
+  text-align: center;
+  text-shadow: 0 0 5px #FFFF00; /* Neon yellow glow */
+}
+
+.bet-amount-display {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #F5F5F5; /* White text for readability */
+  text-shadow: 0 0 3px #FFFF00; /* Neon yellow glow */
+}
+
+.bet-amount-display.all-in {
+  color: #FFFF00; /* Neon yellow for all-in emphasis */
+  text-shadow: 0 0 8px #FFFF00; /* Stronger glow for all-in */
+  animation: pulse 1.5s infinite alternate; /* Pulsing animation for all-in */
+}
+
+.bet-slider-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.bet-slider-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.bet-slider-button.cancel {
+  background-color: rgba(255, 0, 122, 0.8); /* Semi-transparent neon pink */
+  color: #FFFFFF;
+}
+
+.bet-slider-button.confirm {
+  background-color: rgba(0, 255, 157, 0.8); /* Semi-transparent neon green */
+  color: #1A1A1A;
+}
+
+@keyframes pulse {
+  from { text-shadow: 0 0 3px #FFFF00; }
+  to { text-shadow: 0 0 12px #FFFF00; }
 }

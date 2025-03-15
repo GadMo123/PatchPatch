@@ -9,8 +9,9 @@ export interface BettingState {
   playerValidActions: BettingTypes[];
   playerToAct: string;
   potContributions: Map<PlayerInGame, number>; //The contribution of each player to the pot this current betting round
-  minRaiseAmount?: number;
+  minRaiseAmount: number;
   callAmount?: number;
+  allInAmount: number;
 }
 
 export interface TableConfig {

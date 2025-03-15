@@ -172,7 +172,8 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
       playerToAct: bettingState.playerToAct,
       playerValidActions: bettingState.playerValidActions,
       minRaiseAmount: bettingState.minRaiseAmount,
-      callAmount: bettingState.callAmount,
+      callAmount: bettingState.callAmount ?? 0,
+      allInAmount: bettingState.allInAmount,
     };
   }
 

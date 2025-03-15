@@ -22,7 +22,7 @@ export class BettingManager {
   private _bettingRoundPotManager: BettingRoundPotManager;
   // This is a marker pointing to the last player to take an aggresive action, if the action returns to him without more aggrestion - we know the betting round ends.
   private _roundEndsCondition: PlayerInGame;
-  private _isFirstTurn;
+  private _isFirstTurn: boolean;
 
   constructor(
     private _game: Game,
@@ -46,6 +46,8 @@ export class BettingManager {
           .filter((player) => player?.isActive())
           .map((player) => [player!, 0])
       ),
+      minRaiseAmount: _game.getTableConfig().bbAmount,
+      allInAmount: this._currentPlayerToAct.getStack(),
     };
     this._bettingRoundPotManager = new BettingRoundPotManager();
     const timebanksPerRound = parseInt(process.env.COOKIES_PER_ROUND ?? "3");
@@ -72,12 +74,16 @@ export class BettingManager {
   startNextPlayerTurn() {
     this._bettingState.callAmount =
       this._bettingRoundPotManager.getRemainingToCall(this._currentPlayerToAct);
+
     console.log(
       "starting player turn " +
         this._currentPlayerToAct.getId() +
         "call amount " +
         this._bettingState.callAmount
     );
+
+    this._bettingState.allInAmount = this._currentPlayerToAct.getStack();
+
     this._bettingState.playerValidActions =
       this._actionValidator.getValidActions(
         this._bettingState,
@@ -114,14 +120,15 @@ export class BettingManager {
         action,
         amount,
         this._currentPlayerToAct,
-        validActions
+        validActions,
+        this._bettingState.minRaiseAmount
       );
 
       if (!validation.isValid) {
         console.log(`Invalid action: ${validation.error}`);
         action = validActions.includes(BettingTypes.CHECK)
           ? BettingTypes.CHECK
-          : BettingTypes.FOLD; // take default action
+          : BettingTypes.FOLD; // take default action if player's action is invalid
         amount = 0;
         console.log("taking default action " + action);
       }
@@ -137,6 +144,10 @@ export class BettingManager {
         (action == BettingTypes.RAISE || action == BettingTypes.BET)
       ) {
         this._roundEndsCondition = this._currentPlayerToAct;
+        this._bettingState.minRaiseAmount = Math.max(
+          this._bettingState.minRaiseAmount,
+          amount ?? 0
+        );
       }
 
       if (action == BettingTypes.FOLD)
