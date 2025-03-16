@@ -192,7 +192,11 @@ export class BettingManager {
   private onPlayerActionDone() {
     const lastPlayer = this._currentPlayerToAct;
     const nextPlayerFound = this.switchToNextPlayer();
-    if (!nextPlayerFound && this.isBettingRoundComplete()) {
+    if (
+      !nextPlayerFound ||
+      this.isBettingRoundComplete() ||
+      lastPlayer === this._currentPlayerToAct
+    ) {
       // Collect all pot contributions made this round and add them to the game main and side pots accordingly, update all states. (Todo - rake?).
       this._game
         .getPotManager()
