@@ -45,9 +45,11 @@ export class ActionValidator {
       if (amount < 0) return { isValid: false, error: "amount too low" };
       if (action === "bet" || action === "raise") {
         if (amount < minraiseAmount)
-          if (Math.abs(amount - player.getStack()) >= 0.01)
+          if (Math.abs(amount - player.getStack()) >= 0.01) {
+            console.log("amount and stack " + amount + " " + player.getStack());
             // if player is raising all in - allow any raise size
             return { isValid: false, error: "Bet below minimum" };
+          }
         if (amount > this._config.maxBet)
           // todo: max raise is relative to pot in pot-limit games, pot-limit games are not in the current scope.
           return { isValid: false, error: "Bet above maximum" };

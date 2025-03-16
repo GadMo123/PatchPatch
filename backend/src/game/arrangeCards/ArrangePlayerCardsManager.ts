@@ -26,19 +26,17 @@ export class ArrangePlayerCardsManager {
   ) {
     // Initialize player done map and count
     const playerDoneMap = new Map<Position, boolean>();
-    let activePlayerCount = 0;
-
     const playersInGame = _game.getPlayersInGame();
+    this._playersRemaining = 0;
     if (playersInGame) {
       playersInGame.forEach((player, position) => {
-        if (player && player.isFolded()) {
+        if (player && !player.isFolded()) {
           playerDoneMap.set(position, false);
-          activePlayerCount++;
+          this._playersRemaining++;
         }
       });
     }
 
-    this._playersRemaining = activePlayerCount;
     this._state = {
       timeRemaining: _game.getTableConfig().timePerArrangeAction, // todo table config
       playerDoneMap: playerDoneMap,

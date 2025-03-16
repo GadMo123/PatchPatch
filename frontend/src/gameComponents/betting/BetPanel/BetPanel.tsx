@@ -51,6 +51,7 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
 
     setIsProcessing(true);
     setError(null);
+
     const response = await sendAction({
       gameId: gameId,
       playerId: playerId,
@@ -110,7 +111,11 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
         setBetAmount(allInAmount);
       } else {
         // Start with min raise amount
-        setBetAmount(minRaiseAmount);
+        setBetAmount(
+          minRaiseAmount +
+            bettingState.activePlayerRoundPotContributions +
+            bettingState.callAmount
+        );
       }
     }
   }, [showBetSlider, bettingState]);
@@ -139,13 +144,16 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
     // Check position relative to screen edges
     checkRightEdgePosition(button);
 
-    const minRaiseAmount = bettingState.minRaiseAmount;
+    const minRaiseAmountTotal =
+      bettingState.minRaiseAmount +
+      bettingState.activePlayerRoundPotContributions +
+      bettingState.callAmount;
     const allInAmount = bettingState.allInAmount;
 
     // Check if player can only go all-in
     if (
-      Math.abs(allInAmount - minRaiseAmount) < 0.01 ||
-      allInAmount < minRaiseAmount
+      Math.abs(allInAmount - minRaiseAmountTotal) < 0.01 ||
+      allInAmount < minRaiseAmountTotal
     ) {
       // Directly perform all-in action without showing slider
       onAction(action, allInAmount);
@@ -158,22 +166,24 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
 
   // Generate ticks for the slider
   const generateBetTicks = () => {
-    const minRaiseAmount = bettingState.minRaiseAmount;
-    const allInAmount = bettingState.allInAmount;
+    const minRaiseAmountTotal = // the total sum of pot contribution after a minraise
+      bettingState.minRaiseAmount +
+      bettingState.callAmount +
+      bettingState.activePlayerRoundPotContributions;
 
-    // If player can only go all-in, return single tick
+    // If player can only go all-in as a raise, return single tick
     if (
-      Math.abs(allInAmount - minRaiseAmount) < 0.01 ||
-      allInAmount < minRaiseAmount
+      Math.abs(bettingState.allInAmount - minRaiseAmountTotal) < 0.01 ||
+      bettingState.allInAmount < minRaiseAmountTotal
     ) {
-      return [allInAmount];
+      return [bettingState.allInAmount];
     }
 
     // Create ticks at multiples of big blind
-    const ticks = [minRaiseAmount]; // Always include min raise
+    const ticks = [minRaiseAmountTotal]; // Always include min raise
 
     // Create up to 14 ticks total
-    const range = allInAmount - minRaiseAmount;
+    const range = bettingState.allInAmount - minRaiseAmountTotal;
     const idealTickCount = Math.min(13, Math.floor(range / bigBlind)); // Max 13 more ticks (plus min)
 
     if (idealTickCount > 0) {
@@ -182,8 +192,8 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
         Math.ceil(range / idealTickCount / bigBlind) * bigBlind
       );
 
-      let currentTick = minRaiseAmount + step;
-      while (currentTick < allInAmount - 0.01) {
+      let currentTick = minRaiseAmountTotal + step;
+      while (currentTick < bettingState.allInAmount - 0.01) {
         // Avoid floating point issues
         ticks.push(Math.floor(currentTick * 100) / 100); // Round to 2 decimal places
         currentTick += step;
@@ -191,8 +201,8 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
     }
 
     // Always include all-in amount as last tick
-    if (Math.abs(ticks[ticks.length - 1] - allInAmount) > 0.01) {
-      ticks.push(allInAmount);
+    if (Math.abs(ticks[ticks.length - 1] - bettingState.allInAmount) > 0.01) {
+      ticks.push(bettingState.allInAmount);
     }
 
     return ticks;
@@ -222,7 +232,11 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
                 {formatCurrency(betAmount)}
               </div>
               <Slider
-                min={bettingState.minRaiseAmount}
+                min={
+                  bettingState.minRaiseAmount +
+                  bettingState.callAmount +
+                  bettingState.activePlayerRoundPotContributions
+                }
                 max={bettingState.allInAmount}
                 value={betAmount}
                 onChange={setBetAmount}
@@ -238,20 +252,27 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
             </div>
           )}
 
-          <div className="bet-slider-actions">
-            <button
-              onClick={() => setShowBetSlider(false)}
-              className="bet-slider-button cancel"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => onAction(sliderAction, betAmount)}
-              className="bet-slider-button confirm"
-            >
-              Confirm
-            </button>
-          </div>
+          {!isAllIn && (
+            <div className="bet-slider-actions">
+              <button
+                onClick={() => setShowBetSlider(false)}
+                className="bet-slider-button cancel"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() =>
+                  onAction(
+                    sliderAction,
+                    betAmount - bettingState.activePlayerRoundPotContributions // reducing the amount already contributed in earlier rounds, this is just the way we defined the protocol - the amount is the call + raise anmount
+                  )
+                }
+                className="bet-slider-button confirm"
+              >
+                Confirm
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -270,11 +291,13 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
     const hasRaise = playerValidActions.includes(BettingTypes.RAISE);
 
     // Check if all-in is the only option for bet/raise
-    const minRaiseAmount = bettingState.minRaiseAmount;
-    const allInAmount = bettingState.allInAmount;
+    const minRaiseAmountTotal =
+      bettingState.minRaiseAmount +
+      bettingState.callAmount +
+      bettingState.activePlayerRoundPotContributions;
     const isAllInOnly =
-      Math.abs(allInAmount - minRaiseAmount) < 0.01 ||
-      allInAmount < minRaiseAmount;
+      Math.abs(bettingState.allInAmount - minRaiseAmountTotal) < 0.01 ||
+      bettingState.allInAmount < minRaiseAmountTotal;
 
     // Determine which set of buttons to show
     if (hasCheck || hasBet) {
@@ -297,8 +320,8 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
               disabled={isProcessing}
             >
               {isAllInOnly
-                ? `Bet ${formatCurrency(allInAmount)} (All-In)`
-                : "Bet"}
+                ? `Bet ${formatCurrency(bettingState.allInAmount + bettingState.activePlayerRoundPotContributions)} (All-In)`
+                : "Bet +"}
             </button>
           )}
         </>
@@ -323,10 +346,8 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
             className={`bet-button call --${animationLevel}`}
             disabled={isProcessing}
           >
-            Call {formatCurrency(bettingState.callAmount)}
-            {Math.abs(bettingState.callAmount - bettingState.allInAmount) < 0.01
-              ? " (All-In)"
-              : ""}
+            Call {formatCurrency(Math.min(bettingState.callAmount))}
+            {!hasRaise ? " (All-In)" : ""}
           </button>
         )}
         {hasRaise && (
@@ -336,8 +357,8 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
             disabled={isProcessing}
           >
             {isAllInOnly
-              ? `Raise to ${formatCurrency(allInAmount)} (All-In)`
-              : "Raise"}
+              ? `Raise to ${formatCurrency(bettingState.allInAmount + bettingState.activePlayerRoundPotContributions)} (All-In)`
+              : "Raise +"}
           </button>
         )}
       </>

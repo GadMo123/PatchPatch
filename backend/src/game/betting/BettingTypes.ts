@@ -4,6 +4,7 @@ import { BettingTypes } from "@patchpatch/shared";
 import { PlayerInGame } from "../types/PlayerInGame";
 
 export interface BettingState {
+  activePlayerRoundPotContributions: number;
   timeRemaining: number;
   timeCookiesUsedThisRound: number;
   playerValidActions: BettingTypes[];

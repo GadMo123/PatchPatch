@@ -33,11 +33,11 @@ export function findNextPlayerToAct(
     const position = positionOrder[nextIndex];
     const player = game.getPlayerInPosition(position);
 
-    if (player?.isActive()) {
+    if (player && !player.isFolded() && !player.isAllIn()) {
       return player;
     }
   }
-  throw new Error("No players found to act.");
+  throw new Error("NO_PLAYER_TO_ACT");
 }
 
 export function getPosition(position: string): Position | null {

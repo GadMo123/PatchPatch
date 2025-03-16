@@ -116,6 +116,7 @@ export interface BettingStateClientData {
   timeRemaining: number;
   callAmount: number;
   minRaiseAmount: number;
+  activePlayerRoundPotContributions: number;
   allInAmount: number;
   timeCookiesUsedThisRound?: number;
   playerValidActions: BettingTypes[];

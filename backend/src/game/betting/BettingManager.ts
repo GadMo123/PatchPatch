@@ -11,6 +11,7 @@ import { GameActionTimerManager } from "../utils/GameActionTimerManager";
 import { BettingRoundPotManager } from "./BettingRoundPotManager";
 import { Mutex } from "async-mutex";
 import { BettingTypes, Position } from "@patchpatch/shared";
+import { Player } from "player/Player";
 
 export class BettingManager {
   private _awaitingPlayersAction: any;
@@ -26,7 +27,7 @@ export class BettingManager {
 
   constructor(
     private _game: Game,
-    private _onBettingRoundComplete: (winner: PlayerInGame | null) => void,
+    private _onBettingRoundComplete: () => void,
     isPreflop: boolean
   ) {
     this._actionValidator = new ActionValidator(_game.getTableConfig());
@@ -48,6 +49,7 @@ export class BettingManager {
       ),
       minRaiseAmount: _game.getTableConfig().bbAmount,
       allInAmount: this._currentPlayerToAct.getStack(),
+      activePlayerRoundPotContributions: 0,
     };
     this._bettingRoundPotManager = new BettingRoundPotManager();
     const timebanksPerRound = parseInt(process.env.COOKIES_PER_ROUND ?? "3");
@@ -83,6 +85,10 @@ export class BettingManager {
     );
 
     this._bettingState.allInAmount = this._currentPlayerToAct.getStack();
+
+    this._bettingState.activePlayerRoundPotContributions =
+      this._currentPlayerToAct.getPlayerPublicState().roundPotContributions ??
+      0;
 
     this._bettingState.playerValidActions =
       this._actionValidator.getValidActions(
@@ -144,10 +150,15 @@ export class BettingManager {
         (action == BettingTypes.RAISE || action == BettingTypes.BET)
       ) {
         this._roundEndsCondition = this._currentPlayerToAct;
-        this._bettingState.minRaiseAmount = Math.max(
-          this._bettingState.minRaiseAmount,
-          amount ?? 0
-        );
+        if (
+          amount &&
+          this._bettingState.callAmount &&
+          amount > this._bettingState.callAmount
+        )
+          this._bettingState.minRaiseAmount = Math.max(
+            this._bettingState.minRaiseAmount,
+            amount - this._bettingState.callAmount
+          );
       }
 
       if (action == BettingTypes.FOLD)
@@ -180,17 +191,13 @@ export class BettingManager {
 
   private onPlayerActionDone() {
     const lastPlayer = this._currentPlayerToAct;
-    this.switchToNextPlayer();
-    if (this.isBettingRoundComplete()) {
-      // Winner? if so, pass it on.
-      const winner =
-        this._currentPlayerToAct === lastPlayer ? lastPlayer : null;
-
+    const nextPlayerFound = this.switchToNextPlayer();
+    if (!nextPlayerFound && this.isBettingRoundComplete()) {
       // Collect all pot contributions made this round and add them to the game main and side pots accordingly, update all states. (Todo - rake?).
       this._game
         .getPotManager()
         .processBettingRound(this._bettingRoundPotManager.getContributions());
-      this._onBettingRoundComplete(winner);
+      this._onBettingRoundComplete();
     } else this.startNextPlayerTurn();
   }
 
@@ -209,27 +216,37 @@ export class BettingManager {
   }
 
   private isBettingRoundComplete(): boolean {
-    const activePlayers = Array.from(
+    const notFoldedCount = Array.from(
       this._bettingState.potContributions.keys()
-    ).filter((player) => player.isActive());
+    ).reduce((count, player) => count + (player.isFolded() ? 0 : 1), 0);
 
     // Round is complete if:
-    // 1. Only one player remains (others folded or allin)
+    // 1. Only one player remains
     // 2. action is back to the last aggresor (or first player to act in case there is no aggresion behind)
     return (
-      activePlayers.length <= 1 ||
+      notFoldedCount <= 1 ||
       (!this._isFirstTurn &&
         this._currentPlayerToAct === this._roundEndsCondition)
     );
   }
 
-  private switchToNextPlayer() {
+  private switchToNextPlayer(): boolean {
     this._isFirstTurn = false;
-    this._currentPlayerToAct = findNextPlayerToAct(
-      this._currentPlayerToAct.getPokerPosition()!,
-      this._game
-    );
-    this.updateBettingState({ playerToAct: this._currentPlayerToAct.getId() });
+    try {
+      this._currentPlayerToAct = findNextPlayerToAct(
+        this._currentPlayerToAct.getPokerPosition()!,
+        this._game
+      );
+
+      this.updateBettingState({
+        playerToAct: this._currentPlayerToAct.getId(),
+      });
+    } catch (error) {
+      if (error instanceof Error && error.message === "NO_PLAYER_TO_ACT") {
+        return false;
+      }
+    }
+    return true;
   }
 
   private updateBettingState(partialUpdate: Partial<BettingState>) {

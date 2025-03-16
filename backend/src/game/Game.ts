@@ -303,7 +303,27 @@ export class Game {
     return this._state.bettingState;
   }
 
-  handleHandWonWithoutShowdown(winner: PlayerInGame) {
+  checkIfHandWonWithoutShowdown(): void {
+    let winner: PlayerInGame | null = null;
+    let standingPlayers = 0;
+
+    for (const player of this._state.playerInPosition.values()) {
+      if (player && !player.isFolded()) {
+        winner = player;
+        standingPlayers++;
+        if (standingPlayers > 1) return;
+      }
+    }
+
+    if (standingPlayers === 1 && winner !== null) {
+      this.handleHandWonWithoutShowdown(winner);
+    }
+
+    if (standingPlayers === 0)
+      console.error("checkIfHandWonWithoutShowdown - no players standing");
+  }
+
+  private handleHandWonWithoutShowdown(winner: PlayerInGame) {
     console.log("handleHandWonWithoutShowdown");
     this._isHandWonWithoutShowdown = true;
     const totalPotsSize = this._potManager.getPotsSizes();

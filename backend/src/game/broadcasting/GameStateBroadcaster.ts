@@ -174,6 +174,8 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
       minRaiseAmount: bettingState.minRaiseAmount,
       callAmount: bettingState.callAmount ?? 0,
       allInAmount: bettingState.allInAmount,
+      activePlayerRoundPotContributions:
+        bettingState.activePlayerRoundPotContributions,
     };
   }
 

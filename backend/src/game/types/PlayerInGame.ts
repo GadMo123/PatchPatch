@@ -138,6 +138,10 @@ export class PlayerInGame {
     return this._playerPublicState.currentStack;
   }
 
+  isAllIn() {
+    return this._playerPublicState.isAllIn;
+  }
+
   getPokerPosition(): Position | null {
     return this._playerPublicState.pokerPosition;
   }

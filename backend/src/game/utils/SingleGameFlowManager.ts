@@ -80,18 +80,31 @@ export class SingleGameFlowManager {
       },
       this.startBettingRound.bind(this)
     );
-    // Todo : we can start cacl the winners right here as a microservice to find the winner by the time of showdown
+    // Todo : we can start cacl the winners right here to find the winner by the time of showdown
   }
 
   private startBettingRound() {
-    const bettingManager = new BettingManager(
-      this._game,
-      this.onBettingRoundComplete.bind(this),
-      this._game.getPhase() === GamePhase.PreflopBetting
-    );
-    this._bettingManager = bettingManager;
+    if (this.isBettingRoundNeeded()) {
+      const bettingManager = new BettingManager(
+        this._game,
+        this.onBettingRoundComplete.bind(this),
+        this._game.getPhase() === GamePhase.PreflopBetting
+      );
+      this._bettingManager = bettingManager;
 
-    bettingManager.startNextPlayerTurn();
+      bettingManager.startNextPlayerTurn();
+    } else {
+      this.afterBettingDetermineNextPhase();
+    }
+  }
+
+  private isBettingRoundNeeded() {
+    let activePlayersCount = 0;
+    this._game.getPlayersInGame()?.forEach((player) => {
+      if (player && !player.isFolded() && !player.isAllIn())
+        activePlayersCount++;
+    });
+    return activePlayersCount > 1;
   }
 
   private startArrangePlayerCards() {
@@ -114,9 +127,9 @@ export class SingleGameFlowManager {
     );
   }
 
-  private onBettingRoundComplete(winner: PlayerInGame | null) {
+  private onBettingRoundComplete() {
     console.log("betting round complete -" + this._game.getPhase());
-    if (winner) this._game.handleHandWonWithoutShowdown(winner);
+    this._game.checkIfHandWonWithoutShowdown();
     this._game.updateGameStateAndBroadcast(
       { bettingState: null },
       this.afterBettingDetermineNextPhase.bind(this)
