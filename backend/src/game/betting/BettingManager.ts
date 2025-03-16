@@ -60,7 +60,7 @@ export class BettingManager {
       maxCookiesPerRound: timebanksPerRound,
       updateTimeRemianing: (timeRemaining: number) =>
         this.updateBettingState({ timeRemaining: timeRemaining }),
-      onTimeout: this.doDefualtActionOnTimeout.bind(this),
+      onTimeout: this.doDefaultActionOnTimeout.bind(this),
       onComplete: this.cleanupTimerState.bind(this),
     });
     if (isPreflop) {
@@ -151,7 +151,7 @@ export class BettingManager {
       ) {
         this._roundEndsCondition = this._currentPlayerToAct;
         if (
-          amount &&
+          amount != undefined &&
           this._bettingState.callAmount &&
           amount > this._bettingState.callAmount
         )
@@ -192,6 +192,14 @@ export class BettingManager {
   private onPlayerActionDone() {
     const lastPlayer = this._currentPlayerToAct;
     const nextPlayerFound = this.switchToNextPlayer();
+    console.log(
+      "onPlayerActionDone " +
+        nextPlayerFound +
+        "  " +
+        this.isBettingRoundComplete() +
+        "   " +
+        (lastPlayer === this._currentPlayerToAct)
+    );
     if (
       !nextPlayerFound ||
       this.isBettingRoundComplete() ||
@@ -205,7 +213,7 @@ export class BettingManager {
     } else this.startNextPlayerTurn();
   }
 
-  private doDefualtActionOnTimeout(): void {
+  private doDefaultActionOnTimeout(): void {
     console.log("doDefualtActionOnTimeout ");
     const defaultAction = this._actionValidator
       .getValidActions(
@@ -220,10 +228,18 @@ export class BettingManager {
   }
 
   private isBettingRoundComplete(): boolean {
-    const notFoldedCount = Array.from(
-      this._bettingState.potContributions.keys()
-    ).reduce((count, player) => count + (player.isFolded() ? 0 : 1), 0);
+    const notFoldedCount = Array.from(this._game.getPlayersInGame()!.values())
+      .filter((player): player is PlayerInGame => player !== null)
+      .reduce((count, player) => count + (player.isFolded() ? 0 : 1), 0);
 
+    console.log(
+      "isBettingRoundComplete " +
+        notFoldedCount +
+        "   " +
+        this._currentPlayerToAct.getId() +
+        "   " +
+        this._roundEndsCondition.getId()
+    );
     // Round is complete if:
     // 1. Only one player remains
     // 2. action is back to the last aggresor (or first player to act in case there is no aggresion behind)
