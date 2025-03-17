@@ -24,13 +24,16 @@ export class PotManager {
     let lastMultiContributorPot: PotContribution = this._mainPot;
 
     while (remainingBets.size > 0) {
-      // Find minimum bet amount among remaining players
-      const minBet = Math.min(...Array.from(remainingBets.values()));
-
       // Get contributors at this level
       const contributors = players.filter(
-        (player) => (remainingBets.get(player) || 0) > 0
+        (player) => (remainingBets.get(player) ?? 0) > 0
       );
+
+      if (contributors.length === 0) break;
+
+      // Find minimum common bet contribution size amount among remaining players
+      const contribution = Math.min(...Array.from(remainingBets.values()));
+      console.log("processBettingRound minBet " + contribution);
 
       // Check if we should add to main pot or create a new pot
       if (
@@ -41,11 +44,10 @@ export class PotManager {
       ) {
         // Add to existing main pot if contributors match
         for (const player of contributors) {
-          const contribution = Math.min(minBet, remainingBets.get(player) || 0);
           this._mainPot.addContribution(player, contribution);
           remainingBets.set(
             player,
-            (remainingBets.get(player) || 0) - contribution
+            (remainingBets.get(player) ?? 0) - contribution
           );
         }
       } else {
@@ -57,11 +59,10 @@ export class PotManager {
         // Create new main pot
         this._mainPot = new PotContribution();
         for (const player of contributors) {
-          const contribution = Math.min(minBet, remainingBets.get(player) || 0);
           this._mainPot.addContribution(player, contribution);
           remainingBets.set(
             player,
-            (remainingBets.get(player) || 0) - contribution
+            (remainingBets.get(player) ?? 0) - contribution
           );
         }
       }
