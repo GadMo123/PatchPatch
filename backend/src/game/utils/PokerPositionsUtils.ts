@@ -2,7 +2,7 @@
 
 import { Position } from "@patchpatch/shared";
 import { Game } from "../Game";
-import { DetailedGameState, GamePhase } from "../types/GameState";
+import { GamePhase } from "../types/GameState";
 import { PlayerInGame } from "../types/PlayerInGame";
 
 const positionOrder = [

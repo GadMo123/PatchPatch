@@ -7,22 +7,27 @@
     "build": "tsc --build",
     "serve": "node dist/Server.js",
     "format": "prettier --write .",
-    "format-check": "prettier --check ."
+    "format-check": "prettier --check .",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@patchpatch/shared": "file:../shared",
     "async-mutex": "^0.5.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "@patchpatch/shared": "file:../shared",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
     "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
     "prettier": "^3.4.2",
+    "ts-jest": "^29.2.6",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3"
