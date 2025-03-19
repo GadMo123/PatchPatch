@@ -18,7 +18,6 @@ describe("PokerHandEvaluator", () => {
       const board = createHand(["Ah", "Kh", "Qh", "Jd", "4c"]);
       const playerHand = createHand(["Th", "Jh", "2d", "3s"]);
       const result = PokerHandEvaluator.findBestOmahaHand(board, playerHand);
-      console.log("123 " + result.value);
       expect(result.category).toBe("Royal-Flush");
     });
 

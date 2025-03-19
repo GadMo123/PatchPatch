@@ -1,5 +1,5 @@
 import { Card } from "@patchpatch/shared";
-import { evalHand, evalRank } from "./Cactus-Kev";
+import { CactusKev } from "./Cactus-Kev";
 
 // Prime numbers used for card rank mapping (Cactus-Kev's approach)
 const primes: number[] = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41];
@@ -59,8 +59,12 @@ export class PokerHandEvaluator {
     }
   }
 
-  public static evaluateHand = evalHand;
-  public static handValueToCategory = evalRank;
+  public static evaluateHand(hand: Card[]): number {
+    return CactusKev.getInstance().evalHand(hand);
+  }
+  public static handValueToCategory(score: number): string {
+    return CactusKev.getInstance().evalRank(score);
+  }
 
   // Evaluate an Omaha hand and return the best hand value
   public static evaluateOmahaHand(
@@ -75,7 +79,10 @@ export class PokerHandEvaluator {
 
     // Evaluate each possible 5-card combination
     for (const hand of handCombinations) {
-      bestHandValue = Math.min(bestHandValue, evalHand(hand));
+      bestHandValue = Math.min(
+        bestHandValue,
+        CactusKev.getInstance().evalHand(hand)
+      );
     }
 
     return bestHandValue;
@@ -87,7 +94,7 @@ export class PokerHandEvaluator {
     playerCards: Card[]
   ): { value: number; category: string } {
     const bestHandValue = this.evaluateOmahaHand(boardCards, playerCards);
-    const category = evalRank(bestHandValue);
+    const category = CactusKev.getInstance().evalRank(bestHandValue);
 
     return {
       value: bestHandValue,

@@ -161,12 +161,16 @@ export class PotManager {
     return winnings;
   }
 
-  // get all pots sizes, main is always first in the array
+  // get all pots sizes, main is always last in the array
   getPotsSizes(): number[] | null {
     if (!this._mainPot) return null;
     return [
-      this._mainPot.getTotalPotSize(),
       ...this._sidePots.map((pot) => pot.getTotalPotSize()),
+      this._mainPot.getTotalPotSize(), // Move the main pot to the end
     ];
+  }
+
+  getAllPots(): PotContribution[] {
+    return [...this._sidePots, this._mainPot]; // Ensures main pot is last
   }
 }

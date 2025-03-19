@@ -10,6 +10,7 @@ import { Game } from "../game/Game";
 import { TableConfig } from "../game/betting/BettingTypes";
 import { getLobbyStatus } from "../lobby/LobbyManager";
 import { GameServerConfig, SocketEvents } from "@patchpatch/shared";
+import { CactusKev } from "game/utils/Cactus-Kev";
 
 const serverConfig: GameServerConfig = {
   maxGamesPerServer: 3000,
@@ -133,6 +134,9 @@ server.listen(PORT, () => {
   console.log("Server running on port 5000");
   console.log("Created dummy games for testing");
 });
+
+// Load to memory CactusKev instance with lookup tables
+CactusKev.getInstance();
 
 // Proper cleanup on server shutdown
 process.on("SIGTERM", () => {

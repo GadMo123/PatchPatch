@@ -18,6 +18,12 @@ export enum GamePhase {
   DealPreflop = "dealPreflop",
 }
 
+export interface ShowdownResult {
+  board: number; // 0, 1, or 2
+  potAmount: number; // How much was in this portion of the pot
+  winners: Map<string, number>; // Player IDs and their winnings
+}
+
 export interface DetailedGameState {
   // Core state
   id: string;
@@ -45,4 +51,5 @@ export interface DetailedGameState {
   bettingState: BettingState | null;
   tableConfig: TableConfig;
   arrangePlayerCardsState: ArrangePlayerCardsState | null;
+  showdownResults?: ShowdownResult | null; // showdown results to broadcast
 }

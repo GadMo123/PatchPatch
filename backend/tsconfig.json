@@ -14,6 +14,6 @@
         "shared/*": ["../shared/dist-node"]  
     }
   },
-  "include": ["src/**/*", "tests", "tests/unit"],  
+  "include": ["src/**/*", "src/tests", "src/tests/unit"],  
   "exclude": ["node_modules"]
 }
