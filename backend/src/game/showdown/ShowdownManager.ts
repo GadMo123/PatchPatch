@@ -134,7 +134,10 @@ export class ShowdownManager {
 
         // Wait for the client animation duration before proceeding
         await new Promise((resolve) =>
-          setTimeout(resolve, Number(process.env.SHOWDOWN_TIME_UNIT) || 2000)
+          setTimeout(
+            resolve,
+            Number(this._game.getTableConfig().showdownAnimationTime)
+          )
         );
       }
     }
