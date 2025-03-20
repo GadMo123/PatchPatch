@@ -11,7 +11,7 @@
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "paths": {
-        "shared/*": ["../shared/dist-node"]  
+        "shared/*": ["../shared/dist-node"],
     }
   },
   "include": ["src/**/*", "src/tests", "src/tests/unit"],  

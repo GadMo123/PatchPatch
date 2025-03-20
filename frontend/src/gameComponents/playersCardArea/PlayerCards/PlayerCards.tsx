@@ -6,19 +6,21 @@ import { useCountdownTimer } from "../../../hooks/TimerHook";
 import { Card } from "@patchpatch/shared";
 import { useCardsArrangement } from "../../../hooks/CreateSocketAction";
 import { HIGHLIGHT_BOARD_EVENT } from "../../board/BoardCards/BoardCards";
-import { useAnimationTheme } from "../../../contexts/AnimationThemeProvider"; // Adjust path as needed
+import { useAnimationTheme } from "../../../contexts/AnimationThemeProvider";
 
 interface PlayerCardsProps {
   playerCards: Card[];
   gamePhaseArrangeCards: boolean;
   arrangeCardsTimeLeft: number;
+  showdownState?: any;
 }
 
-// Showing player's private cards during a hand, also allowing card arrangement during card-arrangement phase
+// Enhanced PlayerCards component with showdown functionality
 const PlayerCards: React.FC<PlayerCardsProps> = ({
   playerCards,
   gamePhaseArrangeCards,
   arrangeCardsTimeLeft,
+  showdownState,
 }) => {
   const { animationLevel } = useAnimationTheme();
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
@@ -137,6 +139,11 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
     window.dispatchEvent(clearEvent);
   };
 
+  // Check if a specific row is the highlighted showdown board
+  const isHighlightedShowdownRow = (rowIndex: number) => {
+    return showdownState && showdownState.board === rowIndex;
+  };
+
   return (
     <div className={`player-cards-container --${animationLevel}`}>
       {Array(3) // Create 3 rows
@@ -148,16 +155,24 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
             : arrangedCards;
           const cardsForRow = cardSource.slice(startIndex, startIndex + 4);
 
+          const isShowdownHighlighted = isHighlightedShowdownRow(rowIndex);
+
           return (
             <div
               key={`player-row-${rowIndex}`}
-              className={`player-row --${animationLevel}`}
+              className={`player-row ${isShowdownHighlighted ? "showdown-highlight" : ""} --${animationLevel}`}
               onMouseEnter={() => {
                 timerRef.current = handleRowMouseEnter(rowIndex);
               }}
               onMouseLeave={() => {
                 handleRowMouseLeave(timerRef.current);
                 timerRef.current = null;
+              }}
+              style={{
+                transform: isShowdownHighlighted ? "scale(1.1)" : "scale(1)",
+                zIndex: isShowdownHighlighted ? 10 : 1,
+                transition:
+                  animationLevel !== "low" ? "all 0.5s ease-in-out" : "none",
               }}
             >
               <div className="player-cards-row">
@@ -178,6 +193,24 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
                   );
                 })}
               </div>
+
+              {/* Show hero's hand rank during showdown */}
+              {isShowdownHighlighted &&
+                showdownState &&
+                showdownState.playersHandRank &&
+                showdownState.playersHandRank.some(
+                  ([id, _]: [string, string]) => id === playerId
+                ) && (
+                  <div className="hero-hand-rank">
+                    <span>
+                      {
+                        showdownState.playersHandRank.find(
+                          ([id, _]: [string, string]) => id === playerId
+                        )![1]
+                      }
+                    </span>
+                  </div>
+                )}
             </div>
           );
         })}

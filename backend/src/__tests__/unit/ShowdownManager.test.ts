@@ -142,6 +142,7 @@ describe("ShowdownManager", () => {
       },
       arrangePlayerCardsState: null,
       potsWinners: null,
+      showdownResults: null,
     };
 
     // Setup mock pot manager

@@ -1,10 +1,11 @@
-// src\game\broadcasting\GameState.ts - Server side version of game state representation
+//  Server side version of game state representation
 
 import { PlayerInGame } from "./PlayerInGame";
 import { TableConfig, BettingState } from "../betting/BettingTypes";
 import { ArrangePlayerCardsState } from "../arrangeCards/ArrangePlayerCardsManager";
 import { Card, Position } from "@patchpatch/shared";
 import { Player } from "player/Player";
+import { HandStrength } from "game/showdown/ShowdownManager";
 
 export enum GamePhase {
   Waiting = "waiting", // waiting for ready players to join next hand
@@ -22,6 +23,7 @@ export interface ShowdownResult {
   board: number; // 0, 1, or 2
   potAmount: number; // How much was in this portion of the pot
   winners: Map<string, number>; // Player IDs and their winnings
+  playersHandRank: Map<PlayerInGame, HandStrength>; // Map player id to hand strength in the current board
 }
 
 export interface DetailedGameState {
@@ -51,5 +53,6 @@ export interface DetailedGameState {
   bettingState: BettingState | null;
   tableConfig: TableConfig;
   arrangePlayerCardsState: ArrangePlayerCardsState | null;
-  showdownResults?: ShowdownResult | null; // showdown results to broadcast
+
+  showdownResults: ShowdownResult | null; // showdown results to broadcast
 }

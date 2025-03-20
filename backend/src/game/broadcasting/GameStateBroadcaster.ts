@@ -5,9 +5,11 @@ import { Game } from "../Game";
 import {
   ArrangePlayerCardsStateClientData,
   BettingStateClientData,
+  Card,
   GameStateServerBroadcast,
   PrivatePlayerClientData,
   PublicPlayerClientData,
+  ShowdownResultClientData,
   SocketEvents,
   TableConfigClientData,
 } from "@patchpatch/shared";
@@ -19,6 +21,8 @@ import {
   PlayerPrivateState,
   PlayerPublicState,
 } from "game/types/PlayerInGame";
+import { GamePhase, ShowdownResult } from "../types/GameState";
+import { ShowdownManager } from "game/showdown/ShowdownManager";
 
 export class GameStateBroadcaster {
   private _cachedLastBaseState: GameStateServerBroadcast | null;
@@ -120,15 +124,26 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
       } as PublicPlayerClientData;
     }
 
+    // expose player's private cards at showdown only
+    const exposePrivateCards =
+      game.getPhase() === GamePhase.Showdown && !player.isFolded();
+    const playerPrivateCards = exposePrivateCards
+      ? player.getPlayerPrivateState().cards
+      : undefined;
+
     // For occupied seats, get the full public state and convert to client format
     return {
-      ...reducePlayerPublicStateToClientData(player.getPlayerPublicState()),
+      ...reducePlayerPublicStateToClientData(
+        player.getPlayerPublicState(),
+        playerPrivateCards
+      ),
       tableAbsolutePosition: index,
     } as PublicPlayerClientData;
   });
 
   const bettingState = game.getBettingState();
   const arrangePlayerCardsState = game.getArrangePlayerCardsState();
+  const showdownState = game.getShowdownState();
 
   return {
     id: game.getId(),
@@ -148,7 +163,12 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
     arrangePlayerCardsState: arrangePlayerCardsState
       ? reduceArrangeCardsToClientData(arrangePlayerCardsState)
       : null,
-    potWinners: game.getPotsWinners(),
+    showdown: showdownState
+      ? reduceShowdownInfoToClientData(
+          showdownState,
+          game.getTableConfig().showdownAnimationTime
+        )
+      : null,
   };
 
   function reduceTableConfigToClientData(
@@ -189,7 +209,8 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
   }
 
   function reducePlayerPublicStateToClientData(
-    playerState: PlayerPublicState
+    playerState: PlayerPublicState,
+    playerCards?: Card[]
   ): PublicPlayerClientData {
     return {
       name: playerState.name,
@@ -198,6 +219,7 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
       id: playerState.id,
       tableAbsolutePosition: playerState.tablePosition,
       roundPotContributions: playerState.roundPotContributions,
+      cards: playerCards,
     };
   }
 }
@@ -208,5 +230,20 @@ function reducePlayerPrivateStateToClientData(
   return {
     cards: privateState.cards,
     remainingTimeCookies: privateState.remainingTimeCookies ?? 0,
+  };
+}
+
+function reduceShowdownInfoToClientData(
+  showdownResults: ShowdownResult,
+  ShowdownAnimationTime: number
+): ShowdownResultClientData {
+  return {
+    board: showdownResults.board,
+    potAmount: showdownResults.potAmount,
+    winners: Array.from(showdownResults.winners.entries()), // Convert Map to array
+    playersHandRank: Array.from(showdownResults.playersHandRank.entries()).map(
+      ([player, handStrength]) => [player.getId(), handStrength.category]
+    ),
+    animationTime: ShowdownAnimationTime,
   };
 }

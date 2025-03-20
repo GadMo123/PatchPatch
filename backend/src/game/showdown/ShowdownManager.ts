@@ -6,14 +6,15 @@ import PokerHandEvaluator from "game/utils/OmahaHandEvaluator";
 import { PotContribution } from "game/utils/PotUtils/PotContribution";
 import { PotManager } from "game/utils/PotUtils/PotManager";
 
-type HandStrength = { value: number; category: string };
+export type HandStrength = { value: number; category: string };
 
 export class ShowdownManager {
   private _playersHandStrengthMap: Map<PlayerInGame, HandStrength>[];
   constructor(
     private _game: Game,
     private _state: DetailedGameState,
-    private _potManager: PotManager
+    private _potManager: PotManager,
+    private _afterShowdown: () => Promise<void>
   ) {
     //Calculate Hand strength for active players in showdown
     this._playersHandStrengthMap = this.evalPlayersHands();
@@ -118,6 +119,7 @@ export class ShowdownManager {
               amount,
             ])
           ),
+          playersHandRank: this._playersHandStrengthMap[boardIndex],
         };
 
         // Broadcast this result and wait for client animation display
@@ -143,6 +145,7 @@ export class ShowdownManager {
       },
       null
     );
+    this._afterShowdown();
   }
 
   private distributeWinningsForBoard(

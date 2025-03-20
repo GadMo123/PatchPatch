@@ -10,7 +10,7 @@ import { Game } from "../game/Game";
 import { TableConfig } from "../game/betting/BettingTypes";
 import { getLobbyStatus } from "../lobby/LobbyManager";
 import { GameServerConfig, SocketEvents } from "@patchpatch/shared";
-import { CactusKev } from "game/utils/Cactus-Kev";
+import { CactusKev } from "../game/utils/Cactus-Kev";
 
 const serverConfig: GameServerConfig = {
   maxGamesPerServer: 3000,
@@ -166,35 +166,61 @@ function createDummyGames(server: Server) {
     "admin",
     "5-10",
     server,
-    getTableConfig(100000, 10, Infinity, 10, 5, 10, 2, 2, 50, 500, 600000)
+    getTableConfig(100000, 10, Infinity, 10, 5, 10, 2, 2, 50, 500, 600000, 5000)
   );
 
   createGame(
     "admin",
     "10-20",
     server,
-    getTableConfig(10000, 20, Infinity, 10, 10, 20, 3, 6, 50, 500, 60000)
+    getTableConfig(10000, 20, Infinity, 10, 10, 20, 3, 6, 50, 500, 60000, 5000)
   );
 
   createGame(
     "admin",
     "25-50",
     server,
-    getTableConfig(10000, 50, Infinity, 10, 25, 50, 3, 6, 50, 500, 60000)
+    getTableConfig(10000, 50, Infinity, 10, 25, 50, 3, 6, 50, 500, 60000, 5000)
   );
 
   createGame(
     "admin",
     "50-100",
     server,
-    getTableConfig(10000, 100, Infinity, 10, 50, 100, 4, 3, 50, 500, 60000)
+    getTableConfig(
+      10000,
+      100,
+      Infinity,
+      10,
+      50,
+      100,
+      4,
+      3,
+      50,
+      500,
+      60000,
+      5000
+    )
   );
 
   createGame(
     "admin",
     "100-200",
     server,
-    getTableConfig(10000, 200, Infinity, 10, 100, 200, 6, 2, 50, 500, 60000)
+    getTableConfig(
+      10000,
+      200,
+      Infinity,
+      10,
+      100,
+      200,
+      6,
+      2,
+      50,
+      500,
+      60000,
+      5000
+    )
   );
 }
 
@@ -209,7 +235,8 @@ export function getTableConfig(
   maxPlayers: number,
   minBuyin: number,
   maxBuyin: number,
-  timePerArrangeAction: number
+  timePerArrangeAction: number,
+  showdownAnimationTime: number
 ): TableConfig {
   return {
     timePerAction: timePerAction,
@@ -223,6 +250,7 @@ export function getTableConfig(
     maxPlayers: maxPlayers,
     maxBuyin: maxBuyin,
     minBuyin: minBuyin,
+    showdownAnimationTime: showdownAnimationTime,
   };
 }
 

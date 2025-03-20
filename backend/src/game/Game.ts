@@ -18,6 +18,7 @@ import {
 } from "./utils/PokerPositionsUtils";
 import { PotManager } from "./utils/PotUtils/PotManager";
 import { PotContribution } from "./utils/PotUtils/PotContribution";
+import { ShowdownManager } from "./showdown/ShowdownManager";
 
 export class Game {
   private _deck: Deck | null;
@@ -56,13 +57,14 @@ export class Game {
       bettingState: null,
       arrangePlayerCardsState: null,
       potsWinners: null,
+      showdownResults: null,
     };
     this._deck = null;
     this._gameFlowManager = null;
     this._stacksUpdatesForNextHand = new Array<[PlayerInGame, number]>();
   }
 
-  async PrepareNextHand(): Promise<boolean> {
+  private cleanupHand() {
     this._potManager = new PotManager(new PotContribution());
     this._isHandWonWithoutShowdown = false;
     this._state = {
@@ -71,9 +73,15 @@ export class Game {
       flops: [],
       turns: [],
       rivers: [],
+      arrangePlayerCardsState: null,
+      bettingState: null,
+      showdownResults: null,
     };
+  }
 
+  async PrepareNextHand(): Promise<boolean> {
     return await this._TableConditionChangeMutex.runExclusive(async () => {
+      this.cleanupHand();
       // Apply stack updates that we saved during the last hand ( = buyins of active players happens after the hand done)
       this._stacksUpdatesForNextHand.forEach(([player, amount]) => {
         player.updatePlayerPublicState({
@@ -303,6 +311,10 @@ export class Game {
     return this._state.bettingState;
   }
 
+  getShowdownState(): import("./types/GameState").ShowdownResult | null {
+    return this._state.showdownResults ?? null;
+  }
+
   checkIfHandWonWithoutShowdown(): void {
     let winner: PlayerInGame | null = null;
     let standingPlayers = 0;
@@ -345,7 +357,7 @@ export class Game {
 
   doShowdown(afterShowdown: () => Promise<void>) {
     this._state.phase = GamePhase.Showdown;
-    //todo
+    new ShowdownManager(this, this._state, this._potManager, afterShowdown);
   }
 
   getServer() {

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
 import "./GameView.css";
-import OpponentCards from "../../gameComponents/playersCardArea/OpponentCards/OpponentCards";
 import PlayerCards from "../../gameComponents/playersCardArea/PlayerCards/PlayerCards";
 import BoardCards from "../../gameComponents/board/BoardCards/BoardCards";
 import BetPanel from "../../gameComponents/betting/BetPanel/BetPanel";
@@ -22,9 +21,8 @@ import {
 } from "../../utils/GameHelpers";
 import PotDisplay from "../../components/common/PotDisplay/PotDisplay";
 import { useAnimationTheme } from "../../contexts/AnimationThemeProvider"; // Adjust path as needed
+import { EnhancedBoardCards } from "../../gameComponents/showdown/EnhancedBoardCards";
 
-// Memoized OpponentCards component
-const MemoizedOpponentCards = React.memo(OpponentCards);
 // Memoized BoardCards component
 const MemoizedBoardCards = React.memo(BoardCards);
 // Memoized PlayerCards component
@@ -72,25 +70,17 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     return constructBoards(gameState.flops, gameState.turns, gameState.rivers);
   }, [gameState?.flops, gameState?.turns, gameState?.rivers]);
 
-  // Memoize opponent data
-  const opponentData = useMemo(() => {
-    if (!gameState?.publicPlayerDataMapByTablePosition) return null;
-    return gameState.publicPlayerDataMapByTablePosition
-      .filter((player) => player.id && player.id !== playerId)
-      .map((player) => ({
-        id: player.id!,
-        name: player.name || "Villain",
-        cards: player.cards || [],
-        position: player.position!,
-      }));
-  }, [gameState?.publicPlayerDataMapByTablePosition, playerId]);
-
   // Memoize player cards
   const playerCards = useMemo(() => {
     return gameState?.privatePlayerData?.cards
       ? toCardArray(gameState.privatePlayerData.cards as CardLike[])
       : [];
   }, [gameState?.privatePlayerData?.cards]);
+
+  // Determine if we're in showdown phase
+  const isShowdownPhase = useMemo(() => {
+    return !!gameState?.showdown;
+  }, [gameState?.showdown]);
 
   // Force (request) server to send last game-state as long as we don't have one (for reconnection / lag / ect.).
   useEffect(() => {
@@ -146,7 +136,15 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
         {tableProps && (
           <TableAndSeats {...tableProps} canBuyIn={canBuyIn}>
             <div className={`boards-container --${animationLevel}`}>
-              {boards && <MemoizedBoardCards boards={boards} />}
+              {boards &&
+                (isShowdownPhase ? (
+                  <EnhancedBoardCards
+                    boards={boards}
+                    showdownState={gameState?.showdown}
+                  />
+                ) : (
+                  <MemoizedBoardCards boards={boards} />
+                ))}
             </div>
             {gameState?.potSizes?.length ? (
               <div className={`pot-displays --${animationLevel}`}>
@@ -158,10 +156,6 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
           </TableAndSeats>
         )}
 
-        {/* <div className={`opponent-area --${animationLevel}`}>
-          {opponentData && <MemoizedOpponentCards opponents={opponentData} />}
-        </div> */}
-
         <div className={`player-area --${animationLevel}`}>
           <div className={`player-cards --${animationLevel}`}>
             {playerCards.length > 0 && (
@@ -171,6 +165,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
                 arrangeCardsTimeLeft={
                   gameState?.arrangePlayerCardsState?.timeRemaining ?? 0
                 }
+                showdownState={gameState?.showdown}
               />
             )}
           </div>

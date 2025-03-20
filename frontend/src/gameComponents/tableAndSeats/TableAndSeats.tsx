@@ -1,17 +1,23 @@
 import React, { useEffect, useState } from "react";
 import "./TableAndSeats.css";
 import { useGameContext } from "../../contexts/GameContext";
-import { PublicPlayerClientData } from "@patchpatch/shared";
+import {
+  PublicPlayerClientData,
+  ShowdownResultClientData,
+} from "@patchpatch/shared";
 import { useJoinGame } from "../../hooks/CreateSocketAction";
 import { useBuyInDialog } from "../../contexts/BuyInContext";
 import PotDisplay from "../../components/common/PotDisplay/PotDisplay";
 import { useAnimationTheme } from "../../contexts/AnimationThemeProvider";
+import { WinningAnimation } from "../showdown/WinningAnimation";
+import { ShowdownHandView } from "../showdown/ShowdownHandView";
 
 export interface TableProps {
   numberOfSeats: 2 | 3 | 6;
   seatsMap: { [index: number]: PublicPlayerClientData };
   isJoinedGame: boolean;
   canBuyIn: boolean;
+  showdownState: ShowdownResultClientData | null;
   children?: React.ReactNode;
 }
 
@@ -20,6 +26,7 @@ const TableAndSeats: React.FC<TableProps> = ({
   seatsMap,
   isJoinedGame,
   canBuyIn,
+  showdownState,
   children,
 }) => {
   const { animationLevel } = useAnimationTheme();
@@ -27,6 +34,12 @@ const TableAndSeats: React.FC<TableProps> = ({
   const { gameId, playerId } = useGameContext();
   const { sendAction: joinGame } = useJoinGame();
   const { openBuyInDialog } = useBuyInDialog();
+  const [showWinningAnimation, setShowWinningAnimation] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const [updatedStacks, setUpdatedStacks] = useState<{ [key: string]: number }>(
+    {}
+  );
 
   useEffect(() => {
     const calculateTableSize = () => {
@@ -40,6 +53,36 @@ const TableAndSeats: React.FC<TableProps> = ({
     window.addEventListener("resize", calculateTableSize);
     return () => window.removeEventListener("resize", calculateTableSize);
   }, []);
+
+  // Handle showdown winner animations
+  useEffect(() => {
+    if (showdownState && showdownState.winners) {
+      const winnerAnimations: { [key: string]: boolean } = {};
+      const winnerStacks: { [key: string]: number } = {};
+
+      // Setup animations for each winner
+      showdownState.winners.forEach(([winnerId, amount]) => {
+        winnerAnimations[winnerId] = amount > 0;
+
+        // Find the player's current stack
+        Object.values(seatsMap).forEach((player) => {
+          if (player.id === winnerId && player.stack) {
+            winnerStacks[winnerId] = player.stack;
+          }
+        });
+      });
+
+      setShowWinningAnimation(winnerAnimations);
+      setUpdatedStacks(winnerStacks);
+
+      // Auto-clear animations after timeout
+      const timeout = setTimeout(() => {
+        setShowWinningAnimation({});
+      }, showdownState.animationTime);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [showdownState, seatsMap]);
 
   const handleJoinGame = async (seatInfo: PublicPlayerClientData) => {
     try {
@@ -57,6 +100,20 @@ const TableAndSeats: React.FC<TableProps> = ({
     }
   };
 
+  const handleWinningAnimationComplete = (playerId: string, amount: number) => {
+    // Update the animation state to stop showing it
+    setShowWinningAnimation((prev) => ({
+      ...prev,
+      [playerId]: false,
+    }));
+
+    // Update the displayed stack amount
+    setUpdatedStacks((prev) => ({
+      ...prev,
+      [playerId]: (prev[playerId] || 0) + amount,
+    }));
+  };
+
   const renderSeats = () => {
     if (tableSize.width === 0) return null;
 
@@ -71,10 +128,33 @@ const TableAndSeats: React.FC<TableProps> = ({
 
       const isHeroSeat = seatInfo.id === playerId;
       const showBuyInButton = isHeroSeat && canBuyIn;
+      const isWinner =
+        showdownState &&
+        showdownState.winners &&
+        seatInfo.id &&
+        showdownState.winners.some(([id, _]) => id === seatInfo.id);
+
+      const winAmount =
+        isWinner && seatInfo.id
+          ? showdownState!.winners.find(([id, _]) => id === seatInfo.id)?.[1] ||
+            0
+          : 0;
+
+      // Determine positioning for showdown hand display
+      // We want to show it outside the table ellipse
+      const handPositionFactor = 1.3; // Further out than the seat
+      const handX = x * handPositionFactor;
+      const handY = y * handPositionFactor;
 
       const potDistanceRatio = 0.6;
       const potX = x * potDistanceRatio;
       const potY = y * potDistanceRatio;
+
+      // Calculate displayed stack amount
+      const displayedStack =
+        seatInfo.id && updatedStacks[seatInfo.id] !== undefined
+          ? updatedStacks[seatInfo.id]
+          : seatInfo.stack;
 
       return (
         <React.Fragment key={seatInfo.tableAbsolutePosition}>
@@ -91,10 +171,18 @@ const TableAndSeats: React.FC<TableProps> = ({
                   {isHeroSeat ? "You" : seatInfo.name}
                 </div>
                 <div className={`player-stack --${animationLevel}`}>
-                  ${seatInfo.stack}
+                  ${displayedStack}
+                  {isWinner && showWinningAnimation[seatInfo.id] && (
+                    <WinningAnimation
+                      amount={winAmount}
+                      onComplete={() =>
+                        handleWinningAnimationComplete(seatInfo.id!, winAmount)
+                      }
+                    />
+                  )}
                 </div>
                 <div className={`player-position --${animationLevel}`}>
-                  ${seatInfo.position}
+                  {seatInfo.position}
                 </div>
                 {showBuyInButton && seatInfo.stack === 0 && (
                   <button
@@ -119,6 +207,39 @@ const TableAndSeats: React.FC<TableProps> = ({
               )
             )}
           </div>
+
+          {/* Showdown hand display for players */}
+          {showdownState &&
+            seatInfo.id &&
+            seatInfo.cards &&
+            seatInfo.cards.length > 0 &&
+            showdownState.playersHandRank &&
+            showdownState.playersHandRank.some(
+              ([id, _]) => id === seatInfo.id
+            ) && (
+              <div
+                className="showdown-hand-container"
+                style={{
+                  position: "absolute",
+                  left: `calc(50% + ${handX}px)`,
+                  top: `calc(50% + ${handY}px)`,
+                  transform: "translate(-50%, -50%)",
+                  zIndex: 15,
+                }}
+              >
+                <ShowdownHandView
+                  cards={seatInfo.cards}
+                  handRank={
+                    showdownState.playersHandRank.find(
+                      ([id, _]) => id === seatInfo.id
+                    )![1]
+                  }
+                  isHero={isHeroSeat}
+                  boardIndex={showdownState.board}
+                />
+              </div>
+            )}
+
           {seatInfo.id &&
           seatInfo.roundPotContributions &&
           seatInfo.roundPotContributions > 0 ? (

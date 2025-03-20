@@ -72,7 +72,7 @@ export interface GameStateServerBroadcast {
     bettingState: BettingStateClientData | null;
     tableConfig: TableConfigClientData;
     arrangePlayerCardsState: ArrangePlayerCardsStateClientData | null;
-    potWinners: Map<string, number> | null;
+    showdown: ShowdownResultClientData | null;
 }
 export interface TableConfigClientData {
     maxPlayers: 2 | 3 | 6;
@@ -93,6 +93,13 @@ export interface PublicPlayerClientData {
 export interface PrivatePlayerClientData {
     cards?: Card[];
     remainingTimeCookies?: number;
+}
+export interface ShowdownResultClientData {
+    board: number;
+    potAmount: number;
+    winners: [string, number][];
+    playersHandRank: [string, string][];
+    animationTime: number;
 }
 export interface BettingStateClientData {
     timeRemaining: number;

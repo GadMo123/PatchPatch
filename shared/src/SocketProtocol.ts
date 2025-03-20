@@ -86,7 +86,7 @@ export interface GameStateServerBroadcast {
   bettingState: BettingStateClientData | null;
   tableConfig: TableConfigClientData;
   arrangePlayerCardsState: ArrangePlayerCardsStateClientData | null;
-  potWinners: Map<string, number> | null; // player id -> amount won for showdown pot-distribution
+  showdown: ShowdownResultClientData | null;
 }
 
 export interface TableConfigClientData {
@@ -110,6 +110,14 @@ export interface PublicPlayerClientData {
 export interface PrivatePlayerClientData {
   cards?: Card[]; // Hero cards
   remainingTimeCookies?: number;
+}
+
+export interface ShowdownResultClientData {
+  board: number; // 0, 1, or 2
+  potAmount: number; // How much was in this portion of the pot
+  winners: [string, number][]; // Player IDs and their winnings
+  playersHandRank: [string, string][]; // Map player id to hand strength in the current board
+  animationTime: number;
 }
 
 export interface BettingStateClientData {

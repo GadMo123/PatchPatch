@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/server/Server.ts",
+    "start": "ts-node -r tsconfig-paths/register src/server/Server.ts",
     "build": "tsc --build",
     "serve": "node dist/Server.js",
     "format": "prettier --write .",

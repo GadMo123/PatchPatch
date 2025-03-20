@@ -27,6 +27,7 @@ export interface TableConfig {
   maxPlayers: number;
   minBuyin: number;
   maxBuyin: number;
+  showdownAnimationTime: number;
 }
 
 export interface ActionValidationResult {
