@@ -150,12 +150,6 @@ const TableAndSeats: React.FC<TableProps> = ({
       const potX = x * potDistanceRatio;
       const potY = y * potDistanceRatio;
 
-      // Calculate displayed stack amount
-      const displayedStack =
-        seatInfo.id && updatedStacks[seatInfo.id] !== undefined
-          ? updatedStacks[seatInfo.id]
-          : seatInfo.stack;
-
       return (
         <React.Fragment key={seatInfo.tableAbsolutePosition}>
           <div
@@ -171,7 +165,7 @@ const TableAndSeats: React.FC<TableProps> = ({
                   {isHeroSeat ? "You" : seatInfo.name}
                 </div>
                 <div className={`player-stack --${animationLevel}`}>
-                  ${displayedStack}
+                  ${Math.round(seatInfo.stack ?? 0)}{" "}
                   {isWinner && showWinningAnimation[seatInfo.id] && (
                     <WinningAnimation
                       amount={winAmount}

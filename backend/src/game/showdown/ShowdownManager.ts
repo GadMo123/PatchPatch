@@ -93,9 +93,9 @@ export class ShowdownManager {
 
       // Process each pot for this board
       while (remainingPots.length > 0) {
-        console.log("remainingPots: " + remainingPots.length);
         const currentPot = remainingPots.pop()!; // Get the current pot
         const potSize = currentPot.getTotalPotSize();
+        console.log("pot size " + potSize);
 
         // For each board, divide the pot by the remaining boards
         // Board 0: divide by 3, Board 1: divide by 2, Board 2: take all remaining
@@ -179,6 +179,7 @@ export class ShowdownManager {
       (player) => handStrengths.get(player)!.value === bestHandValue
     );
 
+    console.log("distributeWinningsForBoard " + potWinners.toString());
     // Distribute pot evenly among winners
     const winnerShare =
       Math.round((boardPotAmount / potWinners.length) * 100) / 100;
