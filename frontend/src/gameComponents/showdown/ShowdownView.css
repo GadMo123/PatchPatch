@@ -1,69 +1,71 @@
 .showdown-hand {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: rgba(0, 0, 0, 0.7);
-    border-radius: 8px;
-    padding: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
-    position: absolute;
-    z-index: 15;
-  }
-  
-  .showdown-hand.hero-hand {
-    position: relative;
-    margin-top: 10px;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.5);
-  }
-  
-  .cards-container {
-    display: flex;
-    gap: 4px;
-  }
-  
-  .showdown-card {
-    width: 40px;
-    height: 56px;
-    transition: transform 0.3s ease;
-  }
-  
-  .showdown-card:hover {
-    transform: translateY(-5px);
-  }
-  
-  .hand-rank {
-    color: #FFD700;
-    font-weight: bold;
-    text-shadow: 0 0 3px #000;
-    margin-top: 5px;
-    font-size: 14px;
-  }
-  
-  .hero-hand .hand-rank {
-    font-size: 16px;
-    color: #00FFFF;
-  }
-  
-  /* Board highlighting styles */
-  .enhanced-boards {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 20px;
-    width: 100%;
-  }
-  
-  .board-section {
-    transition: all 0.5s ease;
-    position: relative;
-  }
-  
-  .board-section.showdown-highlighted {
-    box-shadow: 0 0 15px #FFD700, 0 0 30px #FFD700;
-    z-index: 10;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  position: absolute;
+  z-index: 50;
+}
+
+.cards-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  border-radius: 8px;
+}
+
+.card-wrapper {
+  display: flex;
+  justify-content: center;
+  width: calc(8vw * 1.618 / 1.618); /* Smaller size */
+  height: calc(8vw * 1.618);
+  max-width: 80px; /* Reduced max size */
+  max-height: 129.44px; /* Adjusted for golden ratio */
+}
+
+.showdown-card {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.3s ease;
+}
+
+.showdown-card.--high:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+}
+
+.showdown-card.--mid:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+.showdown-card.--low:hover {
+  transform: none;
+}
+
+.hand-rank {
+  color: #FFD700;
+  font-weight: bold;
+  text-shadow: 0 0 3px #000;
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+.hero-hand .hand-rank {
+  font-size: 16px;
+  color: #00FFFF;
+}
+
+
+
+/* Animation level variations */
+.showdown-hand.--low {
+  transition: none;
+}
   
   /* Animation for winning chips */
   .winning-animation {
@@ -107,7 +109,6 @@
   
   /* Animation level variations */
   .showdown-hand.--low,
-  .board-section.--low,
   .winning-animation.--low {
     transition: none;
   }

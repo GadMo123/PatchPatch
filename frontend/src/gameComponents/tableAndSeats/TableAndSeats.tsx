@@ -54,17 +54,14 @@ const TableAndSeats: React.FC<TableProps> = ({
     return () => window.removeEventListener("resize", calculateTableSize);
   }, []);
 
-  // Handle showdown winner animations
   useEffect(() => {
     if (showdownState && showdownState.winners) {
       const winnerAnimations: { [key: string]: boolean } = {};
       const winnerStacks: { [key: string]: number } = {};
 
-      // Setup animations for each winner
       showdownState.winners.forEach(([winnerId, amount]) => {
         winnerAnimations[winnerId] = amount > 0;
 
-        // Find the player's current stack
         Object.values(seatsMap).forEach((player) => {
           if (player.id === winnerId && player.stack) {
             winnerStacks[winnerId] = player.stack;
@@ -75,7 +72,6 @@ const TableAndSeats: React.FC<TableProps> = ({
       setShowWinningAnimation(winnerAnimations);
       setUpdatedStacks(winnerStacks);
 
-      // Auto-clear animations after timeout
       const timeout = setTimeout(() => {
         setShowWinningAnimation({});
       }, showdownState.animationTime);
@@ -101,13 +97,11 @@ const TableAndSeats: React.FC<TableProps> = ({
   };
 
   const handleWinningAnimationComplete = (playerId: string, amount: number) => {
-    // Update the animation state to stop showing it
     setShowWinningAnimation((prev) => ({
       ...prev,
       [playerId]: false,
     }));
 
-    // Update the displayed stack amount
     setUpdatedStacks((prev) => ({
       ...prev,
       [playerId]: (prev[playerId] || 0) + amount,
@@ -140,9 +134,7 @@ const TableAndSeats: React.FC<TableProps> = ({
             0
           : 0;
 
-      // Determine positioning for showdown hand display
-      // We want to show it outside the table ellipse
-      const handPositionFactor = 1.3; // Further out than the seat
+      const handPositionFactor = 1.1; // Reduced to bring cards closer to the seat
       const handX = x * handPositionFactor;
       const handY = y * handPositionFactor;
 
@@ -202,11 +194,11 @@ const TableAndSeats: React.FC<TableProps> = ({
             )}
           </div>
 
-          {/* Showdown hand display for players */}
           {showdownState &&
             seatInfo.id &&
             seatInfo.cards &&
             seatInfo.cards.length > 0 &&
+            !isHeroSeat &&
             showdownState.playersHandRank &&
             showdownState.playersHandRank.some(
               ([id, _]) => id === seatInfo.id
@@ -228,7 +220,6 @@ const TableAndSeats: React.FC<TableProps> = ({
                       ([id, _]) => id === seatInfo.id
                     )![1]
                   }
-                  isHero={isHeroSeat}
                   boardIndex={showdownState.board}
                 />
               </div>
@@ -265,7 +256,7 @@ const TableAndSeats: React.FC<TableProps> = ({
 
   return (
     <div
-      className={`table-ellipse  --${animationLevel}`}
+      className={`table-ellipse --${animationLevel}`}
       style={{
         width: `${tableSize.width}px`,
         height: `${tableSize.height}px`,

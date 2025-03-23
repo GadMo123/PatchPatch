@@ -166,20 +166,7 @@ function createDummyGames(server: Server) {
     "admin",
     "5-10",
     server,
-    getTableConfig(
-      100000,
-      10,
-      Infinity,
-      10,
-      5,
-      10,
-      2,
-      2,
-      50,
-      500,
-      600000,
-      15000
-    )
+    getTableConfig(100000, 10, Infinity, 10, 5, 10, 2, 2, 50, 500, 600000, 7000)
   );
 
   createGame(

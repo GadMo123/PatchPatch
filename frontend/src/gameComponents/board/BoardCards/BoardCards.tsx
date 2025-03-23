@@ -2,21 +2,24 @@ import React, { useState, useEffect } from "react";
 import CardView from "../../../components/common/card/CardView";
 import "./BoardCards.css";
 import { Card } from "@patchpatch/shared";
-import { useAnimationTheme } from "../../../contexts/AnimationThemeProvider"; // Adjust path as needed
+import { useAnimationTheme } from "../../../contexts/AnimationThemeProvider";
 
 interface BoardCardsProps {
   boards: Card[][];
+  showdownState?: any; // Add showdown state prop
 }
 
-// Create a custom event for board highlighting
 export const HIGHLIGHT_BOARD_EVENT = "highlight-board";
 
-// Displaying the boards
-const BoardCards: React.FC<BoardCardsProps> = ({ boards }) => {
+const BoardCards: React.FC<BoardCardsProps> = ({ boards, showdownState }) => {
   const { animationLevel } = useAnimationTheme();
   const [highlightedBoard, setHighlightedBoard] = useState<number | null>(null);
 
-  // Listen for the custom event to highlight a board
+  // Get highlighted board from showdown state or from custom event
+  const effectiveHighlightedBoard = showdownState
+    ? showdownState.board
+    : highlightedBoard;
+
   useEffect(() => {
     const handleHighlightEvent = (event: CustomEvent) => {
       setHighlightedBoard(event.detail.boardIndex);
@@ -26,14 +29,12 @@ const BoardCards: React.FC<BoardCardsProps> = ({ boards }) => {
       setHighlightedBoard(null);
     };
 
-    // Add event listeners
     window.addEventListener(
       HIGHLIGHT_BOARD_EVENT,
       handleHighlightEvent as EventListener
     );
     window.addEventListener("clear-highlight-board", handleClearHighlightEvent);
 
-    // Cleanup event listeners on unmount
     return () => {
       window.removeEventListener(
         HIGHLIGHT_BOARD_EVENT,
@@ -47,29 +48,43 @@ const BoardCards: React.FC<BoardCardsProps> = ({ boards }) => {
   }, []);
 
   return (
-    <>
-      <div className={`boards --${animationLevel}`}>
-        {boards.map((board, boardIndex) => (
+    <div className={`boards --${animationLevel}`}>
+      {boards.map((board, boardIndex) => {
+        const isShowdownBoard =
+          showdownState && effectiveHighlightedBoard === boardIndex;
+
+        return (
           <div
-            key={`board-${boardIndex}`}
-            className={`board-section ${highlightedBoard === boardIndex ? "highlighted" : ""} --${animationLevel}`}
+            key={`board-section-${boardIndex}`}
+            className={`board-section --${animationLevel} ${
+              effectiveHighlightedBoard === boardIndex ? "highlighted" : ""
+            } ${isShowdownBoard ? "showdown-highlighted" : ""}`}
+            data-row={boardIndex}
           >
-            <div className={`board --${animationLevel}`}>
-              {board.map(
-                (card, cardIndex) =>
-                  card && (
+            {board.map(
+              (card, cardIndex) =>
+                card && (
+                  <div
+                    key={`board-${boardIndex}-card-${cardIndex}`}
+                    className={`board-card --${animationLevel} ${
+                      isShowdownBoard ? "showdown-card" : ""
+                    }`}
+                    style={{
+                      gridRow: boardIndex + 1,
+                      gridColumn: cardIndex + 1,
+                    }}
+                  >
                     <CardView
-                      key={`board-${boardIndex}-card-${cardIndex}`}
                       card={card}
-                      className="card board-card"
+                      className={`card ${isShowdownBoard ? "showdown-card" : ""}`}
                     />
-                  )
-              )}
-            </div>
+                  </div>
+                )
+            )}
           </div>
-        ))}
-      </div>
-    </>
+        );
+      })}
+    </div>
   );
 };
 

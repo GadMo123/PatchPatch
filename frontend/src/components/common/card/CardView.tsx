@@ -2,13 +2,22 @@ import React from "react";
 import { Card, Rank, Suit } from "@patchpatch/shared";
 import "./CardView.css";
 import { useAnimationTheme } from "../../../contexts/AnimationThemeProvider";
+
 interface CardProps {
-  card: Card | { _rank: Rank; _suit: Suit };
+  card: Card | { _rank: Rank; _suit: Suit } | undefined;
   className?: string;
 }
 
 const CardView: React.FC<CardProps> = ({ card, className = "" }) => {
   const { animationLevel } = useAnimationTheme();
+
+  // Add null check here
+  if (!card) {
+    return (
+      <div className={`container empty ${className} --${animationLevel}`}></div>
+    );
+  }
+
   const rank = "rank" in card ? card.rank : card._rank;
   const suit = "suit" in card ? card.suit : card._suit;
 

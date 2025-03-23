@@ -1,139 +1,163 @@
+/* BoardCards.css - Grid Version */
 .boards {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);  /* 5 cards per row */
+  grid-template-rows: repeat(3, auto);    /* 3 rows */
   gap: 0.6vh;
+  width: 100%;
   justify-content: center;
+  position: relative; /* Allow absolute positioning of showdown row */
 }
 
 .board-section {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-column: 1 / -1; /* Span all columns */
+  transition: all 0.3s ease;
+}
+
+/* First row - Blue */
+.board-section[data-row="0"] {
+  border-left: 4px solid #00D2FF;
+}
+
+.board-section[data-row="0"].--high,
+.board-section[data-row="0"].--mid {
+  background: rgba(0, 210, 255, 0.15);
+  background-image: radial-gradient(circle at 10px 10px, rgba(0, 210, 255, 0.1) 2px, transparent 2px);
+  background-size: 20px 20px;
+  background-position: -4px 0;
+}
+
+.board-section[data-row="0"].--low {
+  background: rgba(0, 210, 255, 0.05);
+  background-image: none; /* No gradient for low */
+  background-size: auto;
+  background-position: 0 0;
+}
+
+/* Second row - Yellow */
+.board-section[data-row="1"] {
+  border-left: 4px solid #FFFF00;
+}
+
+.board-section[data-row="1"].--high,
+.board-section[data-row="1"].--mid {
+  background: rgba(255, 255, 0, 0.15);  
+  background-image: radial-gradient(circle at 10px 10px, rgba(255, 255, 0, 0.1) 2px, transparent 2px);
+  background-size: 20px 20px;
+  background-position: -4px 0;
+}
+
+.board-section[data-row="1"].--low {
+  background: rgba(255, 255, 0, 0.05);
+  background-image: none; /* No gradient for low */
+  background-size: auto;
+  background-position: 0 0;
+}
+
+/* Third row - Green */
+.board-section[data-row="2"] {
+  border-left: 4px solid #00FF9D;
+}
+
+.board-section[data-row="2"].--high,
+.board-section[data-row="2"].--mid {
+  background: rgba(0, 255, 157, 0.15);
+  background-image: radial-gradient(circle at 10px 10px, rgba(0, 255, 157, 0.1) 2px, transparent 2px);
+  background-size: 20px 20px;
+  background-position: -4px 0;
+}
+
+.board-section[data-row="2"].--low {
+  background: rgba(0, 255, 157, 0.05);
+  background-image: none; /* No gradient for low */
+  background-size: auto;
+  background-position: 0 0;
+}
+
+/* Card styling */
+.board-card {
   display: flex;
-  flex-direction: row;
-  flex: 1;
-  justify-content: flex-start;
+  justify-content: center;
+  position: relative;
 }
 
-
-.board-section.--high {
-  transition: all 0.3s ease; /* Full transitions */
-  margin-bottom: 2px; /* Minimal vertical spacing */
-}
-
-.board-section.--mid {
-  transition: all 0.1s ease; /* Shorter transitions */
-  margin-bottom: 1px; /* Reduced spacing */
-}
-
-.board-section.--low {
-  transition: none; /* No transitions */
-  margin-bottom: 0; /* No spacing */
-}
-
-/* Color-coded board sections - Updated with neon gradients and sparkles (remove gradient for low) */
-.board-section:nth-child(1).--high .board,
-.board-section:nth-child(1).--mid .board{
-  border-left: 4px solid #00D2FF; /* Neon Blue */
-  background: rgba(0, 210, 255, 0.15); /* Faint neon blue tint */
-  background-image: radial-gradient(circle at 10px 10px, rgba(0, 210, 255, 0.1) 2px, transparent 2px); /* Neon blue sparkles */
-  background-size: 20px 20px;
-  background-position: -4px 0; /* Extends background just 4px to the left */
-}
-
-.board-section:nth-child(1).--low .board{
-  border-left: 4px solid #00D2FF; /* Neon Blue */
-  background: rgba(0, 210, 255, 0.05); /* Very faint tint, no sparkles */
-  background-image: none; /* No sparkles */
-  background-size: auto;
-  background-position: 0 0;
-}
-
-.board-section:nth-child(2).--high .board,
-.board-section:nth-child(2).--mid .board{
-  border-left: 4px solid #FFFF00; /* Neon Yellow */
-  background: rgba(255, 255, 0, 0.15); /* Faint neon yellow tint */
-  background-image: radial-gradient(circle at 10px 10px, rgba(255, 255, 0, 0.1) 2px, transparent 2px); /* Neon yellow sparkles */
-  background-size: 20px 20px;
-  background-position: -4px 0; /* Extends background just 4px to the left */
-}
-
-.board-section:nth-child(2).--low .board{
-  border-left: 4px solid #FFFF00; /* Neon Yellow */
-  background: rgba(255, 255, 0, 0.05); /* Very faint tint, no sparkles */
-  background-image: none; /* No sparkles */
-  background-size: auto;
-  background-position: 0 0;
-}
-
-.board-section:nth-child(3).--high .board,
-.board-section:nth-child(3).--mid .board{
-  border-left: 4px solid #00FF9D; /* Neon Green */
-  background: rgba(0, 255, 157, 0.15); /* Faint neon green tint */
-  background-image: radial-gradient(circle at 10px 10px, rgba(0, 255, 157, 0.1) 2px, transparent 2px); /* Neon green sparkles */
-  background-size: 20px 20px;
-  background-position: -4px 0; /* Extends background just 4px to the left */
-}
-
-.board-section:nth-child(3).--low .board{
-  border-left: 4px solid #00FF9D; /* Neon Green */
-  background: rgba(0, 255, 157, 0.05); /* Very faint tint, no sparkles */
-  background-image: none; /* No sparkles */
-  background-size: auto;
-  background-position: 0 0;
-}
-
-.board-section.--high:hover,
-.board-section.--high.highlighted {
-  transform: translateX(4px);
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3); /* Subtle white glow */
+/* Card animation effects */
+.board-card.--high:hover .card {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.board-section.--mid:hover,
-.board-section.--mid.highlighted {
-  transform: translateX(4px);
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2); /* Reduced glow */
+.board-card.--mid:hover .card {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.board-section.--low:hover,
-.board-section.--low.highlighted {
-  transform: translateX(4px);
-  box-shadow: none; 
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-}
-
-.board{
-  display: flex;
-  flex-direction: row;
-}
-
-.board.--high {
-  transition: all 0.3s ease; /* Full transitions */
-}
-
-.board.--mid {
-  transition: all 0.1s ease; /* Shorter transitions */
-}
-
-.board.--low {
-  transition: none; /* No transitions */
-}
-
-.board.--high .card:hover {
-  transform: translateY(-4px); /* Full lift */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Enhanced shadow */
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.board.--mid .card:hover {
-  transform: translateY(-2px); /* Reduced lift */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Lighter shadow */
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-}
-
-.board.--low .card:hover {
-  transform: none; /* No lift */
-  box-shadow: none; /* No shadow */
+.board-card.--low:hover .card {
+  transform: none;
+  box-shadow: none;
   transition: none;
+}
+
+/* Row highlighting effects */
+.board-section.highlighted.--high {
+  transform: translateX(-4px); /* Move left */
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3); /* Glow effect */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 10;
+}
+
+.board-section.highlighted.--mid {
+  transform: translateX(-4px); /* Move left */
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2); /* Minor glow effect */
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  z-index: 10;
+}
+
+.board-section.highlighted.--low {
+  transform: translateX(-4px); /* Move left */
+  transition: transform 0.1s ease;
+  z-index: 10;
+}
+
+/* Showdown highlighting styles*/
+.board-section.showdown-highlighted {
+
+  transform: scale(1.4); /* Increase size */
+  background: rgba(255, 215, 0, 0.2); /* Highlight background */
+  box-shadow: 0 0 15px #FFD700; /* Glow effect */
+}
+
+.board-section.showdown-highlighted .board-card,
+.board-card.showdown-card {
+  transform: scale(1.4); /* Larger cards */
+}
+
+.board-section.showdown-highlighted.--high {
+  transform: translateX(-4px) scale(1.05);
+  box-shadow: 0 0 15px #FFD700;
+}
+
+.board-section.showdown-highlighted.--mid {
+  transform: translateX(-4px) scale(1.03);
+  box-shadow: 0 0 10px #FFD700;
+}
+
+.board-section.showdown-highlighted.--low {
+  transform: translateX(-4px);
+  border: 2px solid #FFD700;
+}
+
+.board-card.showdown-card .card,
+.card.showdown-card {
+  border: 2px solid #FFD700;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  /* Mobile styles */
 }

@@ -15,7 +15,6 @@ interface PlayerCardsProps {
   showdownState?: any;
 }
 
-// Enhanced PlayerCards component with showdown functionality
 const PlayerCards: React.FC<PlayerCardsProps> = ({
   playerCards,
   gamePhaseArrangeCards,
@@ -26,6 +25,7 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [arrangedCards, setArrangedCards] = useState<Card[]>([]);
   const [isArrangementComplete, setIsArrangementComplete] = useState(false);
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
   const timerRef = useRef<number | NodeJS.Timeout | null>(null);
 
   const { playerId, gameId } = useGameContext();
@@ -55,12 +55,10 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
   const handleCardClick = (index: number) => {
     if (isArrangementComplete || !gamePhaseArrangeCards) return;
     if (selectedCards.includes(index)) {
-      // If clicking the same card, deselect it
       setSelectedCards([]);
       return;
     }
     const newSelection = [...selectedCards, index];
-
     if (newSelection.length === 2) {
       const [firstIndex, secondIndex] = newSelection;
       setArrangedCards((prev) => {
@@ -71,18 +69,16 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
         ];
         return newArr;
       });
-      // Then clear the selection
       setSelectedCards([]);
     } else {
-      // Just add the new card to selection
       setSelectedCards(newSelection);
     }
   };
 
   const handleArrangementComplete = () => {
     if (isArrangementComplete) return;
-    if (typeof cancelTimer) cancelTimer(); // Cancel timer when manual action is taken
-    const response = sendAction({
+    if (typeof cancelTimer) cancelTimer();
+    sendAction({
       gameId: gameId,
       playerId: playerId,
       arrangement: arrangedCards,
@@ -90,130 +86,95 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
       if (response.success) {
         setIsArrangementComplete(true);
       } else {
-        console.log(response.message); // assuming error is the field name based on your Response interface
+        console.log(response.message);
       }
     });
   };
 
-  const getCardWrapperClassName = (absoluteIndex: number) => {
-    const classes = ["card-wrapper"];
-
-    if (gamePhaseArrangeCards && !isArrangementComplete) {
-      classes.push("arrangeable");
-      if (selectedCards.includes(absoluteIndex)) {
-        classes.push("selected");
-      }
-    } else {
-      classes.push("non-arrangeable");
-    }
-
-    return `${classes.join(" ")} --${animationLevel}`;
-  };
-
-  // Helper to handle row hover for visual feedback
   const handleRowMouseEnter = (rowIndex: number) => {
-    // Dispatch custom event to highlight the corresponding board
+    setHoveredRow(rowIndex);
     const highlightEvent = new CustomEvent(HIGHLIGHT_BOARD_EVENT, {
       detail: { boardIndex: rowIndex },
     });
     window.dispatchEvent(highlightEvent);
-
-    // Set a timer to automatically clear highlighting after 5 seconds
-    const timerId = setTimeout(() => {
-      const clearEvent = new CustomEvent("clear-highlight-board");
-      window.dispatchEvent(clearEvent);
-    }, 5000); //
-
-    // Store the timer ID for cleanup if mouse leaves before timeout
-    return timerId;
+    timerRef.current = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("clear-highlight-board"));
+      setHoveredRow(null);
+    }, 5000);
   };
 
-  const handleRowMouseLeave = (timerId?: number | NodeJS.Timeout | null) => {
-    // Clear the timeout if mouse leaves before 5 seconds
-    if (timerId) {
-      clearTimeout(timerId);
+  const handleRowMouseLeave = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
     }
-
-    // Dispatch event to clear the board highlighting immediately
-    const clearEvent = new CustomEvent("clear-highlight-board");
-    window.dispatchEvent(clearEvent);
+    window.dispatchEvent(new CustomEvent("clear-highlight-board"));
+    setHoveredRow(null);
   };
 
-  // Check if a specific row is the highlighted showdown board
   const isHighlightedShowdownRow = (rowIndex: number) => {
     return showdownState && showdownState.board === rowIndex;
   };
 
+  const cardsPerRow = 4;
+  const rows = [];
+  for (let i = 0; i < playerCards.length; i += cardsPerRow) {
+    rows.push(playerCards.slice(i, i + cardsPerRow));
+  }
+
   return (
     <div className={`player-cards-container --${animationLevel}`}>
-      {Array(3) // Create 3 rows
-        .fill(null)
-        .map((_, rowIndex) => {
-          const startIndex = rowIndex * 4;
-          const cardSource = isArrangementComplete
-            ? playerCards
-            : arrangedCards;
-          const cardsForRow = cardSource.slice(startIndex, startIndex + 4);
+      {rows.map((rowCards, rowIndex) => (
+        <div
+          key={`player-row-${rowIndex}`}
+          className={`player-card-row --${animationLevel} ${
+            hoveredRow === rowIndex ? "hovered" : ""
+          } ${isHighlightedShowdownRow(rowIndex) ? "showdown-highlight" : ""}`}
+          data-row={rowIndex}
+          onMouseEnter={() => handleRowMouseEnter(rowIndex)}
+          onMouseLeave={handleRowMouseLeave}
+        >
+          {rowCards.map((card, colIndex) => {
+            if (!card) return null;
+            const absoluteIndex = rowIndex * cardsPerRow + colIndex;
+            const displayCard = isArrangementComplete
+              ? playerCards[absoluteIndex]
+              : arrangedCards[absoluteIndex] || card;
 
-          const isShowdownHighlighted = isHighlightedShowdownRow(rowIndex);
-
-          return (
-            <div
-              key={`player-row-${rowIndex}`}
-              className={`player-row ${isShowdownHighlighted ? "showdown-highlight" : ""} --${animationLevel}`}
-              onMouseEnter={() => {
-                timerRef.current = handleRowMouseEnter(rowIndex);
-              }}
-              onMouseLeave={() => {
-                handleRowMouseLeave(timerRef.current);
-                timerRef.current = null;
-              }}
-              style={{
-                transform: isShowdownHighlighted ? "scale(1.1)" : "scale(1)",
-                zIndex: isShowdownHighlighted ? 10 : 1,
-                transition:
-                  animationLevel !== "low" ? "all 0.5s ease-in-out" : "none",
-              }}
-            >
-              <div className="player-cards-row">
-                {cardsForRow.map((card, cardIndex) => {
-                  const absoluteIndex = startIndex + cardIndex;
-                  const isSelected = selectedCards.includes(absoluteIndex);
-                  return (
-                    <div
-                      key={`player-board-${rowIndex}-card-${cardIndex}`}
-                      onClick={() => handleCardClick(absoluteIndex)}
-                      className={getCardWrapperClassName(absoluteIndex)}
-                    >
-                      <CardView
-                        card={card}
-                        className={`card ${isSelected ? "selected" : ""}`}
-                      />
-                    </div>
-                  );
-                })}
+            return (
+              <div
+                key={`player-card-${absoluteIndex}`}
+                onClick={() => handleCardClick(absoluteIndex)}
+                className={`card-wrapper --${animationLevel} ${
+                  selectedCards.includes(absoluteIndex) ? "selected" : ""
+                }`}
+                style={{
+                  gridColumn: colIndex + 1,
+                }}
+              >
+                <CardView
+                  card={displayCard}
+                  className={`card ${
+                    selectedCards.includes(absoluteIndex) ? "selected" : ""
+                  }`}
+                />
               </div>
-
-              {/* Show hero's hand rank during showdown */}
-              {isShowdownHighlighted &&
-                showdownState &&
-                showdownState.playersHandRank &&
-                showdownState.playersHandRank.some(
-                  ([id, _]: [string, string]) => id === playerId
-                ) && (
-                  <div className="hero-hand-rank">
-                    <span>
-                      {
-                        showdownState.playersHandRank.find(
-                          ([id, _]: [string, string]) => id === playerId
-                        )![1]
-                      }
-                    </span>
-                  </div>
-                )}
-            </div>
-          );
-        })}
+            );
+          })}
+          {isHighlightedShowdownRow(rowIndex) &&
+            showdownState?.playersHandRank?.some(
+              ([id]: [string, string]) => id === playerId
+            ) && (
+              <div className="hero-hand-rank">
+                {
+                  showdownState.playersHandRank.find(
+                    ([id]: [string, string]) => id === playerId
+                  )![1]
+                }
+              </div>
+            )}
+        </div>
+      ))}
       {gamePhaseArrangeCards && !isArrangementComplete && (
         <div className={`arrangement-controls --${animationLevel}`}>
           {timeLeft > 0 && (

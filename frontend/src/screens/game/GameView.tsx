@@ -21,7 +21,6 @@ import {
 } from "../../utils/GameHelpers";
 import PotDisplay from "../../components/common/PotDisplay/PotDisplay";
 import { useAnimationTheme } from "../../contexts/AnimationThemeProvider"; // Adjust path as needed
-import { EnhancedBoardCards } from "../../gameComponents/showdown/EnhancedBoardCards";
 
 // Memoized BoardCards component
 const MemoizedBoardCards = React.memo(BoardCards);
@@ -136,15 +135,12 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
         {tableProps && (
           <TableAndSeats {...tableProps} canBuyIn={canBuyIn}>
             <div className={`boards-container --${animationLevel}`}>
-              {boards &&
-                (isShowdownPhase ? (
-                  <EnhancedBoardCards
-                    boards={boards}
-                    showdownState={gameState?.showdown}
-                  />
-                ) : (
-                  <MemoizedBoardCards boards={boards} />
-                ))}
+              {boards && (
+                <MemoizedBoardCards
+                  boards={boards}
+                  showdownState={gameState?.showdown}
+                />
+              )}
             </div>
             {gameState?.potSizes?.length ? (
               <div className={`pot-displays --${animationLevel}`}>
