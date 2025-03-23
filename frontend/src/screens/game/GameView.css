@@ -129,12 +129,11 @@
 
 .boards-container {
   position: absolute;
-  top: 14%; /* Adjusted to fit within table */
-  min-height : 65%;
-  left: 18%;
+  top: 18%; /* Adjusted to fit within table */
+  min-height : 85%;
+  left: 20%;
   display: flex;
   flex-direction: column;
-  gap: 0.6vh;
   z-index: 3; /* above table and below seats*/
 }
 

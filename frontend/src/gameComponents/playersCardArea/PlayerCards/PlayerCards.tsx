@@ -122,59 +122,69 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
     rows.push(playerCards.slice(i, i + cardsPerRow));
   }
 
+  // Calculate the height of a row including gap for positioning
+  const rowHeight = 161.8 + 4; // max-height of card-wrapper (161.8px) + padding (4px)
+  const gap = 0.6; // gap in vh from .player-cards-container
+  const vhToPx = (vh: number) => (vh * window.innerHeight) / 100; // Convert vh to px
+
   return (
     <div className={`player-cards-container --${animationLevel}`}>
-      {rows.map((rowCards, rowIndex) => (
-        <div
-          key={`player-row-${rowIndex}`}
-          className={`player-card-row --${animationLevel} ${
-            hoveredRow === rowIndex ? "hovered" : ""
-          } ${isHighlightedShowdownRow(rowIndex) ? "showdown-highlight" : ""}`}
-          data-row={rowIndex}
-          onMouseEnter={() => handleRowMouseEnter(rowIndex)}
-          onMouseLeave={handleRowMouseLeave}
-        >
-          {rowCards.map((card, colIndex) => {
-            if (!card) return null;
-            const absoluteIndex = rowIndex * cardsPerRow + colIndex;
-            const displayCard = isArrangementComplete
-              ? playerCards[absoluteIndex]
-              : arrangedCards[absoluteIndex] || card;
+      {rows.map((rowCards, rowIndex) => {
+        const isShowdown = isHighlightedShowdownRow(rowIndex);
+        const topPosition = rowIndex * (rowHeight + vhToPx(gap)); // Calculate top position
 
-            return (
-              <div
-                key={`player-card-${absoluteIndex}`}
-                onClick={() => handleCardClick(absoluteIndex)}
-                className={`card-wrapper --${animationLevel} ${
-                  selectedCards.includes(absoluteIndex) ? "selected" : ""
-                }`}
-                style={{
-                  gridColumn: colIndex + 1,
-                }}
-              >
-                <CardView
-                  card={displayCard}
-                  className={`card ${
+        return (
+          <div
+            key={`player-row-${rowIndex}`}
+            className={`player-card-row --${animationLevel} ${
+              hoveredRow === rowIndex ? "hovered" : ""
+            } ${isShowdown ? "showdown-highlight" : ""}`}
+            data-row={rowIndex}
+            onMouseEnter={() => handleRowMouseEnter(rowIndex)}
+            onMouseLeave={handleRowMouseLeave}
+          >
+            {rowCards.map((card, colIndex) => {
+              if (!card) return null;
+              const absoluteIndex = rowIndex * cardsPerRow + colIndex;
+              const displayCard = isArrangementComplete
+                ? playerCards[absoluteIndex]
+                : arrangedCards[absoluteIndex] || card;
+
+              return (
+                <div
+                  key={`player-card-${absoluteIndex}`}
+                  onClick={() => handleCardClick(absoluteIndex)}
+                  className={`card-wrapper --${animationLevel} ${
                     selectedCards.includes(absoluteIndex) ? "selected" : ""
-                  }`}
-                />
-              </div>
-            );
-          })}
-          {isHighlightedShowdownRow(rowIndex) &&
-            showdownState?.playersHandRank?.some(
-              ([id]: [string, string]) => id === playerId
-            ) && (
-              <div className="hero-hand-rank">
-                {
-                  showdownState.playersHandRank.find(
-                    ([id]: [string, string]) => id === playerId
-                  )![1]
-                }
-              </div>
-            )}
-        </div>
-      ))}
+                  } ${isShowdown ? "showdown-card" : ""}`}
+                  style={{
+                    gridColumn: colIndex + 1,
+                  }}
+                >
+                  <CardView
+                    card={displayCard}
+                    className={`card ${
+                      selectedCards.includes(absoluteIndex) ? "selected" : ""
+                    } ${isShowdown ? "showdown-card" : ""}`}
+                  />
+                </div>
+              );
+            })}
+            {isHighlightedShowdownRow(rowIndex) &&
+              showdownState?.playersHandRank?.some(
+                ([id]: [string, string]) => id === playerId
+              ) && (
+                <div className="hero-hand-rank">
+                  {
+                    showdownState.playersHandRank.find(
+                      ([id]: [string, string]) => id === playerId
+                    )![1]
+                  }
+                </div>
+              )}
+          </div>
+        );
+      })}
       {gamePhaseArrangeCards && !isArrangementComplete && (
         <div className={`arrangement-controls --${animationLevel}`}>
           {timeLeft > 0 && (

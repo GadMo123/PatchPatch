@@ -208,6 +208,7 @@
   margin-bottom: 1rem;
   color: #F5F5F5; /* White text for readability */
   text-shadow: 0 0 3px #FFFF00; /* Neon yellow glow */
+  z-index: 100;
 }
 
 .bet-amount-display.all-in {
