@@ -29,17 +29,17 @@
 }
 
 .player-card-row.showdown-highlighted.--high {
-  transform: translateX(-4px) scale(1.05);
+  transform: translateX(4px) scale(1.05);
   box-shadow: 0 0 15px #FFD700;
 }
 
 .player-card-row.showdown-highlighted.--mid {
-  transform: translateX(-4px) scale(1.03);
+  transform: translateX(4px) scale(1.03);
   box-shadow: 0 0 10px #FFD700;
 }
 
 .player-card-row.showdown-highlighted.--low {
-  transform: translateX(-4px);
+  transform: translateX(4px);
   border: 2px solid #FFD700;
 }
 
@@ -127,21 +127,21 @@
 /* Row hover and highlight effects */
 .player-card-row.hovered.--high,
 .player-card-row.showdown-highlighted.--high {
-  transform: translateX(-4px);
+  transform: translateX(4px);
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .player-card-row.hovered.--mid,
 .player-card-row.showdown-highlighted.--mid {
-  transform: translateX(-4px);
+  transform: translateX(4px);
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .player-card-row.hovered.--low,
 .player-card-row.showdown-highlighted.--low {
-  transform: translateX(-4px);
+  transform: translateX(4px);
   transition: transform 0.1s ease;
 }
 

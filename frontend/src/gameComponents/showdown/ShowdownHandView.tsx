@@ -13,16 +13,16 @@ export const ShowdownHandView: React.FC<{
   const cardsForBoard = cards.slice(boardIndex * 4, boardIndex * 4 + 4);
 
   return (
-    <div className={`showdown-hand --${animationLevel}`}>
-      <div className={`cards-row --${animationLevel}`}>
+    <div className={`villain-showdown-hand --${animationLevel}`}>
+      <div className={`showdown-cards-row --${animationLevel}`}>
         {cardsForBoard.map((card, index) => (
           <div
-            key={`showdown-card-wrapper-${index}`}
-            className={`showdown-card-wrapper --${animationLevel}`}
+            key={`showdown-cards-row-wrapper-${index}`}
+            className={`showdown-cards-row-wrapper --${animationLevel}`}
           >
             <CardView
               card={card}
-              className={`showdown-card --${animationLevel}`}
+              className={`villain-showdown-card --${animationLevel}`}
             />
           </div>
         ))}

@@ -106,21 +106,21 @@
 
 /* Row highlighting effects */
 .board-section.highlighted.--high {
-  transform: translateX(-4px); /* Move left */
+  transform: translateX(4px); /* Move left */
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.3); /* Glow effect */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   z-index: 10;
 }
 
 .board-section.highlighted.--mid {
-  transform: translateX(-4px); /* Move left */
+  transform: translateX(4px); /* Move left */
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.2); /* Minor glow effect */
   transition: transform 0.1s ease, box-shadow 0.1s ease;
   z-index: 10;
 }
 
 .board-section.highlighted.--low {
-  transform: translateX(-4px); /* Move left */
+  transform: translateX(4px); /* Move left */
   transition: transform 0.1s ease;
   z-index: 10;
 }

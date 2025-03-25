@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import "./BetPanel.css";
 import { useGameContext } from "../../../contexts/GameContext";
 import { useCountdownTimer } from "../../../hooks/TimerHook";
@@ -29,7 +29,6 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
   const [activeButtonRef, setActiveButtonRef] = useState<HTMLElement | null>(
     null
   );
-  const [isNearRightEdge, setIsNearRightEdge] = useState(false);
 
   const sliderRef = useRef<HTMLDivElement>(null);
 
@@ -120,29 +119,14 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
     }
   }, [showBetSlider, bettingState]);
 
-  // Check if button is near the right edge of the screen
-  const checkRightEdgePosition = (button: HTMLElement) => {
-    if (button) {
-      const buttonRect = button.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-
-      // Check if the right edge of the button is close to the right edge of the viewport
-      // 160px is half the width of the slider container
-      const isNearEdge = viewportWidth - buttonRect.right < 160;
-      setIsNearRightEdge(isNearEdge);
-    }
-  };
-
   // Handle opening the slider for bet/raise
   const handleBetOrRaiseClick = (
     action: BettingTypes,
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
     const button = event.currentTarget;
-    setActiveButtonRef(button);
 
-    // Check position relative to screen edges
-    checkRightEdgePosition(button);
+    setActiveButtonRef(button);
 
     const minRaiseAmountTotal =
       bettingState.minRaiseAmount +
@@ -221,7 +205,15 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
 
     return (
       <div
-        className={`bet-slider-overlay ${isNearRightEdge ? "edge-right" : ""}`}
+        className={`bet-slider-overlay`}
+        style={{
+          left: activeButtonRef
+            ? `${activeButtonRef.getBoundingClientRect().left}px`
+            : "auto",
+          top: activeButtonRef
+            ? `${activeButtonRef.getBoundingClientRect().top}px`
+            : "auto",
+        }}
       >
         <div ref={sliderRef} className="bet-slider-container">
           <h3 className="bet-slider-title">{sliderTitle}</h3>
