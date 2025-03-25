@@ -137,7 +137,7 @@
   width: 100%;
   max-width: min(100%, calc((45vh / 3) * 4 / 1.618));
   justify-self: center;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   justify-content: flex-end; /* Aligns content to bottom */

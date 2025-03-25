@@ -4,6 +4,7 @@
   max-height: 100%;
   max-width: calc((height / 3) * 4 / 1.618);
   display: flex;
+  overflow: visible;
   flex-direction: column;
   justify-content: flex-end;
 }
@@ -20,7 +21,8 @@
 
 /* Showdown highlighting styles */
 .player-card-row.showdown-highlighted {
-  transform: scale(1.4); /* Increase size */
+  transform: scale(1.1) !important;; /* Increase size */
+  overflow: visible;
   background: rgba(255, 215, 0, 0.2); /* Highlight background */
   box-shadow: 0 0 15px #FFD700; /* Glow effect */
   z-index: 100; /* Keep this to ensure it appears above other rows */
