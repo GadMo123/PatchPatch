@@ -18,7 +18,7 @@ export const ShowdownHandView: React.FC<{
         {cardsForBoard.map((card, index) => (
           <div
             key={`showdown-card-wrapper-${index}`}
-            className={`card-wrapper --${animationLevel}`}
+            className={`showdown-card-wrapper --${animationLevel}`}
           >
             <CardView
               card={card}

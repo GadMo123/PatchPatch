@@ -11,20 +11,18 @@
   z-index: 50;
 }
 
-.cards-row {
+.showdown-cards-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 4px;
   border-radius: 8px;
 }
 
-.card-wrapper {
+.showdown-card-wrapper {
   display: flex;
   justify-content: center;
-  width: calc(8vw * 1.618 / 1.618); /* Smaller size */
+  width: calc(8vw ); /* Smaller size */
   height: calc(8vw * 1.618);
-  max-width: 80px; /* Reduced max size */
-  max-height: 129.44px; /* Adjusted for golden ratio */
 }
 
 .showdown-card {

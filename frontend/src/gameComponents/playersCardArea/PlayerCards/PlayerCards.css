@@ -1,48 +1,46 @@
 .player-cards-container {
-  position: relative;
-  display: grid;
-  gap: 0.6vh;
-  width: 100%;
+  height: 100%;
   z-index: 6;
+  max-height: 100%;
+  max-width: calc((height / 3) * 4 / 1.618);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .player-card-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0.3vh;
+  max-height: 31%;
   border-radius: 8px;
   padding: 4px;
-  width: 100%;
 }
 
-.card-wrapper {
-  display: flex;
-  justify-content: center;
-  position: relative;
-  pointer-events: auto;
-}
 
 /* Showdown highlighting styles */
-.player-card-row.showdown-highlight {
+.player-card-row.showdown-highlighted {
   transform: scale(1.4); /* Increase size */
   background: rgba(255, 215, 0, 0.2); /* Highlight background */
-  z-index: 100; /* Ensure it appears above other rows */
-}
-
-.player-card-row.showdown-highlight.--high {
-  box-shadow: 0 0 15px #FFD700;
+  box-shadow: 0 0 15px #FFD700; /* Glow effect */
+  z-index: 100; /* Keep this to ensure it appears above other rows */
+  transform-origin: center bottom; /* Match this to board cards */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.player-card-row.showdown-highlight.--mid {
-  box-shadow: 0 0 10px #FFD700;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+.player-card-row.showdown-highlighted.--high {
+  transform: translateX(-4px) scale(1.05);
+  box-shadow: 0 0 15px #FFD700;
 }
 
-.player-card-row.showdown-highlight.--low {
+.player-card-row.showdown-highlighted.--mid {
+  transform: translateX(-4px) scale(1.03);
+  box-shadow: 0 0 10px #FFD700;
+}
+
+.player-card-row.showdown-highlighted.--low {
   transform: translateX(-4px);
   border: 2px solid #FFD700;
-  transition: transform 0.1s ease;
 }
 
 /* Adjust the hero-hand-rank to position correctly with absolute row */
@@ -61,11 +59,16 @@
   z-index: 11;
 }
 
-.player-card-row.showdown-highlight .hero-hand-rank {
+.player-card-row.showdown-highlighted .hero-hand-rank {
   top: -35px; /* Adjust for scaling */
   transform: translateX(-50%) scale(1.4); /* Scale with the row */
 }
 
+.player-card-row.showdown-highlighted .card
+.card-wrapper.showdown-card .card {
+  border: 2px solid #FFD700;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+}
 
 /* First row - Blue */
 .player-card-row[data-row="0"] {
@@ -123,29 +126,57 @@
 
 /* Row hover and highlight effects */
 .player-card-row.hovered.--high,
-.player-card-row.showdown-highlight.--high {
+.player-card-row.showdown-highlighted.--high {
   transform: translateX(-4px);
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .player-card-row.hovered.--mid,
-.player-card-row.showdown-highlight.--mid {
+.player-card-row.showdown-highlighted.--mid {
   transform: translateX(-4px);
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .player-card-row.hovered.--low,
-.player-card-row.showdown-highlight.--low {
+.player-card-row.showdown-highlighted.--low {
   transform: translateX(-4px);
   transition: transform 0.1s ease;
 }
 
+.player-card-row.showdown-highlighted .card-wrapper {
+  height: 100%;
+}
 
-.card-wrapper .card {
+.card-wrapper {
   width: 100%;
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Ensure the card maintains its golden ratio while filling available space */
+@supports (aspect-ratio: 1 / 1.618) {
+  .card-wrapper .card {
+    max-width: 100%;
+    max-height: 100%;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1 / 1.618;
+    object-fit: contain;
+  }
+}
+
+/* Fallback for browsers that don't support aspect-ratio */
+@supports not (aspect-ratio: 1 / 1.618) {
+  .card-wrapper .card {
+    width: 100%;
+    height: calc(100% * 1.618);
+    max-width: 100%;
+    max-height: 100%;
+  }
 }
 
 .card-wrapper.--high {

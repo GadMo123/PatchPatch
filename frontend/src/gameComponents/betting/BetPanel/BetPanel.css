@@ -2,13 +2,10 @@
   display: flex;
   justify-content: center;
   align-items: end;
-  align-self: flex-end;
-  justify-self: flex-end;
   gap: 1vw;
   padding: 1vh 0;
   background-color: #1A1A1A; /* Glossy black background */
   border-radius: 8px;
-  position: relative; /* For glass-like overlay */
 }
 
 /* Glass-like effect with semi-transparent overlay (remove for low) */
