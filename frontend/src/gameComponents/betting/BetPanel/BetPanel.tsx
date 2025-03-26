@@ -9,10 +9,9 @@ import { Slider } from "../../../components/common/slider/Slider";
 
 interface BetPanelProps {
   bettingState: BettingStateClientData;
-  bigBlind: number; // Added bigBlind prop
+  bigBlind: number;
 }
 
-// Allows player to choose between betting options when it's his turn to act, also shows time-remaining to act before the default action is taken
 const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
   const { animationLevel } = useAnimationTheme();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -21,7 +20,6 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
     BettingTypes.CHECK
   );
 
-  // States for the bet slider
   const [showBetSlider, setShowBetSlider] = useState(false);
   const [sliderAction, setSliderAction] = useState<BettingTypes | null>(null);
   const [betAmount, setBetAmount] = useState(0);
@@ -31,23 +29,82 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
   );
 
   const sliderRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const pathRef = useRef<SVGPathElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 100, height: 40 });
 
   const { playerId, gameId } = useGameContext();
   const { sendAction } = usePlayerAction();
+
+  const [initialTime] = useState(bettingState.timeRemaining);
 
   const [timeLeft, cancelTimer] = useCountdownTimer({
     serverTimeRemaining: bettingState.timeRemaining,
     onComplete: () => onAction(defaultAction),
   });
 
+  const timePercentage = Math.max(0, (timeLeft / initialTime) * 100);
+
+  // Update boarder color based on time left
+  const getBorderColor = () => {
+    const red = Math.min(255, 255 * (1 - timePercentage / 100));
+    const green = Math.min(255, 255 * (timePercentage / 100));
+    return `rgb(${red}, ${green}, 0)`;
+  };
+
+  // Dynamically get panel dimensions
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (panelRef.current) {
+        const { width, height } = panelRef.current.getBoundingClientRect();
+        setDimensions({ width, height });
+      }
+    };
+
+    updateDimensions();
+
+    const resizeObserver = new ResizeObserver(updateDimensions);
+    if (panelRef.current) {
+      resizeObserver.observe(panelRef.current);
+    }
+
+    return () => {
+      if (panelRef.current) {
+        resizeObserver.unobserve(panelRef.current);
+      }
+    };
+  }, []);
+
+  // Generate the SVG path based on panel dimensions
+  const borderRadius = 8; // Matches CSS border-radius
+  const { width, height } = dimensions;
+
+  const borderPath = `
+  M ${width / 2},2
+  h ${width / 2 - borderRadius}
+  a ${borderRadius},${borderRadius} 0 0 1 ${borderRadius},${borderRadius}
+  v ${height - 2 * borderRadius - 4}
+  a ${borderRadius},${borderRadius} 0 0 1 -${borderRadius},${borderRadius}
+  h -${width - 2 * borderRadius}
+  a ${borderRadius},${borderRadius} 0 0 1 -${borderRadius},-${borderRadius}
+  v -${height - 2 * borderRadius - 4}
+  a ${borderRadius},${borderRadius} 0 0 1 ${borderRadius},-${borderRadius}
+  h ${width / 2 - borderRadius}
+  z`;
+
+  // Calculate path length dynamically
+  const [pathLength, setPathLength] = useState(0);
+  useEffect(() => {
+    if (pathRef.current) {
+      setPathLength(pathRef.current.getTotalLength());
+    }
+  }, [dimensions]);
+
   const onAction = async (action: BettingTypes, amount?: number) => {
     if (isProcessing) return;
 
-    cancelTimer(); // Cancel timer when manual action is taken
-
-    // Hide slider if it's open
+    cancelTimer();
     setShowBetSlider(false);
-
     setIsProcessing(true);
     setError(null);
 
@@ -63,7 +120,6 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
     setIsProcessing(false);
   };
 
-  // Update defaultAction whenever bettingState.playerValidActions changes
   useEffect(() => {
     const newDefaultAction = bettingState.playerValidActions.includes(
       BettingTypes.CHECK
@@ -74,7 +130,6 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
     setDefaultAction(newDefaultAction);
   }, [bettingState.playerValidActions]);
 
-  // Handle click outside of the slider
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -92,10 +147,8 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
     };
   }, [activeButtonRef]);
 
-  // Initialize bet amount when slider is opened
   useEffect(() => {
     if (showBetSlider && bettingState) {
-      // Check if player needs to go all-in due to small stack
       const minRaiseAmount = bettingState.minRaiseAmount;
       const allInAmount = bettingState.allInAmount;
 
@@ -106,10 +159,8 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
       setIsAllIn(isSmallStackAllIn);
 
       if (isSmallStackAllIn) {
-        // Player can only go all-in
         setBetAmount(allInAmount);
       } else {
-        // Start with min raise amount
         setBetAmount(
           minRaiseAmount +
             bettingState.activePlayerRoundPotContributions +
@@ -119,13 +170,11 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
     }
   }, [showBetSlider, bettingState]);
 
-  // Handle opening the slider for bet/raise
   const handleBetOrRaiseClick = (
     action: BettingTypes,
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
     const button = event.currentTarget;
-
     setActiveButtonRef(button);
 
     const minRaiseAmountTotal =
@@ -134,28 +183,23 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
       bettingState.callAmount;
     const allInAmount = bettingState.allInAmount;
 
-    // Check if player can only go all-in
     if (
       Math.abs(allInAmount - minRaiseAmountTotal) < 0.01 ||
       allInAmount < minRaiseAmountTotal
     ) {
-      // Directly perform all-in action without showing slider
       onAction(action, allInAmount);
     } else {
-      // Show slider for player to choose amount
       setSliderAction(action);
       setShowBetSlider(true);
     }
   };
 
-  // Generate ticks for the slider
   const generateBetTicks = () => {
-    const minRaiseAmountTotal = // the total sum of pot contribution after a minraise
+    const minRaiseAmountTotal =
       bettingState.minRaiseAmount +
       bettingState.callAmount +
       bettingState.activePlayerRoundPotContributions;
 
-    // If player can only go all-in as a raise, return single tick
     if (
       Math.abs(bettingState.allInAmount - minRaiseAmountTotal) < 0.01 ||
       bettingState.allInAmount < minRaiseAmountTotal
@@ -163,12 +207,9 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
       return [bettingState.allInAmount];
     }
 
-    // Create ticks at multiples of big blind
-    const ticks = [minRaiseAmountTotal]; // Always include min raise
-
-    // Create up to 14 ticks total
+    const ticks = [minRaiseAmountTotal];
     const range = bettingState.allInAmount - minRaiseAmountTotal;
-    const idealTickCount = Math.min(13, Math.floor(range / bigBlind)); // Max 13 more ticks (plus min)
+    const idealTickCount = Math.min(13, Math.floor(range / bigBlind));
 
     if (idealTickCount > 0) {
       const step = Math.max(
@@ -178,13 +219,11 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
 
       let currentTick = minRaiseAmountTotal + step;
       while (currentTick < bettingState.allInAmount - 0.01) {
-        // Avoid floating point issues
-        ticks.push(Math.floor(currentTick * 100) / 100); // Round to 2 decimal places
+        ticks.push(Math.floor(currentTick * 100) / 100);
         currentTick += step;
       }
     }
 
-    // Always include all-in amount as last tick
     if (Math.abs(ticks[ticks.length - 1] - bettingState.allInAmount) > 0.01) {
       ticks.push(bettingState.allInAmount);
     }
@@ -192,7 +231,6 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
     return ticks;
   };
 
-  // Format currency with comma separators
   const formatCurrency = (value: number) => {
     return `$${value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
   };
@@ -256,7 +294,7 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
                 onClick={() =>
                   onAction(
                     sliderAction,
-                    betAmount - bettingState.activePlayerRoundPotContributions // reducing the amount already contributed in earlier rounds, this is just the way we defined the protocol - the amount is the call + raise anmount
+                    betAmount - bettingState.activePlayerRoundPotContributions
                   )
                 }
                 className="bet-slider-button confirm"
@@ -273,16 +311,12 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
   const renderButtons = () => {
     const { playerValidActions } = bettingState;
 
-    // Check if we have check/bet actions
     const hasCheck = playerValidActions.includes(BettingTypes.CHECK);
     const hasBet = playerValidActions.includes(BettingTypes.BET);
-
-    // Check if we have fold/call/raise actions
     const hasFold = playerValidActions.includes(BettingTypes.FOLD);
     const hasCall = playerValidActions.includes(BettingTypes.CALL);
     const hasRaise = playerValidActions.includes(BettingTypes.RAISE);
 
-    // Check if all-in is the only option for bet/raise
     const minRaiseAmountTotal =
       bettingState.minRaiseAmount +
       bettingState.callAmount +
@@ -291,9 +325,7 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
       Math.abs(bettingState.allInAmount - minRaiseAmountTotal) < 0.01 ||
       bettingState.allInAmount < minRaiseAmountTotal;
 
-    // Determine which set of buttons to show
     if (hasCheck || hasBet) {
-      // Bet or check
       return (
         <>
           {hasCheck && (
@@ -321,7 +353,6 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
     }
 
     return (
-      // Facing a bet - fold, call, or raise
       <>
         {hasFold && (
           <button
@@ -349,7 +380,7 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
             disabled={isProcessing}
           >
             {isAllInOnly
-              ? `Raise to ${formatCurrency(bettingState.allInAmount + bettingState.activePlayerRoundPotContributions)} (All-In)`
+              ? `Raise to ${formatCurrency(Math.floor(bettingState.allInAmount + bettingState.activePlayerRoundPotContributions))} (All-In)`
               : "Raise +"}
           </button>
         )}
@@ -358,9 +389,39 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
   };
 
   return (
-    <div className={`bet-panel --${animationLevel}`}>
-      <div className={`timer --${animationLevel}`}>
-        Time left: {timeLeft / 1000}s
+    <div className={`bet-panel-box --${animationLevel}`} ref={panelRef}>
+      <div className="time-border">
+        <svg
+          className="time-border-svg"
+          viewBox={`0 0 ${width} ${height}`}
+          preserveAspectRatio="none"
+        >
+          <path
+            ref={pathRef}
+            d={borderPath}
+            fill="none"
+            stroke={getBorderColor()}
+            strokeWidth="2"
+            style={{
+              filter: `drop-shadow(0 0 5px ${getBorderColor()})`,
+              transition: "stroke 0.1s linear",
+            }}
+          />
+          <circle
+            className="time-border-dot"
+            style={{ fill: getBorderColor() }}
+          >
+            <animateMotion
+              dur={`${initialTime / 1000}s`}
+              begin="0s"
+              repeatCount="1"
+              fill="freeze"
+            >
+              <mpath href="#borderPath" />
+            </animateMotion>
+          </circle>
+          <path id="borderPath" d={borderPath} fill="none" />
+        </svg>
       </div>
       {error && <div className="error-message">{error}</div>}
       {renderButtons()}

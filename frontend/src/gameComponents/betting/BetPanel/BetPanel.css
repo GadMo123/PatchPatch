@@ -1,39 +1,49 @@
-.bet-panel {
+.bet-panel-box {
   display: flex;
   justify-content: center;
-  align-items: end;
+  align-items: center;
   gap: 1vw;
   padding: 1vh 0;
-  background-color: #1A1A1A; /* Glossy black background */
+  width: 100%;
+  background-color: #1A1A1A; 
   border-radius: 8px;
+  position: relative;
+  overflow: visible;
+} 
+
+
+.bet-panel-box.--high {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 10px #00FF9D; /* Neon green glow */
 }
 
-/* Glass-like effect with semi-transparent overlay (remove for low) */
-/* .bet-panel::before {
-  content: "";
+.bet-panel-box.--mid {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2), 0 0 5px #00FF9D; /* Reduced glow */
+}
+
+.bet-panel-box--low {
+  box-shadow: none; /* No glow */
+}
+
+.time-border {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
+}
+
+.time-border-svg {
+  overflow: visible;
+  width: 100%;
+  height: 100%;
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.1); 
-  border-radius: 8px;
-  z-index: 1;
-} */
-
-.bet-panel.--high {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 10px #00FF9D; /* Neon green glow */
-  transition: box-shadow 0.3s ease; /* Full animation */
 }
 
-.bet-panel.--mid {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2), 0 0 5px #00FF9D; /* Reduced glow */
-  transition: box-shadow 0.1s ease; /* Shorter transition */
-}
-
-.bet-panel--low {
-  box-shadow: none; /* No glow */
-  transition: none; /* No transition */
+.time-border-dot {
+  r: 5;
+  fill: #00FF9D; /* Will be overridden by component */
 }
 
 .bet-button.bet
@@ -83,27 +93,19 @@
 .bet-button.--high:active {
   transform: translateY(0) scale(1); /* Reset on click */
   background-color: rgba(0, 0, 0, 0.8); /* Darken on click */
-  box-shadow: 0 0 5px 
-      #FF007A, /* Neon pink for fold */
-      #00FF9D, /* Neon green for call/check */
-      #FFFF00; /* Neon yellow for raise/bet */
+  box-shadow: 0 0 5px #FF007A, #00FF9D, #FFFF00;
 }
 
 .bet-button.--mid:active {
   transform: translateY(0) scale(1); /* Reset on click */
   background-color: rgba(0, 0, 0, 0.6); /* Lighter darken */
-  box-shadow: 0 0 3px 
-      #FF007A, /* Reduced glow */
-      #00FF9D,
-      #FFFF00;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  box-shadow: 0 0 3px #FF007A, #00FF9D, #FFFF00;
 }
 
 .bet-button--low:active {
   transform: none; /* No effect */
   background-color: rgba(0, 0, 0, 0.4); /* Minimal darken */
   box-shadow: none; /* No glow */
-  transition: none;
 }
 
 /* Specific button colors (no changes) */
@@ -156,12 +158,16 @@
   border-radius: 0.75rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 10px #FFFF00; /* Neon yellow glow for bet actions */
   border: 2px solid #FFFF00; /* Neon yellow border for bet/raise */
-  width: 320px;
+  width: 260px;
   max-width: 90vw;
   bottom: 100%; /* Position above the button */
   right: 0;
   position: absolute;
   pointer-events: auto; /* Re-enable pointer events */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-items: center;
 }
 
 /* Add a subtle arrow pointing down to the button */
@@ -199,6 +205,9 @@
 }
 
 .bet-amount-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   font-size: 1.5rem;
   font-weight: bold;
   text-align: center;
@@ -216,7 +225,9 @@
 
 .bet-slider-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
+  gap: 1rem;
+  width: 100%;
   margin-top: 1rem;
 }
 
@@ -237,6 +248,7 @@
   background-color: rgba(0, 255, 157, 0.8); /* Semi-transparent neon green */
   color: #1A1A1A;
 }
+
 
 @keyframes pulse {
   from { text-shadow: 0 0 3px #FFFF00; }

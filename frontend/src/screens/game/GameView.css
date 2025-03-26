@@ -152,12 +152,15 @@
   height: auto;
   max-height: 5vh;
   max-width: 100%;
+  min-width: 35%;
   margin-right: 0.5vh;
   gap: 10px;
   background-color: #1A1A1A;
   border-radius: 8px;
-  justify-self: end;
+  justify-self: center;
   align-self: end;
+  margin-bottom: 2vh;
+  margin-left: 4vw;
   z-index: 10;
 }
 

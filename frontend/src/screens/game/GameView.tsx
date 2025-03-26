@@ -76,12 +76,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
       : [];
   }, [gameState?.privatePlayerData?.cards]);
 
-  // Determine if we're in showdown phase
-  const isShowdownPhase = useMemo(() => {
-    return !!gameState?.showdown;
-  }, [gameState?.showdown]);
-
-  // Force (request) server to send last game-state as long as we don't have one (for reconnection / lag / ect.).
+  // Force (request) server to send last game-state as long as we don't have one (for reconnection / joining mid-hand / ect.).
   useEffect(() => {
     if (gameState !== null) return; // Don't start polling if we already have the game state
 
@@ -166,10 +161,12 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
             )}
           </div>
           {gameState?.bettingState?.playerToAct === playerId && (
-            <MemoizedBetPanel
-              bettingState={gameState.bettingState}
-              bigBlind={gameState.tableConfig.bigBlindAmount}
-            />
+            <div className="bet-panel">
+              <MemoizedBetPanel
+                bettingState={gameState.bettingState}
+                bigBlind={gameState.tableConfig.bigBlindAmount}
+              />
+            </div>
           )}
         </div>
 
