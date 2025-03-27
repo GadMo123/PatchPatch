@@ -154,42 +154,42 @@
 
 /* Hover effects for suit icon */
 .container.h.--high:hover .suit-icon {
-    filter: drop-shadow(0 0 5px #E63946); /* Deep red glow for hearts */
+    filter: drop-shadow(0 0 5px #FF66B3); /* Neon pink glow for hearts */
     transition: filter 0.2s ease;
 }
 
 .container.d.--high:hover .suit-icon {
-    filter: drop-shadow(0 0 5px #4682B4); /* Steel blue glow for diamonds */
+    filter: drop-shadow(0 0 5px #00FF9D); /* Neon green glow for diamonds */
     transition: filter 0.2s ease;
 }
 
 .container.c.--high:hover .suit-icon {
-    filter: drop-shadow(0 0 5px #2E8B57); /* Muted green glow for clubs */
+    filter: drop-shadow(0 0 5px #FF007A); /* Neon pink glow for clubs */
     transition: filter 0.2s ease;
 }
 
 .container.s.--high:hover .suit-icon {
-    filter: drop-shadow(0 0 5px #00D2FF); /* Neon blue glow for spades */
+    filter: drop-shadow(0 0 5px #00D2FF); /* Neon blue glow for spades  */
     transition: filter 0.2s ease;
 }
 
 .container.h.--mid:hover .suit-icon {
-    filter: drop-shadow(0 0 3px #E63946); /* Reduced glow for hearts */
+    filter: drop-shadow(0 0 3px #FF66B3); /* Reduced neon pink glow for hearts */
     transition: filter 0.1s ease;
 }
 
 .container.d.--mid:hover .suit-icon {
-    filter: drop-shadow(0 0 3px #4682B4); /* Reduced glow for diamonds */
+    filter: drop-shadow(0 0 3px #00FF9D); /* Reduced neon green glow for diamonds */
     transition: filter 0.1s ease;
 }
 
 .container.c.--mid:hover .suit-icon {
-    filter: drop-shadow(0 0 3px #2E8B57); /* Reduced glow for clubs */
+    filter: drop-shadow(0 0 3px #FF007A); /* Reduced neon pink glow for clubs */
     transition: filter 0.1s ease;
 }
 
 .container.s.--mid:hover .suit-icon {
-    filter: drop-shadow(0 0 3px #00D2FF); /* Reduced glow for spades */
+    filter: drop-shadow(0 0 3px #00D2FF); /* Reduced neon blue glow for spades */
     transition: filter 0.1s ease;
 }
 
