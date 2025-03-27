@@ -154,7 +154,7 @@
 
 /* Hover effects for suit icon */
 .container.h.--high:hover .suit-icon {
-    filter: drop-shadow(0 0 5px #FF66B3); /* Neon pink glow for hearts */
+    filter: drop-shadow(0 0 5px #FFFFFF); /* Neon pink glow for hearts */
     transition: filter 0.2s ease;
 }
 
@@ -164,7 +164,7 @@
 }
 
 .container.c.--high:hover .suit-icon {
-    filter: drop-shadow(0 0 5px #FF007A); /* Neon pink glow for clubs */
+    filter: drop-shadow(0 0 1.5px #FFD700); /* Neon pink glow for clubs */
     transition: filter 0.2s ease;
 }
 
@@ -174,7 +174,7 @@
 }
 
 .container.h.--mid:hover .suit-icon {
-    filter: drop-shadow(0 0 3px #FF66B3); /* Reduced neon pink glow for hearts */
+    filter: drop-shadow(0 0 3px #FFFFFF); /* Reduced neon pink glow for hearts */
     transition: filter 0.1s ease;
 }
 
@@ -184,12 +184,12 @@
 }
 
 .container.c.--mid:hover .suit-icon {
-    filter: drop-shadow(0 0 3px #FF007A); /* Reduced neon pink glow for clubs */
+    filter: drop-shadow(0 0 1.2px #FFD700); /* Reduced neon pink glow for clubs */
     transition: filter 0.1s ease;
 }
 
 .container.s.--mid:hover .suit-icon {
-    filter: drop-shadow(0 0 3px #00D2FF); /* Reduced neon blue glow for spades */
+    filter: drop-shadow(0 0 3px #00D2FF); /* Reduced neon blue glow for spades  */
     transition: filter 0.1s ease;
 }
 
