@@ -30,7 +30,6 @@ export interface DetailedGameState {
   // Core state
   id: string;
   phase: GamePhase;
-  stakes: string;
 
   // Cards state
   flops: Card[][]; // Array of 3 flops, each with 3 cards

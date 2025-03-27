@@ -8,12 +8,12 @@ import {
 import "./App.css";
 
 import GameView from "./screens/game/GameView";
-import Login from "./screens/login/login";
-import MainLobby from "./screens/lobby/mainLobby";
 import { SocketProvider } from "./contexts/SocketContext";
 import { BuyInProvider } from "./contexts/BuyInContext";
 import { AnimationThemeProvider } from "./contexts/AnimationThemeProvider";
 import AnimationControl from "./settingsComponents/AnimationControl";
+import Login from "./screens/login/Login";
+import MainLobby from "./screens/lobby/MainLobby";
 
 const App: React.FC = () => {
   const [playerId, setPlayerId] = useState<string>("unregistered");

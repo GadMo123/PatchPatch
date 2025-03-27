@@ -148,7 +148,6 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
   return {
     id: game.getId(),
     phase: game.getPhase(),
-    stakes: game.getStakes(),
     flops: game.getFlops(),
     turns: game.getTurns(),
     rivers: game.getRivers(),

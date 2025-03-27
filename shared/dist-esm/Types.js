@@ -15,3 +15,20 @@ export var BettingTypes;
     BettingTypes["FOLD"] = "fold";
     BettingTypes["RAISE"] = "raise";
 })(BettingTypes || (BettingTypes = {}));
+export var GameType;
+(function (GameType) {
+    GameType["Patch_Patch"] = "Patch-Patch";
+    GameType["HOLDEM"] = "Holdem";
+    GameType["OMAHA"] = "Omaha";
+})(GameType || (GameType = {}));
+export var GameStatus;
+(function (GameStatus) {
+    GameStatus["WAITING"] = "Waiting";
+    GameStatus["RUNNING"] = "Running";
+})(GameStatus || (GameStatus = {}));
+export var GameSpeed;
+(function (GameSpeed) {
+    GameSpeed["FAST"] = "fast";
+    GameSpeed["MID"] = "mid";
+    GameSpeed["SLOW"] = "slow";
+})(GameSpeed || (GameSpeed = {}));

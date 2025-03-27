@@ -1,7 +1,13 @@
 // src/server/SocketProtocol.ts
 
 import { Card } from "./Card";
-import { BettingTypes, Position } from "./Types";
+import {
+  BettingTypes,
+  GameSpeed,
+  GameStatus,
+  GameType,
+  Position,
+} from "./Types";
 
 export const SocketEvents = {
   LOGIN: "login",
@@ -65,10 +71,13 @@ export interface LobbyStatusServerResponse {
   success: boolean;
   games: Array<{
     id: string;
-    blindLevel: string;
+    gameType: GameType;
+    BBAmount: number;
+    stakes: string;
     players: string[];
-    status: string; // "waiting" | "running";
+    status: GameStatus;
     maxPlayers: number;
+    gameSpeed: GameSpeed;
   }>;
 }
 

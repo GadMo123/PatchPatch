@@ -14,3 +14,20 @@ export enum BettingTypes {
   FOLD = "fold",
   RAISE = "raise",
 }
+
+export enum GameType {
+  Patch_Patch = "Patch-Patch",
+  HOLDEM = "Holdem",
+  OMAHA = "Omaha",
+}
+
+export enum GameStatus {
+  WAITING = "Waiting",
+  RUNNING = "Running",
+}
+
+export enum GameSpeed {
+  FAST = "fast",
+  MID = "mid",
+  SLOW = "slow",
+}

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BettingTypes = exports.Position = void 0;
+exports.GameSpeed = exports.GameStatus = exports.GameType = exports.BettingTypes = exports.Position = void 0;
 var Position;
 (function (Position) {
     Position["BB"] = "bb";
@@ -18,3 +18,20 @@ var BettingTypes;
     BettingTypes["FOLD"] = "fold";
     BettingTypes["RAISE"] = "raise";
 })(BettingTypes = exports.BettingTypes || (exports.BettingTypes = {}));
+var GameType;
+(function (GameType) {
+    GameType["Patch_Patch"] = "Patch-Patch";
+    GameType["HOLDEM"] = "Holdem";
+    GameType["OMAHA"] = "Omaha";
+})(GameType = exports.GameType || (exports.GameType = {}));
+var GameStatus;
+(function (GameStatus) {
+    GameStatus["WAITING"] = "Waiting";
+    GameStatus["RUNNING"] = "Running";
+})(GameStatus = exports.GameStatus || (exports.GameStatus = {}));
+var GameSpeed;
+(function (GameSpeed) {
+    GameSpeed["FAST"] = "fast";
+    GameSpeed["MID"] = "mid";
+    GameSpeed["SLOW"] = "slow";
+})(GameSpeed = exports.GameSpeed || (exports.GameSpeed = {}));

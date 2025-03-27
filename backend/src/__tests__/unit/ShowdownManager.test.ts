@@ -99,19 +99,13 @@ describe("ShowdownManager", () => {
     mockPlayers.set(Position.BB, player3);
 
     // Setup mock game
-    mockGame = new Game(
-      "game1",
-      "1/2",
-      {} as any,
-      {} as any
-    ) as jest.Mocked<Game>;
+    mockGame = new Game("game1", {} as any, {} as any) as jest.Mocked<Game>;
     mockGame.getPlayersInGame.mockReturnValue(mockPlayers);
 
     // Setup mock state
     mockState = {
       id: "game1",
       phase: GamePhase.Showdown,
-      stakes: "1/2",
       flops: [
         [new Card("2", "h"), new Card("3", "d"), new Card("4", "c")],
         [new Card("5", "h"), new Card("6", "d"), new Card("7", "c")],
@@ -139,6 +133,7 @@ describe("ShowdownManager", () => {
         timeCookieEffect: 0,
         timePerAction: 0,
         timePerArrangeAction: 0,
+        showdownAnimationTime: 0,
       },
       arrangePlayerCardsState: null,
       potsWinners: null,
@@ -199,7 +194,12 @@ describe("ShowdownManager", () => {
     });
     // Act
 
-    showdownManager = new ShowdownManager(mockGame, mockState, mockPotManager);
+    showdownManager = new ShowdownManager(
+      mockGame,
+      mockState,
+      mockPotManager,
+      async () => {}
+    );
     for (let i = 0; i < 4; i++) {
       // Move time forward to trigger setTimeout callback
       jest.advanceTimersByTime(Number(process.env.SHOWDOWN_TIME_UNIT) || 2000);
@@ -244,7 +244,12 @@ describe("ShowdownManager", () => {
     );
 
     // Act
-    showdownManager = new ShowdownManager(mockGame, mockState, mockPotManager);
+    showdownManager = new ShowdownManager(
+      mockGame,
+      mockState,
+      mockPotManager,
+      async () => {}
+    );
 
     // Fast-forward timers to complete all setTimeout calls
     jest.runAllTimers();
@@ -295,7 +300,12 @@ describe("ShowdownManager", () => {
     );
 
     // Act
-    showdownManager = new ShowdownManager(mockGame, mockState, mockPotManager);
+    showdownManager = new ShowdownManager(
+      mockGame,
+      mockState,
+      mockPotManager,
+      async () => {}
+    );
 
     // Fast-forward timers
     jest.runAllTimers();
@@ -315,7 +325,12 @@ describe("ShowdownManager", () => {
     player3.isFolded.mockReturnValue(true);
 
     // Act
-    showdownManager = new ShowdownManager(mockGame, mockState, mockPotManager);
+    showdownManager = new ShowdownManager(
+      mockGame,
+      mockState,
+      mockPotManager,
+      async () => {}
+    );
 
     // Fast-forward timers
     jest.runAllTimers();
@@ -422,7 +437,12 @@ describe("ShowdownManager", () => {
     );
 
     // Act
-    showdownManager = new ShowdownManager(mockGame, mockState, mockPotManager);
+    showdownManager = new ShowdownManager(
+      mockGame,
+      mockState,
+      mockPotManager,
+      async () => {}
+    );
 
     // Fast-forward timers
     for (let i = 0; i < 7; i++) {

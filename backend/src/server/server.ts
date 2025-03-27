@@ -7,7 +7,7 @@ import { SocketHandlers } from "./handlers/SocketHandlers";
 
 import { ServerStateManager } from "./ServerStateManager";
 import { Game } from "../game/Game";
-import { TableConfig } from "../game/betting/BettingTypes";
+import { TableConfig, TableConfigBuilder } from "../game/betting/BettingTypes";
 import { getLobbyStatus } from "../lobby/LobbyManager";
 import { GameServerConfig, SocketEvents } from "@patchpatch/shared";
 import { CactusKev } from "../game/utils/Cactus-Kev";
@@ -150,108 +150,63 @@ process.on("SIGTERM", () => {
 // Create a new game helper function
 function createGame(
   creatorId: string,
-  blindLevel: string,
   server: Server,
   config: TableConfig
 ): Game {
   const gameId = (gameCounter++).toString();
-  const newGame = new Game(gameId, blindLevel, server, config);
+  const newGame = new Game(gameId, server, config);
   ServerStateManager.getInstance().addGame(newGame);
   return newGame;
 }
 
 // Create dummy games for testing
 function createDummyGames(server: Server) {
-  createGame(
-    "admin",
-    "5-10",
-    server,
-    getTableConfig(100000, 10, Infinity, 10, 5, 10, 2, 2, 50, 500, 600000, 7000)
-  );
+  const tableConfig1 = new TableConfigBuilder()
+    .setTimePerArrangeAction(100000)
+    .setTimePerAction(10)
+    .setMinBet(10)
+    .setMaxBet(Infinity)
+    .setTimeCookieEffect(600000)
+    .setSbAmount(5)
+    .setBbAmount(10)
+    .setMinPlayers(2)
+    .setMaxPlayers(2)
+    .setMinBuyin(50)
+    .setMaxBuyin(500)
+    .setShowdownAnimationTime(7000)
+    .build();
 
-  createGame(
-    "admin",
-    "10-20",
-    server,
-    getTableConfig(10000, 20, Infinity, 10, 10, 20, 3, 6, 50, 500, 60000, 5000)
-  );
-
-  createGame(
-    "admin",
-    "25-50",
-    server,
-    getTableConfig(10000, 50, Infinity, 10, 25, 50, 3, 6, 50, 500, 60000, 5000)
-  );
-
-  createGame(
-    "admin",
-    "50-100",
-    server,
-    getTableConfig(
-      10000,
-      100,
-      Infinity,
-      10,
-      50,
-      100,
-      4,
-      3,
-      50,
-      500,
-      60000,
-      5000
-    )
-  );
-
-  createGame(
-    "admin",
-    "100-200",
-    server,
-    getTableConfig(
-      10000,
-      200,
-      Infinity,
-      10,
-      100,
-      200,
-      6,
-      2,
-      50,
-      500,
-      60000,
-      5000
-    )
-  );
-}
-
-export function getTableConfig(
-  timePerAction: number,
-  minBet: number,
-  maxBet: number,
-  timeCookieEffect: number,
-  sbAmount: number,
-  bbAmount: number,
-  minPlayers: number,
-  maxPlayers: number,
-  minBuyin: number,
-  maxBuyin: number,
-  timePerArrangeAction: number,
-  showdownAnimationTime: number
-): TableConfig {
-  return {
-    timePerAction: timePerAction,
-    timePerArrangeAction: timePerArrangeAction,
-    minBet: minBet,
-    maxBet: maxBet,
-    timeCookieEffect: timeCookieEffect,
-    sbAmount: sbAmount,
-    bbAmount: bbAmount,
-    minPlayers: minPlayers,
-    maxPlayers: maxPlayers,
-    maxBuyin: maxBuyin,
-    minBuyin: minBuyin,
-    showdownAnimationTime: showdownAnimationTime,
+  const tableConfig2 = {
+    ...tableConfig1,
+    sbAmount: 10,
+    bbAmount: 20,
+    minBet: 20,
   };
+
+  const tableConfig3 = {
+    ...tableConfig2,
+    minPlayers: 2,
+    maxPlayers: 3,
+  };
+
+  const tableConfig4 = {
+    ...tableConfig3,
+    maxPlayers: 6,
+  };
+
+  const tableConfig5 = {
+    ...tableConfig1,
+  };
+
+  createGame("admin", server, tableConfig1);
+
+  createGame("admin", server, tableConfig2);
+
+  createGame("admin", server, tableConfig3);
+
+  createGame("admin", server, tableConfig4);
+
+  createGame("admin", server, tableConfig5);
 }
 
 export { io, app };

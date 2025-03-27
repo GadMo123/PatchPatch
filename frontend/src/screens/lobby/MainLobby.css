@@ -1,0 +1,273 @@
+/* General Reset and Font */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #1A2333;
+}
+
+/* Lobby Container */
+.lobby-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 90vw;
+    height: 90vh;
+    margin: 5vh auto 0 auto; /* 5vh margin-top for the top bar */
+    background-color: #1A2333;
+    color: #F5F5F5;
+    padding: 1vh;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Background Animations */
+.lobby-container.--high {
+    background-image: 
+        radial-gradient(circle at 10% 10%, rgba(0, 210, 255, 0.25) 1px, transparent 1px), /* Softer cyan */
+        radial-gradient(circle at 60% 60%, rgba(255, 0, 122, 0.35) 1px, transparent 1px); /* Muted magenta */
+    background-size: 120px 120px; /* Larger spacing for a different feel */
+    background-position: 0 0, 60px 60px;
+    background-repeat: repeat;
+    animation: sparkleTwinkle 15s infinite;
+}
+
+.lobby-container.--mid {
+    background-image: 
+        radial-gradient(circle at 10% 10%, rgba(0, 210, 255, 0.15) 1px, transparent 1px), /* Softer cyan */
+        radial-gradient(circle at 60% 60%, rgba(255, 0, 122, 0.2) 1px, transparent 1px); /* Muted magenta */
+    background-size: 120px 120px; /* Larger spacing */
+    background-position: 0 0, 60px 60px;
+    background-repeat: repeat;
+    animation: sparkleTwinkle 20s infinite;
+}
+
+.lobby-container.--low {
+    background-image: none;
+    background-color: #1A2333;
+    animation: none;
+}
+
+@keyframes sparkleTwinkle {
+    0%, 100% { background-size: 120px 120px; }
+    50% { background-size: 125px 125px; }
+}
+
+/* Lobby Header (Game Type Filters) */
+.lobby-header {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2vh;
+}
+
+.game-type-tabs {
+    display: flex;
+    gap: 1vw;
+    width: 100%;
+    justify-content: space-around;
+}
+
+.tab {
+    background-color: #2A3647;
+    color: #F5F5F5;
+    border: 1px solid #00D2FF;
+    padding: 0.5vh 1vw;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+    text-align: center;
+    font-size: 1rem;
+    position: relative; /* Positioning context for coming-soon */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px; /* Ensure enough space for the coming-soon label */
+}
+
+.tab.active {
+    background-color: #00D2FF;
+    color: #1A2333;
+}
+
+.tab.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.coming-soon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #FF007A;
+    color: white;
+    padding: 0.2vh 0.5vw;
+    font-size: 0.7rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0; /* Hidden by default */
+    visibility: hidden; /* Hidden by default */
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.tab.disabled:hover .coming-soon {
+    opacity: 1; /* Visible on hover */
+    visibility: visible;
+}
+
+/* Lobby Content (Grid + Filters) */
+.lobby-content {
+    display: flex;
+    width: 100%;
+    height: 80vh; /* Adjusted to account for header and alignment */
+    align-items: flex-start; /* Align both grid and sidebar at the top */
+}
+
+/* Filters Sidebar (Right) */
+.filters-sidebar {
+    width: 25%;
+    background-color: #2A3647;
+    padding: 2vh;
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+    border-left: 1px solid #00D2FF;
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+    height: 100%; /* Ensure it matches the grid height */
+    overflow-y: auto; /* Allow scrolling if content overflows */
+}
+
+.filter-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+}
+
+.filter-section h3 {
+    border-bottom: 1px solid #00D2FF;
+    padding-bottom: 1vh;
+    margin-bottom: 1vh;
+    font-size: 1.1rem;
+    color: #F5F5F5;
+}
+
+.filter-section label {
+    display: flex;
+    align-items: center;
+    gap: 0.5vw;
+    font-size: 0.9rem;
+    color: #F5F5F5;
+    transition: color 0.2s ease;
+}
+
+.filter-section label:hover {
+    color: #00D2FF;
+}
+
+.filter-section input {
+    margin-right: 0.5vw;
+}
+
+/* Games Grid (Left) */
+.games-grid {
+    width: 75%;
+    display: flex;
+    flex-direction: column;
+    padding: 2vh;
+    height: 100%; /* Ensure it matches the sidebar height */
+    overflow-y: auto;
+}
+
+.games-header {
+    display: flex;
+    background-color: #2A3647;
+    color: #F5F5F5;
+    padding: 1vh;
+    font-weight: bold;
+    border-bottom: 1px solid #00D2FF;
+}
+
+.header-cell {
+    flex: 1;
+    padding: 0.5vh 1vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.header-cell.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.header-cell.sortable:hover {
+    background-color: rgba(0, 210, 255, 0.2);
+}
+
+.game-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #2A3647;
+    border-bottom: 1px solid #00D2FF;
+    padding: 1vh;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.game-row:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 8px rgba(0, 210, 255, 0.3);
+}
+
+.game-cell {
+    flex: 1;
+    padding: 0.5vh 1vw;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* Enter Game Button */
+.enter-game-btn {
+    background-color: #22C55E;
+    color: #F5F5F5;
+    border: none;
+    padding: 0.5vh 1vw;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.enter-game-btn.--high:hover {
+    background-color: #16A34A;
+    box-shadow: 0 0 5px #00FF9D;
+}
+
+.enter-game-btn.--mid:hover {
+    background-color: #22C55E;
+    box-shadow: 0 0 3px #00FF9D;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #2a2a2a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

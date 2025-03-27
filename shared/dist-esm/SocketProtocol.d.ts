@@ -1,5 +1,5 @@
 import { Card } from "./Card";
-import { BettingTypes, Position } from "./Types";
+import { BettingTypes, GameSpeed, GameStatus, GameType, Position } from "./Types";
 export declare const SocketEvents: {
     readonly LOGIN: "login";
     readonly ENTER_GAME: "enter-game";
@@ -52,10 +52,13 @@ export interface LobbyStatusServerResponse {
     success: boolean;
     games: Array<{
         id: string;
-        blindLevel: string;
+        gameType: GameType;
+        BBAmount: number;
+        stakes: string;
         players: string[];
-        status: string;
+        status: GameStatus;
         maxPlayers: number;
+        gameSpeed: GameSpeed;
     }>;
 }
 export interface GameStateServerBroadcast {

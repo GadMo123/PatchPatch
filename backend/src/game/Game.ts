@@ -32,7 +32,6 @@ export class Game {
 
   constructor(
     id: string,
-    stakes: string,
     private _server: Server,
     tableConfig: TableConfig
   ) {
@@ -43,7 +42,6 @@ export class Game {
     this._isHandWonWithoutShowdown = false;
     this._state = {
       id,
-      stakes,
       phase: GamePhase.Waiting,
       flops: [],
       turns: [],
@@ -243,10 +241,6 @@ export class Game {
 
   getId() {
     return this._state.id;
-  }
-
-  getStakes() {
-    return this._state.stakes;
   }
 
   async handleGameStateRequest(player: Player): Promise<boolean> {
