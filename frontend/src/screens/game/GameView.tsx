@@ -164,6 +164,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
             <div className="bet-panel">
               <MemoizedBetPanel
                 bettingState={gameState.bettingState}
+                initialTime={gameState.tableConfig.timePerAction}
                 bigBlind={gameState.tableConfig.bigBlindAmount}
               />
             </div>

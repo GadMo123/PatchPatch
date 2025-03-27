@@ -83,6 +83,7 @@ export interface TableConfigClientData {
     maxBuyin: number;
     bigBlindAmount: number;
     smallBlindAmount: number;
+    timePerAction: number;
 }
 export interface PublicPlayerClientData {
     tableAbsolutePosition: number;

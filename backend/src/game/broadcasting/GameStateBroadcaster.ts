@@ -179,6 +179,7 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
       maxBuyin: tableConfig.maxBuyin,
       bigBlindAmount: tableConfig.bbAmount,
       smallBlindAmount: tableConfig.sbAmount,
+      timePerAction: tableConfig.timePerAction,
     };
   }
 

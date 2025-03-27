@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useLayoutEffect,
+} from "react";
 import "./BetPanel.css";
 import { useGameContext } from "../../../contexts/GameContext";
 import { useCountdownTimer } from "../../../hooks/TimerHook";
@@ -9,10 +15,15 @@ import { Slider } from "../../../components/common/slider/Slider";
 
 interface BetPanelProps {
   bettingState: BettingStateClientData;
+  initialTime: number;
   bigBlind: number;
 }
 
-const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
+const BetPanel: React.FC<BetPanelProps> = ({
+  bettingState,
+  initialTime,
+  bigBlind,
+}) => {
   const { animationLevel } = useAnimationTheme();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +39,8 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
     null
   );
 
+  // Ensures dimensions are set and path is stable before starting timer-dot animation
+  const [isPathReady, setIsPathReady] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
@@ -35,8 +48,6 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
 
   const { playerId, gameId } = useGameContext();
   const { sendAction } = usePlayerAction();
-
-  const [initialTime] = useState(bettingState.timeRemaining);
 
   const [timeLeft, cancelTimer] = useCountdownTimer({
     serverTimeRemaining: bettingState.timeRemaining,
@@ -92,13 +103,12 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
   h ${width / 2 - borderRadius}
   z`;
 
-  // Calculate path length dynamically
-  const [pathLength, setPathLength] = useState(0);
-  useEffect(() => {
-    if (pathRef.current) {
-      setPathLength(pathRef.current.getTotalLength());
+  // Ensure dimensions are set and path is stable
+  useLayoutEffect(() => {
+    if (width > 0 && height > 0) {
+      setIsPathReady(true);
     }
-  }, [dimensions]);
+  }, [width, height]);
 
   const onAction = async (action: BettingTypes, amount?: number) => {
     if (isProcessing) return;
@@ -407,19 +417,21 @@ const BetPanel: React.FC<BetPanelProps> = ({ bettingState, bigBlind }) => {
               transition: "stroke 0.1s linear",
             }}
           />
-          <circle
-            className="time-border-dot"
-            style={{ fill: getBorderColor() }}
-          >
-            <animateMotion
-              dur={`${initialTime / 1000}s`}
-              begin="0s"
-              repeatCount="1"
-              fill="freeze"
+          {isPathReady && (
+            <circle
+              className="time-border-dot"
+              style={{ fill: getBorderColor() }}
             >
-              <mpath href="#borderPath" />
-            </animateMotion>
-          </circle>
+              <animateMotion
+                dur={`${initialTime / 1000}s`}
+                begin="0s"
+                repeatCount="1"
+                fill="freeze"
+              >
+                <mpath href="#borderPath" />
+              </animateMotion>
+            </circle>
+          )}
           <path id="borderPath" d={borderPath} fill="none" />
         </svg>
       </div>
