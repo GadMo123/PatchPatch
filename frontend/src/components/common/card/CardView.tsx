@@ -24,14 +24,11 @@ const CardView: React.FC<CardProps> = ({ card, className = "" }) => {
   const suitSrc = `/suits/${suit}.svg`; // Ensure this points to the updated SVGs
   return (
     <div className={`container ${suit} ${className} --${animationLevel}`}>
-      <div className="upper">
-        <div className="upper-rank">{rank}</div>
-        <img src={suitSrc} alt={suit} className="suit-icon" />
+      <div className="upper-rank">{rank}</div>
+      <div className="suit-icon">
+        <img src={suitSrc} alt={suit} />
       </div>
-      <div className="lower">
-        <img src={suitSrc} alt={suit} className="suit-icon" />
-        <div className="rank">{rank}</div>
-      </div>
+      <div className="lower-rank">{rank}</div>
     </div>
   );
 };

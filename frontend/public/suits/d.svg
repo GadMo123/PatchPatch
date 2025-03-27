@@ -1,4 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="50" height="50">
-  <polygon points="25,5 40,25 25,45 10,25" fill="#00D2FF" />
-  <animate attributeName="fill" values="#00D2FF;#008CBA;#00D2FF" dur="2s" repeatCount="indefinite" /> <!-- Subtle pulsing glow -->
+  <polygon points="25,5 40,25 25,45 10,25" fill="#1C3A5E" stroke="#2A4D69" stroke-width="1" />
+  <animate attributeName="fill" values="#1C3A5E;#152A45;#1C3A5E" dur="2s" repeatCount="indefinite" />
 </svg>

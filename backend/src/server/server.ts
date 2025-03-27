@@ -163,7 +163,7 @@ function createGame(
 function createDummyGames(server: Server) {
   const tableConfig1 = new TableConfigBuilder()
     .setTimePerArrangeAction(100000)
-    .setTimePerAction(10)
+    .setTimePerAction(12000)
     .setMinBet(10)
     .setMaxBet(Infinity)
     .setTimeCookieEffect(600000)

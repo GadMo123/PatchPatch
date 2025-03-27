@@ -1,17 +1,21 @@
-/* Base styles remain the same, but add animation levels */
+/* Base styles */
 .container {
     border: 0.5px solid #3d3d3d;
     border-radius: 4px;
     background-color: #FFFFFF; /* Glossy white background */
     padding: 8px;
-    height: 100%; 
     display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Push upper-rank to top, lower-rank to bottom */
+    flex-grow: 1;
+    aspect-ratio: 0.618;
     cursor: pointer;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
     position: relative; /* For glass-like overlay and hover effects */
+    box-sizing: border-box;
 }
 
-/* Glass-like effect with semi-transparent overlay (remove for low) */
+/* Glass-like effect with semi-transparent overlay */
 .container::before {
     content: "";
     position: absolute;
@@ -19,30 +23,30 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.2); /* Semi-transparent white overlay */
+    background: rgba(255, 255, 255, 0.1); /* Slightly less opaque overlay */
     border-radius: 4px;
     z-index: 1;
 }
 
-/* Neon suit colors with gradients for depth (remove gradient for low/mid) */
-.container.h { /* Hearts - Neon Pink */
-    background-image: linear-gradient(to bottom, #FF007A 0%, #FF4D4F 100%);
-    border: 1px solid #FF007A; /* Faint neon pink border */
+/* Card background colors with gradients */
+.container.h { /* Hearts - Deep Red */
+    background-image: linear-gradient(to bottom, #E63946 0%, #A61C2E 100%);
+    border: 1px solid #E63946;
 }
 
-.container.d { /* Diamonds - Neon Blue (blueish) */
-    background-image: linear-gradient(to bottom, #00D2FF 0%, #008CBA 100%);
-    border: 1px solid #00D2FF; /* Faint neon blue border */
+.container.d { /* Diamonds - Steel Blue */
+    background-image: linear-gradient(to bottom, #4682B4 0%, #2A4D69 100%);
+    border: 1px solid #4682B4;
 }
 
-.container.c { /* Clubs - Neon Green */
-    background-image: linear-gradient(to bottom, #00FF9D 0%, #00A86B 100%);
-    border: 1px solid #00FF9D; /* Faint neon green border */
+.container.c { /* Clubs - Muted Green */
+    background-image: linear-gradient(to bottom, #2E8B57 0%, #1C5A3A 100%);
+    border: 1px solid #2E8B57;
 }
 
-.container.s { /* Spades - Deep Charcoal with Neon Blue glow on hover */
-    background-image: linear-gradient(to bottom, #1A1A1A 0%, #0D0D0D 100%);
-    border: 1px solid #1A1A1A; /* Charcoal border */
+.container.s { /* Spades - Dark Gray */
+    background-image: linear-gradient(to bottom, #2C2C2C 0%, #1A1A1A 100%);
+    border: 1px solid #2C2C2C;
 }
 
 /* Animation levels */
@@ -64,22 +68,7 @@
     transition: none; /* No transitions */
 }
 
-/* Spades-specific hover for neon blue glow (only for high) */
-.container.s.--high:hover {
-    box-shadow: 0 0 15px #00D2FF, 0 4px 8px rgba(0, 0, 0, 0.3); /* Neon blue glow */
-}
-
-.container.s.--mid:hover {
-    box-shadow: 0 0 8px #00D2FF; /* Reduced glow */
-    transition: box-shadow 0.1s ease; /* Shorter transition */
-}
-
-.container.s.--low:hover {
-    box-shadow: none; /* No glow */
-    transition: none; /* No transition */
-}
-
-/* Selected state (only for high) */
+/* Selected state */
 .container.--high.selected {
     transform: translateY(-8px);
     box-shadow: 0 0 15px rgba(255, 215, 0, 0.7); /* Golden glow */
@@ -98,85 +87,109 @@
     transition: none;
 }
 
-/* Rank and Suit Text (remove glow for low) */
-.upper-rank, .rank, .suit {
-    color: #000000; /* Bold black text for contrast */
-    font-size: 21px; /* Maintain size */
+/* Rank Text */
+.upper-rank, .lower-rank {
+    max-width: 15%;
+    max-height: 15%;
+    color: #B3E5FC; /* Soft cyan for a futuristic look */
+    font-size: 21px;
+    font-weight: bold;
+    z-index: 2; /* Above the glass-like overlay */
 }
 
-.upper-rank, .rank {
-    font-weight: bold; /* Ensure bold text for readability */
-}
-
-/* Neon outline on hover (only for high/mid) */
+/* Neon outline on hover */
 .container.--high:hover .upper-rank,
-.container.--high:hover .rank,
-.container.--high:hover .suit {
+.container.--high:hover .lower-rank {
     text-shadow: 
-        0 0 5px #FF007A, /* Neon pink for hearts */
-        0 0 5px #00D2FF, /* Neon blue for diamonds */
-        0 0 5px #00FF9D, /* Neon green for clubs */
+        0 0 5px #E63946, /* Deep red for hearts */
+        0 0 5px #4682B4, /* Steel blue for diamonds */
+        0 0 5px #2E8B57, /* Muted green for clubs */
         0 0 5px #00D2FF; /* Neon blue for spades */
     transition: text-shadow 0.2s ease;
 }
 
 .container.--mid:hover .upper-rank,
-.container.--mid:hover .rank,
-.container.--mid:hover .suit {
+.container.--mid:hover .lower-rank {
     text-shadow: 
-        0 0 3px #FF007A, /* Reduced glow */
-        0 0 3px #00D2FF,
-        0 0 3px #00FF9D,
+        0 0 3px #E63946, /* Reduced glow */
+        0 0 3px #4682B4,
+        0 0 3px #2E8B57,
         0 0 3px #00D2FF;
     transition: text-shadow 0.1s ease;
 }
 
 .container.--low:hover .upper-rank,
-.container.--low:hover .rank,
-.container.--low:hover .suit {
+.container.--low:hover .lower-rank {
     text-shadow: none; /* No glow */
     transition: none;
 }
 
-/* Upper and lower sections (no changes) */
-.upper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 2; /* Above the glass-like overlay */
+/* Upper and lower sections */
+.upper-rank {
+    align-self: flex-start; /* Tie to top-left */
+    justify-self: left;
 }
 
-.lower {
-    align-self: flex-end;
+.lower-rank {
+    align-self: flex-end; /* Tie to bottom-right */
     justify-self: flex-end;
-    margin-left: auto;
-    z-index: 2; /* Above the glass-like overlay */
 }
 
-/* Suit Icon (SVG) (remove glow for low) */
+/* Suit Icon */
 .suit-icon {
-    width: 1em; /* Match the font size of the rank */
-    height: 1em; /* Match the font size of the rank */
-    margin-top: 4px; /* Add a small gap between the rank and the image */
+    display: flex;
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    flex-grow: 1; /* Take up remaining space between upper and lower ranks */
+    z-index: 2;
 }
 
-.container.--high:hover .suit-icon {
-    filter: drop-shadow(0 0 5px 
-        #FF007A /* Neon pink for hearts */
-        #00D2FF /* Neon blue for diamonds */
-        #00FF9D /* Neon green for clubs */
-        #00D2FF /* Neon blue for spades */
-    );
+.suit-icon img {
+    max-width: 60%; /* Limit the image size to fit within the container */
+    max-height: 60%; /* Ensure the image doesn't overflow */
+    width: auto; /* Maintain aspect ratio */
+    height: auto; /* Maintain aspect ratio */
+    object-fit: contain; /* Ensure the image scales properly without distortion */
+}
+
+/* Hover effects for suit icon */
+.container.h.--high:hover .suit-icon {
+    filter: drop-shadow(0 0 5px #E63946); /* Deep red glow for hearts */
     transition: filter 0.2s ease;
 }
 
-.container.--mid:hover .suit-icon {
-    filter: drop-shadow(0 0 3px 
-        #FF007A /* Reduced glow */
-        #00D2FF
-        #00FF9D
-        #00D2FF
-    );
+.container.d.--high:hover .suit-icon {
+    filter: drop-shadow(0 0 5px #4682B4); /* Steel blue glow for diamonds */
+    transition: filter 0.2s ease;
+}
+
+.container.c.--high:hover .suit-icon {
+    filter: drop-shadow(0 0 5px #2E8B57); /* Muted green glow for clubs */
+    transition: filter 0.2s ease;
+}
+
+.container.s.--high:hover .suit-icon {
+    filter: drop-shadow(0 0 5px #00D2FF); /* Neon blue glow for spades */
+    transition: filter 0.2s ease;
+}
+
+.container.h.--mid:hover .suit-icon {
+    filter: drop-shadow(0 0 3px #E63946); /* Reduced glow for hearts */
+    transition: filter 0.1s ease;
+}
+
+.container.d.--mid:hover .suit-icon {
+    filter: drop-shadow(0 0 3px #4682B4); /* Reduced glow for diamonds */
+    transition: filter 0.1s ease;
+}
+
+.container.c.--mid:hover .suit-icon {
+    filter: drop-shadow(0 0 3px #2E8B57); /* Reduced glow for clubs */
+    transition: filter 0.1s ease;
+}
+
+.container.s.--mid:hover .suit-icon {
+    filter: drop-shadow(0 0 3px #00D2FF); /* Reduced glow for spades */
     transition: filter 0.1s ease;
 }
 
@@ -184,10 +197,3 @@
     filter: none; /* No glow */
     transition: none;
 }
-
-.board-card {
-    margin-right: 4px;
-    height: 100%;
-    aspect-ratio: 0.618;
-    box-sizing: border-box; /* Ensures padding and borders are included in the dimensions */
-  }
