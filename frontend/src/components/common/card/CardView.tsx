@@ -6,9 +6,14 @@ import { useAnimationTheme } from "../../../contexts/AnimationThemeProvider";
 interface CardProps {
   card: Card | { _rank: Rank; _suit: Suit } | undefined;
   className?: string;
+  isSmall?: boolean;
 }
 
-const CardView: React.FC<CardProps> = ({ card, className = "" }) => {
+const CardView: React.FC<CardProps> = ({
+  card,
+  className = "",
+  isSmall = false,
+}) => {
   const { animationLevel } = useAnimationTheme();
 
   // Add null check here
@@ -21,14 +26,14 @@ const CardView: React.FC<CardProps> = ({ card, className = "" }) => {
   const rank = "rank" in card ? card.rank : card._rank;
   const suit = "suit" in card ? card.suit : card._suit;
 
-  const suitSrc = `/suits/${suit}.svg`; // Ensure this points to the updated SVGs
+  const suitSrc = `/suits/${suit}.svg`;
   return (
     <div className={`container ${suit} ${className} --${animationLevel}`}>
       <div className="upper-rank">{rank}</div>
-      <div className="suit-icon">
+      <div className={`suit-icon ${isSmall ? "small" : ""}`}>
         <img src={suitSrc} alt={suit} />
       </div>
-      <div className="lower-rank">{rank}</div>
+      {!isSmall && <div className="lower-rank">{rank}</div>}
     </div>
   );
 };

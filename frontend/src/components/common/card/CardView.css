@@ -97,6 +97,10 @@
     z-index: 2; /* Above the glass-like overlay */
 }
 
+.upper-rank.small{
+    font-size: 12px;
+}
+
 /* Neon outline on hover */
 .container.--high:hover .upper-rank,
 .container.--high:hover .lower-rank {
@@ -142,6 +146,14 @@
     justify-content: center; /* Center horizontally */
     flex-grow: 1; /* Take up remaining space between upper and lower ranks */
     z-index: 2;
+}
+
+/* When the card is small, move the suit icon to the bottom right */
+.suit-icon.small{
+    display: flex;
+    align-items: flex-end; 
+    justify-content: flex-end; 
+    margin-bottom: 4px; /* Add some bottom padding */
 }
 
 .suit-icon img {

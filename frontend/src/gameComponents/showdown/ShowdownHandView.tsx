@@ -23,6 +23,7 @@ export const ShowdownHandView: React.FC<{
             <CardView
               card={card}
               className={`villain-showdown-card --${animationLevel}`}
+              isSmall={true}
             />
           </div>
         ))}
