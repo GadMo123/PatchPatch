@@ -60,6 +60,8 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     [
       gameState?.publicPlayerDataMapByTablePosition,
       gameState?.publicPlayerDataMapByTablePosition,
+      gameState?.noShowdown,
+      gameState?.showdown,
       playerId,
     ]
   );

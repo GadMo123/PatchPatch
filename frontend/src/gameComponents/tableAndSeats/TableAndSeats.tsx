@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./TableAndSeats.css";
 import { useGameContext } from "../../contexts/GameContext";
 import {
+  NoShowdownResultClientData,
   PublicPlayerClientData,
   ShowdownResultClientData,
 } from "@patchpatch/shared";
@@ -9,8 +10,8 @@ import { useJoinGame } from "../../hooks/CreateSocketAction";
 import { useBuyInDialog } from "../../contexts/BuyInContext";
 import PotDisplay from "../../components/common/PotDisplay/PotDisplay";
 import { useAnimationTheme } from "../../contexts/AnimationThemeProvider";
-import { WinningAnimation } from "../showdown/WinningAnimation";
 import { ShowdownHandView } from "../showdown/ShowdownHandView";
+import WinningAnimation from "../showdown/WinningAnimation";
 
 export interface TableProps {
   numberOfSeats: 2 | 3 | 6;
@@ -18,6 +19,7 @@ export interface TableProps {
   isJoinedGame: boolean;
   canBuyIn: boolean;
   showdownState: ShowdownResultClientData | null;
+  noShowdownState: NoShowdownResultClientData | null;
   children?: React.ReactNode;
 }
 
@@ -27,6 +29,7 @@ const TableAndSeats: React.FC<TableProps> = ({
   isJoinedGame,
   canBuyIn,
   showdownState,
+  noShowdownState,
   children,
 }) => {
   const { animationLevel } = useAnimationTheme();
@@ -35,11 +38,9 @@ const TableAndSeats: React.FC<TableProps> = ({
   const { sendAction: joinGame } = useJoinGame();
   const { openBuyInDialog } = useBuyInDialog();
   const [showWinningAnimation, setShowWinningAnimation] = useState<{
-    [key: string]: boolean;
+    [key: string]: number; // playerID => amount won
   }>({});
-  const [updatedStacks, setUpdatedStacks] = useState<{ [key: string]: number }>(
-    {}
-  );
+  const [animationTime, setAnimationTime] = useState<number>(0);
 
   useEffect(() => {
     const calculateTableSize = () => {
@@ -55,30 +56,30 @@ const TableAndSeats: React.FC<TableProps> = ({
   }, []);
 
   useEffect(() => {
+    const winnerAnimations: { [key: string]: number } = {};
+    let animationTimeout = 0;
     if (showdownState && showdownState.winners) {
-      const winnerAnimations: { [key: string]: boolean } = {};
-      const winnerStacks: { [key: string]: number } = {};
-
+      // Handle showdown winners
       showdownState.winners.forEach(([winnerId, amount]) => {
-        winnerAnimations[winnerId] = amount > 0;
-
-        Object.values(seatsMap).forEach((player) => {
-          if (player.id === winnerId && player.stack) {
-            winnerStacks[winnerId] = player.stack;
-          }
-        });
+        winnerAnimations[winnerId] = amount;
+        animationTimeout = showdownState.animationTime;
       });
-
-      setShowWinningAnimation(winnerAnimations);
-      setUpdatedStacks(winnerStacks);
-
-      const timeout = setTimeout(() => {
-        setShowWinningAnimation({});
-      }, showdownState.animationTime);
-
-      return () => clearTimeout(timeout);
     }
-  }, [showdownState, seatsMap]);
+
+    // Handle no-showdown winner
+    else if (noShowdownState && noShowdownState.winnerId) {
+      winnerAnimations[noShowdownState.winnerId] = noShowdownState.potAmount;
+      animationTimeout = noShowdownState.animationTime;
+    }
+
+    //set anination
+    if (animationTimeout > 0) {
+      setAnimationTime(animationTimeout);
+      setShowWinningAnimation(winnerAnimations);
+    } else {
+      setShowWinningAnimation({});
+    }
+  }, [showdownState, noShowdownState]);
 
   const handleJoinGame = async (seatInfo: PublicPlayerClientData) => {
     try {
@@ -96,16 +97,11 @@ const TableAndSeats: React.FC<TableProps> = ({
     }
   };
 
-  const handleWinningAnimationComplete = (playerId: string, amount: number) => {
-    setShowWinningAnimation((prev) => ({
-      ...prev,
-      [playerId]: false,
-    }));
-
-    setUpdatedStacks((prev) => ({
-      ...prev,
-      [playerId]: (prev[playerId] || 0) + amount,
-    }));
+  const handleWinningAnimationComplete = (
+    __playerId: string,
+    __amount: number
+  ) => {
+    setShowWinningAnimation({});
   };
 
   const renderSeats = () => {
@@ -122,17 +118,9 @@ const TableAndSeats: React.FC<TableProps> = ({
 
       const isHeroSeat = seatInfo.id === playerId;
       const showBuyInButton = isHeroSeat && canBuyIn;
-      const isWinner =
-        showdownState &&
-        showdownState.winners &&
-        seatInfo.id &&
-        showdownState.winners.some(([id, _]) => id === seatInfo.id);
-
+      const isWinner = seatInfo.id && showWinningAnimation[seatInfo.id] > 0;
       const winAmount =
-        isWinner && seatInfo.id
-          ? showdownState!.winners.find(([id, _]) => id === seatInfo.id)?.[1] ||
-            0
-          : 0;
+        isWinner && seatInfo.id ? showWinningAnimation[seatInfo.id] : 0;
 
       const handPositionFactor = 1.1; // Reduced to bring cards closer to the seat
       const handX = x * handPositionFactor;
@@ -161,6 +149,7 @@ const TableAndSeats: React.FC<TableProps> = ({
                   {isWinner && showWinningAnimation[seatInfo.id] && (
                     <WinningAnimation
                       amount={winAmount}
+                      animationTime={animationTime}
                       onComplete={() =>
                         handleWinningAnimationComplete(seatInfo.id!, winAmount)
                       }
@@ -207,7 +196,7 @@ const TableAndSeats: React.FC<TableProps> = ({
                 className="showdown-hand-container"
                 style={{
                   position: "absolute",
-                  left: `calc(50% + ${handX}px)`,
+                  left: `calc(50% + ${handX + 80}px)`, // Move 80px to the right
                   top: `calc(50% + ${handY}px)`,
                   transform: "translate(-50%, -50%)",
                   zIndex: 15,

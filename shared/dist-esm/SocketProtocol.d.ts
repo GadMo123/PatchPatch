@@ -76,6 +76,7 @@ export interface GameStateServerBroadcast {
     tableConfig: TableConfigClientData;
     arrangePlayerCardsState: ArrangePlayerCardsStateClientData | null;
     showdown: ShowdownResultClientData | null;
+    noShowdown: NoShowdownResultClientData | null;
 }
 export interface TableConfigClientData {
     maxPlayers: 2 | 3 | 6;
@@ -103,6 +104,11 @@ export interface ShowdownResultClientData {
     potAmount: number;
     winners: [string, number][];
     playersHandRank: [string, string][];
+    animationTime: number;
+}
+export interface NoShowdownResultClientData {
+    potAmount: number;
+    winnerId: string;
     animationTime: number;
 }
 export interface BettingStateClientData {

@@ -1,43 +1,52 @@
-import { useEffect, useState } from "react";
-import { useAnimationTheme } from "../../contexts/AnimationThemeProvider";
-import "./ShowdownView.css";
+import React, { useEffect, useState } from "react";
 
-// Component to handle stack increase animation
-export const WinningAnimation: React.FC<{
+interface WinningAnimationProps {
   amount: number;
+  animationTime: number; // Duration in milliseconds
   onComplete: () => void;
-}> = ({ amount, onComplete }) => {
-  const { animationLevel } = useAnimationTheme();
-  const [animationStep, setAnimationStep] = useState(0);
+}
+
+const WinningAnimation: React.FC<WinningAnimationProps> = ({
+  amount,
+  animationTime,
+  onComplete,
+}) => {
+  const [step, setStep] = useState(0);
 
   useEffect(() => {
-    if (animationLevel === "low") {
-      // Skip animation if animations are disabled
+    // Move to step-1 (appear & move up)
+    const step1Timeout = setTimeout(() => {
+      setStep(1);
+    }, 100); // Small delay to trigger transition smoothly
+
+    // Move to step-2 (fade out & move further)
+    const step2Timeout = setTimeout(() => {
+      setStep(2);
+    }, animationTime * 0.7); // 70% of animationTime
+
+    // Complete animation & cleanup
+    const completeTimeout = setTimeout(() => {
+      setStep(0);
       onComplete();
-      return;
-    }
+    }, animationTime);
 
-    const timeout = setTimeout(() => {
-      setAnimationStep(1);
-
-      const finalTimeout = setTimeout(() => {
-        setAnimationStep(2);
-        onComplete();
-      }, 1000);
-
-      return () => clearTimeout(finalTimeout);
-    }, 1000);
-
-    return () => clearTimeout(timeout);
-  }, [onComplete, animationLevel]);
-
-  if (animationLevel === "low") return null;
+    return () => {
+      clearTimeout(step1Timeout);
+      clearTimeout(step2Timeout);
+      clearTimeout(completeTimeout);
+    };
+  }, [animationTime, onComplete]);
 
   return (
     <div
-      className={`winning-animation step-${animationStep} --${animationLevel}`}
+      className={`winning-animation step-${step}`}
+      style={
+        { "--animation-duration": `${animationTime}ms` } as React.CSSProperties
+      }
     >
-      <div className="amount-text">+${amount}</div>
+      <span className="amount-text">+${amount}</span>
     </div>
   );
 };
+
+export default WinningAnimation;

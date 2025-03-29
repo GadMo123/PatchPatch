@@ -96,6 +96,7 @@ export interface GameStateServerBroadcast {
   tableConfig: TableConfigClientData;
   arrangePlayerCardsState: ArrangePlayerCardsStateClientData | null;
   showdown: ShowdownResultClientData | null;
+  noShowdown: NoShowdownResultClientData | null;
 }
 
 export interface TableConfigClientData {
@@ -127,6 +128,12 @@ export interface ShowdownResultClientData {
   potAmount: number; // How much was in this portion of the pot
   winners: [string, number][]; // Player IDs and their winnings
   playersHandRank: [string, string][]; // Map player id to hand strength in the current board
+  animationTime: number;
+}
+
+export interface NoShowdownResultClientData {
+  potAmount: number;
+  winnerId: string;
   animationTime: number;
 }
 

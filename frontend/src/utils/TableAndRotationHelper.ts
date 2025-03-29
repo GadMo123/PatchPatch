@@ -16,6 +16,7 @@ export const getTablePropsFromGameState = (
   const numberOfSeats = gameState.tableConfig.maxPlayers as 2 | 3 | 6;
   const seats: { [index: number]: PublicPlayerClientData } = {};
   const showdownState = gameState.showdown;
+  const noShowdownState = gameState.noShowdown;
 
   let tableRotation = 0;
   let isJoinedGame = false;
@@ -52,6 +53,7 @@ export const getTablePropsFromGameState = (
     seatsMap: seats,
     isJoinedGame,
     canBuyIn,
+    noShowdownState,
     showdownState,
   };
 };

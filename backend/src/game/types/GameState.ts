@@ -3,7 +3,7 @@
 import { PlayerInGame } from "./PlayerInGame";
 import { TableConfig, BettingState } from "../betting/BettingTypes";
 import { ArrangePlayerCardsState } from "../arrangeCards/ArrangePlayerCardsManager";
-import { Card, Position } from "@patchpatch/shared";
+import { Card, NoShowdownResultClientData, Position } from "@patchpatch/shared";
 import { Player } from "player/Player";
 import { HandStrength } from "game/showdown/ShowdownManager";
 
@@ -54,4 +54,5 @@ export interface DetailedGameState {
   arrangePlayerCardsState: ArrangePlayerCardsState | null;
 
   showdownResults: ShowdownResult | null; // showdown results to broadcast
+  noShowdownResults: NoShowdownResultClientData | null;
 }

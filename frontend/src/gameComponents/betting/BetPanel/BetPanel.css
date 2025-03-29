@@ -5,6 +5,7 @@
   gap: 1vw;
   padding: 1vh 0.5vw;
   width: 100%;
+  min-width: 10vh;
   background-color: #1A1A1A; 
   border-radius: 8px;
   justify-content: space-evenly;
@@ -53,7 +54,7 @@
 .bet-button.raise
 .bet-button.call {
   pointer-events: auto;
-  border-radius: 8px;
+  border-radius: 18px;
   position: relative; /* Add position relative for reference positioning */
 }
 

@@ -28,6 +28,7 @@ export interface TableConfig {
   minBuyin: number;
   maxBuyin: number;
   showdownAnimationTime: number;
+  noShowDwonAnimationTime: number;
 }
 
 export interface ActionValidationResult {
@@ -54,6 +55,7 @@ export class TableConfigBuilder {
       minBuyin: 50,
       maxBuyin: 500,
       showdownAnimationTime: 7000,
+      noShowDwonAnimationTime: 3000,
     };
   }
 
@@ -115,6 +117,11 @@ export class TableConfigBuilder {
 
   setShowdownAnimationTime(time: number): TableConfigBuilder {
     this.config.showdownAnimationTime = time;
+    return this;
+  }
+
+  setNoShowdownAnimationTime(time: number): TableConfigBuilder {
+    this.config.noShowDwonAnimationTime = time;
     return this;
   }
 

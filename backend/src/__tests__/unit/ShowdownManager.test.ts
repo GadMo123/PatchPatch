@@ -134,10 +134,12 @@ describe("ShowdownManager", () => {
         timePerAction: 0,
         timePerArrangeAction: 0,
         showdownAnimationTime: 0,
+        noShowDwonAnimationTime: 0,
       },
       arrangePlayerCardsState: null,
       potsWinners: null,
       showdownResults: null,
+      noShowdownResults: null,
     };
 
     // Setup mock pot manager

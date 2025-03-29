@@ -60,60 +60,57 @@
 
   
   /* Animation for winning chips */
-  .winning-animation {
-    position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 20;
-  }
-  
-  .winning-animation .amount-text {
-    font-weight: bold;
-    color: #00FF00;
-    font-size: 18px;
-    text-shadow: 0 0 5px #000;
-    animation: pulse 1s infinite;
-  }
-  
-  .winning-animation.step-0 {
-    opacity: 0;
-    transform: translateY(0);
-  }
-  
-  .winning-animation.step-1 {
-    opacity: 1;
-    transform: translateY(-20px);
-    transition: all 0.5s ease;
-  }
-  
-  .winning-animation.step-2 {
-    opacity: 0;
-    transform: translateY(-40px);
-    transition: all 0.5s ease;
-  }
-  
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-  }
-  
-  /* Animation level variations */
-  .showdown-hand.--low,
-  .winning-animation.--low {
-    transition: none;
-  }
-  
-  .villain-showdown-card.--low:hover {
-    transform: none;
-  }
-  
+.winning-animation {
+  position: fixed; /* Ensure it’s always on top */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  transition: opacity var(--animation-duration, 1s) ease, 
+              transform var(--animation-duration, 1s) ease;
+}
+
+/* Winning amount text */
+.winning-animation .amount-text {
+  font-weight: bold;
+  color: #00FF00;
+  font-size: 18px;
+  text-shadow: 0 0 5px #000;
+  animation: pulse var(--animation-duration, 1s) infinite;
+  z-index: 2000;
+}
+
+/* Step 0: Initial state (invisible) */
+.winning-animation.step-0 {
+  opacity: 0;
+  transform: translateY(0);
+}
+
+/* Step 1: Appear and move up */
+.winning-animation.step-1 {
+  opacity: 1;
+  transform: translateY(-20px);
+  transition: opacity calc(var(--animation-duration, 1s) * 0.3) ease, 
+              transform calc(var(--animation-duration, 1s) * 0.3) ease;
+}
+
+/* Step 2: Fade out and move further up */
+.winning-animation.step-2 {
+  opacity: 0;
+  transform: translateY(-40px);
+  transition: opacity calc(var(--animation-duration, 1s) * 0.7) ease, 
+              transform calc(var(--animation-duration, 1s) * 0.7) ease;
+}
+
+/* Pulse animation for text */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
   .board-section.showdown-highlighted.--low {
     box-shadow: none;
     border: 2px solid #FFD700;
   }
   
-  .winning-animation.--low {
-    display: none;
-  }

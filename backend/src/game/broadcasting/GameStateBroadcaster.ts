@@ -13,7 +13,11 @@ import {
   SocketEvents,
   TableConfigClientData,
 } from "@patchpatch/shared";
-import { BettingState, TableConfig } from "game/betting/BettingTypes";
+import {
+  BettingState,
+  getStakes,
+  TableConfig,
+} from "game/betting/BettingTypes";
 import { ArrangePlayerCardsState } from "game/arrangeCards/ArrangePlayerCardsManager";
 import { Player } from "player/Player";
 import {
@@ -144,10 +148,12 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
   const bettingState = game.getBettingState();
   const arrangePlayerCardsState = game.getArrangePlayerCardsState();
   const showdownState = game.getShowdownState();
+  const tableConfig = game.getTableConfig();
 
   return {
     id: game.getId(),
     phase: game.getPhase(),
+    stakes: getStakes(tableConfig.sbAmount, tableConfig.bbAmount),
     flops: game.getFlops(),
     turns: game.getTurns(),
     rivers: game.getRivers(),
@@ -158,7 +164,7 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
     bettingState: bettingState
       ? reduceBettingStateToClientData(bettingState)
       : null,
-    tableConfig: reduceTableConfigToClientData(game.getTableConfig()),
+    tableConfig: reduceTableConfigToClientData(tableConfig),
     arrangePlayerCardsState: arrangePlayerCardsState
       ? reduceArrangeCardsToClientData(arrangePlayerCardsState)
       : null,
@@ -168,6 +174,7 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
           game.getTableConfig().showdownAnimationTime
         )
       : null,
+    noShowdown: game.getNoShowdownState(),
   };
 
   function reduceTableConfigToClientData(

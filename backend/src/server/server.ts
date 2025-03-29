@@ -173,7 +173,8 @@ function createDummyGames(server: Server) {
     .setMaxPlayers(2)
     .setMinBuyin(50)
     .setMaxBuyin(500)
-    .setShowdownAnimationTime(7000)
+    .setShowdownAnimationTime(5000)
+    .setNoShowdownAnimationTime(3000)
     .build();
 
   const tableConfig2 = {

@@ -11,7 +11,7 @@ import { TableConfig } from "./betting/BettingTypes";
 import { ArrangePlayerCardsState } from "./arrangeCards/ArrangePlayerCardsManager";
 import { SingleGameFlowManager } from "./utils/SingleGameFlowManager";
 import { Mutex } from "async-mutex";
-import { Card, Position } from "@patchpatch/shared";
+import { Card, NoShowdownResultClientData, Position } from "@patchpatch/shared";
 import {
   assignPositions,
   RotateButtonPosition,
@@ -56,13 +56,14 @@ export class Game {
       arrangePlayerCardsState: null,
       potsWinners: null,
       showdownResults: null,
+      noShowdownResults: null,
     };
     this._deck = null;
     this._gameFlowManager = null;
     this._stacksUpdatesForNextHand = new Array<[PlayerInGame, number]>();
   }
 
-  private cleanupHand() {
+  cleanupHand() {
     this._potManager = new PotManager(new PotContribution());
     this._isHandWonWithoutShowdown = false;
     this._state = {
@@ -74,6 +75,7 @@ export class Game {
       arrangePlayerCardsState: null,
       bettingState: null,
       showdownResults: null,
+      noShowdownResults: null,
     };
   }
 
@@ -309,7 +311,7 @@ export class Game {
     return this._state.showdownResults ?? null;
   }
 
-  checkIfHandWonWithoutShowdown(): void {
+  async FindHandWinnerWithoutShowdown(): Promise<PlayerInGame | null> {
     let winner: PlayerInGame | null = null;
     let standingPlayers = 0;
 
@@ -317,27 +319,41 @@ export class Game {
       if (player && !player.isFolded()) {
         winner = player;
         standingPlayers++;
-        if (standingPlayers > 1) return;
+        if (standingPlayers > 1) return null; // More than one standing player, no winner
       }
     }
 
     if (standingPlayers === 1 && winner !== null) {
-      this.handleHandWonWithoutShowdown(winner);
+      // Wait for the handleHandWonWithoutShowdown to complete before returning the winner
+      await this.handleHandWonWithoutShowdown(winner);
     }
 
-    if (standingPlayers === 0)
+    if (standingPlayers === 0) {
       console.error("checkIfHandWonWithoutShowdown - no players standing");
+    }
+
+    return winner;
   }
 
-  private handleHandWonWithoutShowdown(winner: PlayerInGame) {
+  async handleHandWonWithoutShowdown(winner: PlayerInGame) {
     console.log("handleHandWonWithoutShowdown");
     this._isHandWonWithoutShowdown = true;
     const totalPotsSize = this._potManager.getPotsSizes();
     if (totalPotsSize) {
       const totalWinAmount = totalPotsSize.reduce((sum, pot) => sum + pot, 0); // Sum all pots
       this._state.potsWinners = new Map([[winner.getId(), totalWinAmount]]);
+      const currentStack = winner.getStack();
+      winner.updatePlayerPublicState({
+        currentStack: currentStack + totalWinAmount,
+      });
     }
-    this._potManager = new PotManager(new PotContribution());
+    this._state.noShowdownResults = {
+      animationTime: this._state.tableConfig.noShowDwonAnimationTime,
+      potAmount: totalPotsSize
+        ? totalPotsSize.reduce((sum, pot) => sum + pot, 0)
+        : 0,
+      winnerId: winner.getId(),
+    };
     this._state.phase = GamePhase.StartingHand;
   }
 
@@ -347,6 +363,14 @@ export class Game {
 
   getArrangePlayerCardsState(): ArrangePlayerCardsState | null {
     return this._state.arrangePlayerCardsState;
+  }
+
+  getNoShowdownState(): NoShowdownResultClientData | null {
+    return this._state.noShowdownResults;
+  }
+
+  getNoSDAnimationTime() {
+    return this._state.tableConfig.noShowDwonAnimationTime;
   }
 
   doShowdown(afterShowdown: () => Promise<void>) {

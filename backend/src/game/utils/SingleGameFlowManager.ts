@@ -80,7 +80,6 @@ export class SingleGameFlowManager {
       },
       this.startBettingRound.bind(this)
     );
-    // Todo : we can start cacl the winners right here to find the winner by the time of showdown
   }
 
   private startBettingRound() {
@@ -127,20 +126,26 @@ export class SingleGameFlowManager {
     );
   }
 
-  private onBettingRoundComplete() {
+  private async onBettingRoundComplete() {
     console.log("betting round complete -" + this._game.getPhase());
-    this._game.checkIfHandWonWithoutShowdown();
+    const noSDWinner = await this._game.FindHandWinnerWithoutShowdown();
+    const animationTime = noSDWinner ? this._game.getNoSDAnimationTime() : 0;
+
     this._game.updateGameStateAndBroadcast(
       { bettingState: null },
-      this.afterBettingDetermineNextPhase.bind(this)
+      this.afterBettingDetermineNextPhase.bind(this, animationTime)
     );
   }
 
-  private afterBettingDetermineNextPhase() {
+  private async afterBettingDetermineNextPhase(waitTime?: number) {
+    if (waitTime) {
+      // wait before next step (noShowdown winning animation, ect)
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
+    }
     //hand is done
     if (this._game.isHandWonWithoutShowdown()) {
       if (this._game.isReadyForNextHand()) this.startNextStreet();
-      // else game.cleanup(); todo
+      else this._game.cleanupHand();
     } else if (this._game.getPhase() === GamePhase.RiverBetting) {
       this._game.doShowdown(this.prapereNextHand.bind(this));
     }
