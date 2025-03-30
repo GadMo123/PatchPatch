@@ -43,6 +43,7 @@ const SitOutControl: React.FC<SitOutControlProps> = ({
 
   const handleImBack = () => {
     onSitOut(false);
+    setChecked(false);
   };
 
   // Player is currently sitting out
