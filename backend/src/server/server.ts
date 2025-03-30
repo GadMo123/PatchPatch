@@ -101,6 +101,21 @@ io.on("connection", (socket) => {
     callback(result);
   });
 
+  socket.on(SocketEvents.SIT_OUT_NEXT_HAND, async (payload, callback) => {
+    const result = await socketHandlers.handleSitOutNextHand(payload);
+    callback(result);
+  });
+
+  socket.on(SocketEvents.EXIT_GAME, async (payload, callback) => {
+    const result = await socketHandlers.handleExitGame(payload);
+    callback(result);
+  });
+
+  socket.on(SocketEvents.STAND_UP, async (payload, callback) => {
+    const result = await socketHandlers.handleStandUp(payload);
+    callback(result);
+  });
+
   socket.on(SocketEvents.LOBBY_STATUS, async (callback) => {
     const games = ServerStateManager.getInstance().getGames();
     callback(getLobbyStatus(games));

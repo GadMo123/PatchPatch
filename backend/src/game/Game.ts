@@ -29,6 +29,8 @@ export class Game {
   private _gameFlowManager: SingleGameFlowManager | null;
   private _stacksUpdatesForNextHand: Array<[PlayerInGame, number]>;
   private _TableConditionChangeMutex: Mutex; // For any async changes in table resources such as positions, seats ect.
+  private _playersToRemoveAfterHand: string[];
+  private _playersSitoutNextHand: Set<PlayerInGame>;
 
   constructor(
     id: string,
@@ -40,6 +42,8 @@ export class Game {
     this._broadcaster = new GameStateBroadcaster(_server);
     this._TableConditionChangeMutex = new Mutex();
     this._isHandWonWithoutShowdown = false;
+    this._playersToRemoveAfterHand = [];
+    this._playersSitoutNextHand = new Set();
     this._state = {
       id,
       phase: GamePhase.Waiting,
@@ -63,7 +67,7 @@ export class Game {
     this._stacksUpdatesForNextHand = new Array<[PlayerInGame, number]>();
   }
 
-  cleanupHand() {
+  async cleanupHand() {
     this._potManager = new PotManager(new PotContribution());
     this._isHandWonWithoutShowdown = false;
     this._state = {
@@ -77,11 +81,23 @@ export class Game {
       showdownResults: null,
       noShowdownResults: null,
     };
+    Array.from(this._state.playerInPosition.values()).forEach((player) =>
+      player?.updatePlayerPrivateState({ cards: undefined })
+    );
+    this._playersToRemoveAfterHand.forEach((playerId) => {
+      this._state.playersAbsolutePosition =
+        this._state.playersAbsolutePosition.filter(
+          (player) => player?.getId() !== playerId
+        );
+    });
+    this._playersToRemoveAfterHand = [];
+    this._playersSitoutNextHand.forEach((player) => player.toggleSitOut(true));
+    this._playersSitoutNextHand = new Set();
   }
 
   async PrepareNextHand(): Promise<boolean> {
+    await this.cleanupHand(); // keep out of _TableConditionChangeMutex since it use the mutex as well!
     return await this._TableConditionChangeMutex.runExclusive(async () => {
-      this.cleanupHand();
       // Apply stack updates that we saved during the last hand ( = buyins of active players happens after the hand done)
       this._stacksUpdatesForNextHand.forEach(([player, amount]) => {
         player.updatePlayerPublicState({
@@ -201,6 +217,28 @@ export class Game {
       // Broadcast after lock release
       setImmediate(() => this.updateGameStateAndBroadcast(null, null));
       return true;
+    });
+  }
+
+  async removePlayer(player: PlayerInGame) {
+    const playerId = player.getId();
+    let playerInCurrentHand = false;
+    this._TableConditionChangeMutex.runExclusive(async () => {
+      for (const [_, activePlayer] of this._state.playerInPosition) {
+        if (activePlayer && activePlayer.getId() === playerId) {
+          playerInCurrentHand = true;
+          break;
+        }
+      }
+      if (playerInCurrentHand) {
+        // add player to remove list after the current hand
+        this._playersToRemoveAfterHand.push(playerId);
+      } else {
+        this._state.playersAbsolutePosition =
+          this._state.playersAbsolutePosition.filter(
+            (player) => player?.getId() !== playerId
+          );
+      }
     });
   }
 
@@ -374,6 +412,22 @@ export class Game {
     this._state.phase = GamePhase.StartingHand;
   }
 
+  async playerSitoutNextHandRequest(player: PlayerInGame, sitout: boolean) {
+    this._TableConditionChangeMutex.runExclusive(async () => {
+      if (this._state.phase === GamePhase.Waiting) {
+        player.toggleSitOut(sitout);
+        if (!sitout) setImmediate(() => this.startGame()); // check if game is ready to start
+      } else {
+        if (sitout && !player.isSittingOut())
+          this._playersSitoutNextHand.add(player);
+        if (!sitout) {
+          this._playersSitoutNextHand.delete(player);
+          player.toggleSitOut(false);
+        }
+      }
+    });
+  }
+
   isHandWonWithoutShowdown() {
     return this._isHandWonWithoutShowdown;
   }
@@ -405,6 +459,10 @@ export class Game {
 
   getPotManager() {
     return this._potManager;
+  }
+
+  removeObserver(player: Player) {
+    this._state.observers.delete(player);
   }
 
   getGameFlowManager(): SingleGameFlowManager | null {

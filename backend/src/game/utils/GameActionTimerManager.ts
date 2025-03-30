@@ -21,18 +21,19 @@ export class GameActionTimerManager {
     this._timeRemaining = config.duration;
   }
 
-  start(): void {
+  start(takeDefualtAction: boolean): void {
     this._isActionReceived = false;
-    this.startMainTimer();
+    this.startMainTimer(takeDefualtAction);
   }
 
-  private startMainTimer(): void {
-    this.config.updateTimeRemianing(this._timeRemaining);
+  private startMainTimer(takeDefualtAction: boolean): void {
+    const timeToAct = takeDefualtAction ? 0 : this._timeRemaining;
+    this.config.updateTimeRemianing(timeToAct);
     if (this._mainTimer) clearTimeout(this._mainTimer);
 
     this._mainTimer = setTimeout(() => {
       this.startBufferTimer(); // A grace period to avoid a race on action between client and timout event due to network latency
-    }, this._timeRemaining);
+    }, timeToAct);
   }
 
   private startBufferTimer(): void {
@@ -58,7 +59,7 @@ export class GameActionTimerManager {
     this._timeRemaining += this.config.timeCookieEffect;
 
     // Restart main timer with extended time
-    this.startMainTimer();
+    this.startMainTimer(false);
     return true;
   }
 

@@ -44,7 +44,7 @@ export class BettingManager {
       playerToAct: this._currentPlayerToAct.getId(),
       potContributions: new Map(
         Array.from(_game.getPlayersInGame()!.values())
-          .filter((player) => player?.isActive())
+          .filter((player) => player && !player.isFolded() && !player.isAllIn())
           .map((player) => [player!, 0])
       ),
       minRaiseAmount: _game.getTableConfig().bbAmount,
@@ -77,13 +77,6 @@ export class BettingManager {
     this._bettingState.callAmount =
       this._bettingRoundPotManager.getRemainingToCall(this._currentPlayerToAct);
 
-    console.log(
-      "starting player turn " +
-        this._currentPlayerToAct.getId() +
-        "call amount " +
-        this._bettingState.callAmount
-    );
-
     this._bettingState.allInAmount = this._currentPlayerToAct.getStack();
 
     this._bettingState.activePlayerRoundPotContributions =
@@ -96,7 +89,8 @@ export class BettingManager {
         this._currentPlayerToAct,
         this._bettingState.callAmount
       );
-    this._timerManager.start();
+
+    this._timerManager.start(this._currentPlayerToAct.isSittingOut());
     this._awaitingPlayersAction = true;
     this.broadcastBettingState();
   }
@@ -192,14 +186,7 @@ export class BettingManager {
   private onPlayerActionDone() {
     const lastPlayer = this._currentPlayerToAct;
     const nextPlayerFound = this.switchToNextPlayer();
-    console.log(
-      "onPlayerActionDone " +
-        nextPlayerFound +
-        "  " +
-        this.isBettingRoundComplete() +
-        "   " +
-        (lastPlayer === this._currentPlayerToAct)
-    );
+
     if (
       !nextPlayerFound ||
       this.isBettingRoundComplete() ||

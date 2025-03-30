@@ -227,6 +227,8 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
       tableAbsolutePosition: playerState.tablePosition,
       roundPotContributions: playerState.roundPotContributions,
       cards: playerCards,
+      removed: playerState.removed,
+      sitoutTimer: playerState.sitoutTimer,
     };
   }
 }

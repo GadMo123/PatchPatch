@@ -4,7 +4,6 @@ import { ArrangePlayerCardsManager } from "../arrangeCards/ArrangePlayerCardsMan
 import { BettingManager } from "../betting/BettingManager";
 import { Game } from "../Game";
 import { GamePhase } from "../types/GameState";
-import { PlayerInGame } from "../types/PlayerInGame";
 
 export class SingleGameFlowManager {
   private _bettingManager: BettingManager | null;

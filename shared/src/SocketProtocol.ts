@@ -67,6 +67,10 @@ export interface BuyIntoGamePayload extends InGamePayload {
   amount: number;
 }
 
+export interface SitOutPayload extends InGamePayload {
+  sitout: boolean; // sitout or back from sitting out
+}
+
 export interface LobbyStatusServerResponse {
   success: boolean;
   games: Array<{
@@ -116,6 +120,8 @@ export interface PublicPlayerClientData {
   stack?: number;
   cards?: Card[]; // Other players cards for showdown phase
   roundPotContributions?: number; // total Contributions to the pot in the current ongoing betting round
+  sitoutTimer?: number | null;
+  removed?: boolean; // A player been removed from the game (mainly by exeeding sitout timer or leaving table mid-hand), can't do any action, waiting to be removed after the current hand.
 }
 
 export interface PrivatePlayerClientData {

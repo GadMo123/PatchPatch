@@ -12,6 +12,7 @@ import PotDisplay from "../../components/common/PotDisplay/PotDisplay";
 import { useAnimationTheme } from "../../contexts/AnimationThemeProvider";
 import { ShowdownHandView } from "../showdown/ShowdownHandView";
 import WinningAnimation from "../showdown/WinningAnimation";
+import { formatTime } from "../../utils/TimeFormatter";
 
 export interface TableProps {
   numberOfSeats: 2 | 3 | 6;
@@ -41,6 +42,44 @@ const TableAndSeats: React.FC<TableProps> = ({
     [key: string]: number; // playerID => amount won
   }>({});
   const [animationTime, setAnimationTime] = useState<number>(0);
+  const [sitoutTimers, setSitoutTimers] = useState<{
+    [key: string]: number;
+  }>({});
+
+  useEffect(() => {
+    // Update sitout timers based on seatsMap
+    const newTimers: { [key: string]: number } = {};
+    Object.values(seatsMap).forEach((seat) => {
+      if (
+        seat.id &&
+        seat.sitoutTimer !== null &&
+        seat.sitoutTimer !== undefined
+      ) {
+        newTimers[seat.id] = seat.sitoutTimer;
+      }
+    });
+    setSitoutTimers(newTimers);
+
+    // Start countdown interval
+    const intervalId = setInterval(() => {
+      setSitoutTimers((prevTimers) => {
+        const updatedTimers: { [key: string]: number } = {};
+        let hasChanges = false;
+
+        Object.entries(prevTimers).forEach(([playerId, time]) => {
+          const newTime = time - 1000; // Reduce by 1 second
+          if (newTime > 0) {
+            updatedTimers[playerId] = newTime;
+            hasChanges = true;
+          }
+        });
+
+        return hasChanges ? updatedTimers : prevTimers;
+      });
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [seatsMap]);
 
   useEffect(() => {
     const calculateTableSize = () => {
@@ -121,6 +160,8 @@ const TableAndSeats: React.FC<TableProps> = ({
       const isWinner = seatInfo.id && showWinningAnimation[seatInfo.id] > 0;
       const winAmount =
         isWinner && seatInfo.id ? showWinningAnimation[seatInfo.id] : 0;
+      const hasSitoutTimer =
+        seatInfo.id && sitoutTimers[seatInfo.id] !== undefined;
 
       const handPositionFactor = 1.1; // Reduced to bring cards closer to the seat
       const handX = x * handPositionFactor;
@@ -129,6 +170,23 @@ const TableAndSeats: React.FC<TableProps> = ({
       const potDistanceRatio = 0.75;
       const potX = x * potDistanceRatio;
       const potY = y * potDistanceRatio;
+
+      // Calculate position for dealer button, 60px counter-clockwise from pot
+      const buttonAngleOffset = (Math.PI / 180) * 30; // 30 degrees counter-clockwise
+      const buttonDistanceRatio = 0.88;
+      const buttonX =
+        x * buttonDistanceRatio * Math.cos(buttonAngleOffset) -
+        y * buttonDistanceRatio * Math.sin(buttonAngleOffset);
+      const buttonY =
+        x * buttonDistanceRatio * Math.sin(buttonAngleOffset) +
+        y * buttonDistanceRatio * Math.cos(buttonAngleOffset);
+
+      const hasButtonPosition = seatInfo.position === "btn";
+      const hasSmallBlindPosition = seatInfo.position === "sb";
+      const shouldShowButton =
+        hasButtonPosition ||
+        (!Object.values(seatsMap).some((player) => player.position === "btn") &&
+          hasSmallBlindPosition);
 
       return (
         <React.Fragment key={seatInfo.tableAbsolutePosition}>
@@ -156,9 +214,6 @@ const TableAndSeats: React.FC<TableProps> = ({
                     />
                   )}
                 </div>
-                <div className={`player-position --${animationLevel}`}>
-                  {seatInfo.position}
-                </div>
                 {showBuyInButton && seatInfo.stack === 0 && (
                   <button
                     onClick={openBuyInDialog}
@@ -182,6 +237,49 @@ const TableAndSeats: React.FC<TableProps> = ({
               )
             )}
           </div>
+
+          {/* Display sitout timer if player has one */}
+          {hasSitoutTimer && (
+            <div
+              className={`sitout-timer --${animationLevel}`}
+              style={{
+                position: "absolute",
+                left: `calc(50% + ${x * 1.05}px)`, // Position slightly offset from seat
+                top: `calc(50% + ${y - 30}px)`, // Position above the seat
+                transform: "translate(-50%, -50%)",
+                zIndex: 15,
+                backgroundColor: "rgba(0, 0, 0, 0.7)",
+                color: "#ff9900",
+                padding: "4px 8px",
+                borderRadius: "4px",
+                fontSize: "14px",
+                fontWeight: "bold",
+              }}
+            >
+              {formatTime(sitoutTimers[seatInfo.id!])}
+            </div>
+          )}
+
+          {/* Display dealer button svg for BTN position or SB if BTN doesn't exist */}
+          {seatInfo.id && shouldShowButton && (
+            <div
+              className={`dealer-button --${animationLevel}`}
+              style={{
+                position: "absolute",
+                left: `calc(50% - ${buttonX}px)`,
+                top: `calc(50% + ${buttonY}px)`,
+                transform: "translate(-50%, -50%)",
+                zIndex: 12,
+              }}
+            >
+              <img
+                src="\accessories\button.svg"
+                alt="Dealer Button"
+                width="30"
+                height="30"
+              />
+            </div>
+          )}
 
           {showdownState &&
             seatInfo.id &&

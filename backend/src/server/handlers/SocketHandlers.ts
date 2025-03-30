@@ -10,6 +10,7 @@ import {
   validateJoinGame,
   validateLogin,
   validatePlayerAction,
+  validateSitOut,
 } from "./EventsInputValidator";
 import { ServerStateManager } from "../ServerStateManager";
 import { HandlerResponse, LoginResponse } from "@patchpatch/shared";
@@ -181,6 +182,102 @@ export class SocketHandlers {
 
     const result = await game.handleGameStateRequest(player);
     return { success: result };
+  }
+
+  async handleSitOutNextHand(payload: unknown): Promise<HandlerResponse> {
+    const validation = validateSitOut(payload);
+    if (!validation.success) {
+      return { success: false, message: validation.error };
+    }
+
+    const { game, player } = getGameAndPlayer(validation.data);
+    if (!game || !player) {
+      return { success: false, message: "Invalid game or player id" };
+    }
+
+    console.log("player sit out " + player.getId());
+    try {
+      const playerInGame = game.getPlayer(player.getId());
+      if (!playerInGame) {
+        return { success: false, message: "Player not found in game" };
+      }
+      await game.playerSitoutNextHandRequest(
+        playerInGame,
+        validation.data.sitout
+      );
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to toggle sit out status",
+      };
+    }
+  }
+
+  async handleStandUp(payload: unknown): Promise<HandlerResponse> {
+    const validation = validateInGamePayload(payload);
+    if (!validation.success) {
+      return { success: false, message: validation.error };
+    }
+
+    const { game, player } = getGameAndPlayer(validation.data);
+    if (!game || !player) {
+      return { success: false, message: "Invalid game or player id" };
+    }
+
+    try {
+      const playerInGame = game.getPlayer(player.getId());
+      if (!playerInGame) {
+        return { success: false, message: "Player not found in game" };
+      }
+
+      await game.removePlayer(playerInGame);
+      await game.addObserver(player);
+      // todo in game player.removeActiveGame(validation.data.gameId);
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to stand up from game",
+      };
+    }
+  }
+
+  async handleExitGame(payload: unknown): Promise<HandlerResponse> {
+    const validation = validateInGamePayload(payload);
+    if (!validation.success) {
+      return { success: false, message: validation.error };
+    }
+
+    const { game, player } = getGameAndPlayer(validation.data);
+    if (!game || !player) {
+      return { success: false, message: "Invalid game or player id" };
+    }
+
+    try {
+      // If player is actively seated in the game, remove them
+      const playerInGame = game.getPlayer(player.getId());
+      if (playerInGame) {
+        await game.removePlayer(playerInGame);
+        player.removeActiveGame(validation.data.gameId);
+      }
+
+      // Remove from observers if they were observing
+      await game.removeObserver(player);
+
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : "Failed to exit game",
+      };
+    }
   }
 
   //Todo

@@ -10,6 +10,7 @@ import {
   LobbyStatusServerResponse,
   HandlerResponse,
   SocketEventType,
+  SitOutPayload,
 } from "@patchpatch/shared";
 import socket from "../services/socket/Socket";
 import { Socket } from "socket.io-client";
@@ -87,7 +88,7 @@ export const useTimebank = createSocketAction<InGamePayload>(
 );
 
 // Sit out next hand
-export const useSitOutNextHand = createSocketAction<InGamePayload>(
+export const useSitOutNextHand = createSocketAction<SitOutPayload>(
   socket,
   SocketEvents.SIT_OUT_NEXT_HAND
 );

@@ -273,6 +273,31 @@
   box-shadow: none; /* No glow */
 }
 
+.player-controls-container {
+  position: absolute;
+  bottom: 2%;
+  left: 2%;
+  z-index: 10;
+}
+
+.sitout-control-wrapper {
+  margin-bottom: 10px;
+}
+
+/* Animation level specific styles */
+.sitout-control-wrapper.--high {
+  transition: opacity 0.3s ease;
+}
+
+.sitout-control-wrapper.--medium {
+  transition: opacity 0.2s ease;
+}
+
+.sitout-control-wrapper.--low,
+.sitout-control-wrapper.--none {
+  transition: none;
+}
+
 /* Scrollbar styling (no changes for animation levels) */
 ::-webkit-scrollbar {
   height: 6px;

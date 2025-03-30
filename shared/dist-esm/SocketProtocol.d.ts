@@ -48,6 +48,9 @@ export interface JoinGamePayload extends InGamePayload {
 export interface BuyIntoGamePayload extends InGamePayload {
     amount: number;
 }
+export interface SitOutPayload extends InGamePayload {
+    sitout: boolean;
+}
 export interface LobbyStatusServerResponse {
     success: boolean;
     games: Array<{
@@ -94,6 +97,8 @@ export interface PublicPlayerClientData {
     stack?: number;
     cards?: Card[];
     roundPotContributions?: number;
+    sitoutTimer?: number | null;
+    removed?: boolean;
 }
 export interface PrivatePlayerClientData {
     cards?: Card[];

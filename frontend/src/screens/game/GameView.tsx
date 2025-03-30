@@ -7,7 +7,10 @@ import { GameContextProvider } from "../../contexts/GameContext";
 import { GameStateServerBroadcast } from "@patchpatch/shared";
 import { getTablePropsFromGameState } from "../../utils/TableAndRotationHelper";
 import { useGameStateUpdates } from "../../hooks/HandleServerBroadcastEvent";
-import { useGameStateRequest } from "../../hooks/CreateSocketAction";
+import {
+  useGameStateRequest,
+  useSitOutNextHand,
+} from "../../hooks/CreateSocketAction";
 import TableAndSeats, {
   TableProps,
 } from "../../gameComponents/tableAndSeats/TableAndSeats";
@@ -21,6 +24,7 @@ import {
 } from "../../utils/GameHelpers";
 import PotDisplay from "../../components/common/PotDisplay/PotDisplay";
 import { useAnimationTheme } from "../../contexts/AnimationThemeProvider";
+import SitOutControl from "../../components/actions/SitOutControl";
 
 // Memoized BoardCards component
 const MemoizedBoardCards = React.memo(BoardCards);
@@ -28,6 +32,8 @@ const MemoizedBoardCards = React.memo(BoardCards);
 const MemoizedPlayerCards = React.memo(PlayerCards);
 // Memoized BetPanel component
 const MemoizedBetPanel = React.memo(BetPanel);
+// Memoized SitOutControl component
+const MemoizedSitOutControl = React.memo(SitOutControl);
 
 // Displaying the game screen when a player enter a game
 const GameView: React.FC<{ playerId: string; gameId: string }> = ({
@@ -39,6 +45,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     null
   );
   const { sendAction: getGameState } = useGameStateRequest(); // Ask the server for current game-state on demand (non-standart usage, usfull for dc, lag ect.)
+  const { sendAction: sitOut } = useSitOutNextHand();
 
   const {
     canBuyIn,
@@ -102,6 +109,26 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     updateBuyInState(state);
   });
 
+  // Get the player's sitout timer from game state
+  const sitoutTimer = useMemo(() => {
+    if (!gameState || !gameState.publicPlayerDataMapByTablePosition)
+      return null;
+
+    for (const [_, playerData] of Object.entries(
+      gameState.publicPlayerDataMapByTablePosition
+    )) {
+      if (playerData.id === playerId) {
+        return playerData.sitoutTimer ?? null;
+      }
+    }
+    return null;
+  }, [gameState?.publicPlayerDataMapByTablePosition]);
+
+  // Handle sit out/in actions
+  const handleSitOutChange = async (sitout: boolean) => {
+    const success = await sitOut({ gameId, playerId, sitout });
+  };
+
   const onBuyIn = async (amount: number) => {
     const result = await handleBuyIn(amount);
     if (result.success) {
@@ -154,6 +181,17 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
         )}
 
         <div className={`player-area --${animationLevel}`}>
+          <div className="player-controls-container">
+            {/* SitOut control in the bottom left corner */}
+            <div className="sitout-control-wrapper">
+              <MemoizedSitOutControl
+                sitoutTimer={sitoutTimer}
+                onSitOut={handleSitOutChange}
+                className={`--${animationLevel}`}
+              />
+            </div>
+          </div>
+
           <div className={`player-cards --${animationLevel}`}>
             {playerCards.length > 0 && (
               <MemoizedPlayerCards

@@ -13,6 +13,7 @@ import {
   parseCard,
   PlayerActionPayload,
   Rank,
+  SitOutPayload,
   Suit,
 } from "@patchpatch/shared";
 import { Game } from "../../game/Game";
@@ -185,4 +186,24 @@ export const getGameAndPlayer = (payload: InGamePayload): GameAndPlayer => {
 
 export const validateSessionToken = (token: string): boolean => {
   return typeof token === "string" && token.length > 20 && token.length < 500;
+};
+
+export const validateSitOut = (
+  payload: unknown
+): ValidationResult<SitOutPayload> => {
+  const baseValidation = validateInGamePayload(payload);
+  if (!baseValidation.success) return baseValidation;
+
+  const p = payload as Record<string, unknown>;
+  if (typeof p.sitout !== "boolean") {
+    return { success: false, error: "Sitout must be a boolean value" };
+  }
+
+  return {
+    success: true,
+    data: {
+      ...baseValidation.data,
+      sitout: p.sitout,
+    },
+  };
 };

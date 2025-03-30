@@ -1,0 +1,31 @@
+<svg width="110" height="110" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with a gold gradient -->
+  <defs>
+    <radialGradient id="goldGradient" cx="50%" cy="50%" r="50%" fx="30%" fy="30%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DAA520;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+
+  <!-- Main button circle -->
+  <circle cx="50" cy="50" r="45" fill="url(#goldGradient)" stroke="#000000" stroke-width="2"/>
+
+  <!-- Inner circle for contrast -->
+  <circle cx="50" cy="50" r="40" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+
+  <!-- "DEALER" text -->
+  <text x="50" y="55" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#000000" text-anchor="middle" alignment-baseline="middle">DEALER</text>
+
+  <!-- Poker suit symbols around the text -->
+  <!-- Spade  -->
+  <text x="38" y="30" font-family="Arial, sans-serif" font-size="19" fill="#000000" text-anchor="middle">♠</text>
+  <!-- Heart  -->
+  <text x="62" y="30" font-family="Arial, sans-serif" font-size="19" fill="#FF0000" text-anchor="middle">♥</text>
+  <!-- Diamond  -->
+  <text x="38" y="80" font-family="Arial, sans-serif" font-size="19" fill="#FF0000" text-anchor="middle" alignment-baseline="middle">♦</text>
+  <!-- Club  -->
+  <text x="62" y="80" font-family="Arial, sans-serif" font-size="19" fill="#000000" text-anchor="middle" alignment-baseline="middle">♣</text>
+
+  <!-- Slight shadow for depth -->
+  <circle cx="50" cy="50" r="45" fill="none" stroke="#000000" stroke-width="2" opacity="0.2"/>
+</svg>

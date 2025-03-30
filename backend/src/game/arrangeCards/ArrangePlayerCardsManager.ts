@@ -31,14 +31,17 @@ export class ArrangePlayerCardsManager {
     if (playersInGame) {
       playersInGame.forEach((player, position) => {
         if (player && !player.isFolded()) {
-          playerDoneMap.set(position, false);
-          this._playersRemaining++;
+          if (!player.isSittingOut()) {
+            playerDoneMap.set(position, false);
+            this._playersRemaining++;
+          } else {
+            playerDoneMap.set(position, true); // take default arrangment for sitting out player
+          }
         }
       });
     }
-
     this._state = {
-      timeRemaining: _game.getTableConfig().timePerArrangeAction, // todo table config
+      timeRemaining: _game.getTableConfig().timePerArrangeAction,
       playerDoneMap: playerDoneMap,
     };
     this._timer = new GameActionTimerManager({
@@ -51,7 +54,9 @@ export class ArrangePlayerCardsManager {
       onTimeout: OnArrangeDone,
       onComplete: OnArrangeDone,
     });
-    this._timer.start();
+    if (this._playersRemaining > 0) {
+      this._timer.start(false);
+    } else OnArrangeDone();
   }
 
   async handlePlayerArrangedCardsRecived(
