@@ -173,12 +173,16 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
           )}
         </div>
 
-        <BuyInDialog
-          minBuyIn={minBuyIn}
-          maxBuyIn={maxBuyIn}
-          onBuyIn={onBuyIn}
-          bigBlind={bigBlindAmount}
-        />
+        {minBuyIn !== undefined &&
+          maxBuyIn !== undefined &&
+          bigBlindAmount !== undefined && (
+            <BuyInDialog
+              minBuyIn={minBuyIn}
+              maxBuyIn={maxBuyIn}
+              onBuyIn={onBuyIn}
+              bigBlind={bigBlindAmount}
+            />
+          )}
       </div>
     </GameContextProvider>
   );

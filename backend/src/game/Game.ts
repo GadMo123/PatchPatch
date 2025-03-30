@@ -207,8 +207,16 @@ export class Game {
   // A player buyin play chips for the current game (either for the first time or adding on his existing stack)
   async playerBuyIn(player: PlayerInGame, amount: number): Promise<boolean> {
     return await this._TableConditionChangeMutex.runExclusive(async () => {
+      // Player already added buyin this round, only one buying is allowed per hand (main reason is to not allow player to buy over max table limit, tho it could be solved differently, it's a fine limitation reduce spam requests)
+      if (
+        this._stacksUpdatesForNextHand.some(
+          ([existingPlayer]) => existingPlayer === player
+        )
+      )
+        return false;
       if (player.getStack() + amount > this.getTableConfig().maxBuyin)
         return false;
+      // Todo - reduce player coins once database added
       if (this._gameFlowManager) {
         // if in a running game - set an event for the end of the current hand to add players chips
         this._stacksUpdatesForNextHand.push([player, amount]);

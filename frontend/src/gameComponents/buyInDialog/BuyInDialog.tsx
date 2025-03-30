@@ -5,15 +5,15 @@ import { Slider } from "../../components/common/slider/Slider";
 import { useAnimationTheme } from "../../contexts/AnimationThemeProvider"; // Adjust path as needed
 
 interface BuyInDialogProps {
-  minBuyIn?: number;
-  maxBuyIn?: number;
-  bigBlind?: number;
+  minBuyIn: number;
+  maxBuyIn: number;
+  bigBlind: number;
   onBuyIn: (amount: number) => Promise<void>;
 }
 
 export const BuyInDialog: React.FC<BuyInDialogProps> = ({
-  minBuyIn = 50,
-  maxBuyIn = 500,
+  minBuyIn,
+  maxBuyIn,
   bigBlind,
   onBuyIn,
 }) => {

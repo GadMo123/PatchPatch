@@ -24,6 +24,8 @@ export const useBuyIn = ({
   gameId,
   playerId,
 }: BuyInHelperProps): UseBuyInResult => {
+  const [oneBuyinPerRoundUsed, setOneBuyinPerRoundUsed] =
+    useState<boolean>(false);
   const { sendAction: doBuyIn } = useGameBuyIn();
   const [canBuyIn, setCanBuyIn] = useState(false);
   const [minBuyIn, setMinBuyIn] = useState<number | undefined>(undefined);
@@ -46,13 +48,27 @@ export const useBuyIn = ({
         : undefined;
     if (playerAbsolutePosition !== null) setPlayerStack(stack);
 
-    const min = newGameState?.tableConfig.minBuyin;
-    const max = newGameState?.tableConfig.maxBuyin;
+    const tableMin = newGameState?.tableConfig.minBuyin;
+    const tableMax = newGameState?.tableConfig.maxBuyin;
     const bigBlind = newGameState?.tableConfig.bigBlindAmount;
-    setMinBuyIn(min);
-    setMaxBuyIn(Math.max(0, max - (stack ?? 0)));
+    setMinBuyIn(tableMin);
+    setMaxBuyIn(Math.max(0, tableMax - (stack ?? 0)));
     setBigBlindAmount(bigBlind);
-    setCanBuyIn(!!(stack !== undefined && max && min && stack + min <= max));
+
+    // Check if a new hand is starting
+    if (newGameState?.phase === "dealPreflop") {
+      setOneBuyinPerRoundUsed(false);
+    }
+
+    setCanBuyIn(
+      !!(
+        stack !== undefined &&
+        tableMax &&
+        tableMin &&
+        stack + tableMin <= tableMax &&
+        !oneBuyinPerRoundUsed
+      )
+    );
   };
 
   const handleBuyIn = async (amount: number) => {
@@ -80,6 +96,12 @@ export const useBuyIn = ({
         amount,
       });
 
+      // If buy-in was successful, mark that the player has used their buy-in for this hand
+      if (response.success) {
+        setOneBuyinPerRoundUsed(true);
+        setCanBuyIn(false);
+      }
+
       return {
         success: response.success,
         message: response.message,
@@ -105,12 +127,13 @@ export const useBuyIn = ({
 // Helper to check if a player needs to buy in (stack is 0)
 export const needsBuyIn = (
   gameState: GameStateServerBroadcast | null,
-  playerAbsolutePosition: number
+  playerAbsolutePosition: number,
+  bbAmount: number
 ): boolean => {
   if (!gameState?.publicPlayerDataMapByTablePosition) return false;
 
   const playerData =
     gameState.publicPlayerDataMapByTablePosition[playerAbsolutePosition];
 
-  return playerData?.stack === 0;
+  return (playerData?.stack ?? 0) < bbAmount;
 };

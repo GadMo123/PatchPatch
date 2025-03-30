@@ -163,7 +163,7 @@ function createGame(
 function createDummyGames(server: Server) {
   const tableConfig1 = new TableConfigBuilder()
     .setTimePerArrangeAction(100000)
-    .setTimePerAction(12000)
+    .setTimePerAction(30000)
     .setMinBet(10)
     .setMaxBet(Infinity)
     .setTimeCookieEffect(600000)
@@ -173,8 +173,8 @@ function createDummyGames(server: Server) {
     .setMaxPlayers(2)
     .setMinBuyin(50)
     .setMaxBuyin(500)
-    .setShowdownAnimationTime(5000)
-    .setNoShowdownAnimationTime(3000)
+    .setShowdownAnimationTime(4000)
+    .setNoShowdownAnimationTime(2000)
     .build();
 
   const tableConfig2 = {
@@ -199,6 +199,15 @@ function createDummyGames(server: Server) {
     ...tableConfig1,
   };
 
+  const tableConfig6 = {
+    ...tableConfig1,
+    sbAmount: 10000,
+    bbAmount: 20000,
+    minBet: 20000,
+    minBuyin: 2000000,
+    maxBuyin: 20000000,
+  };
+
   createGame("admin", server, tableConfig1);
 
   createGame("admin", server, tableConfig2);
@@ -208,6 +217,8 @@ function createDummyGames(server: Server) {
   createGame("admin", server, tableConfig4);
 
   createGame("admin", server, tableConfig5);
+
+  createGame("admin", server, tableConfig6);
 }
 
 export { io, app };

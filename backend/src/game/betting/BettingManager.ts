@@ -144,15 +144,15 @@ export class BettingManager {
         amount || 0
       );
 
-      // When a player raise or bet a valid amount, he has the new biggest bet this round.
+      // When a player raise or bet a valid amount, he has the new biggest bet this round and minraise amount might change.
       if (
         (amount ?? 0 > 0) &&
         (action == BettingTypes.RAISE || action == BettingTypes.BET)
       ) {
         this._roundEndsCondition = this._currentPlayerToAct;
         if (
-          amount != undefined &&
-          this._bettingState.callAmount &&
+          amount !== undefined &&
+          this._bettingState.callAmount !== undefined &&
           amount > this._bettingState.callAmount
         )
           this._bettingState.minRaiseAmount = Math.max(
