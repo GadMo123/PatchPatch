@@ -1,7 +1,7 @@
 import { GameStateServerBroadcast } from "@patchpatch/shared";
 import { useGameBuyIn } from "../hooks/CreateSocketAction";
 import { getPlayerAbsolutePosition } from "./GameHelpers";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 interface BuyInHelperProps {
   gameId: string;
@@ -124,16 +124,21 @@ export const useBuyIn = ({
   };
 };
 
-// Helper to check if a player needs to buy in (stack is 0)
-export const needsBuyIn = (
+// Helper to check if a player needs to buy in (stack is 0 or close)
+export const useIsStackLow = (
   gameState: GameStateServerBroadcast | null,
-  playerAbsolutePosition: number,
-  bbAmount: number
+  playerId: string
 ): boolean => {
-  if (!gameState?.publicPlayerDataMapByTablePosition) return false;
+  return useMemo(() => {
+    if (!gameState) return false;
 
-  const playerData =
-    gameState.publicPlayerDataMapByTablePosition[playerAbsolutePosition];
+    const playerData = gameState.publicPlayerDataMapByTablePosition.find(
+      (player) => player.id === playerId
+    );
 
-  return (playerData?.stack ?? 0) < bbAmount;
+    if (!playerData?.stack || !gameState.tableConfig.bigBlindAmount)
+      return false;
+
+    return playerData.stack < gameState.tableConfig.bigBlindAmount;
+  }, [gameState, playerId]);
 };

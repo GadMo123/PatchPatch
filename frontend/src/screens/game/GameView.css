@@ -51,7 +51,23 @@
   cursor: pointer;
 }
 
+.buyin-trigger.glow {
+  box-shadow: 0 0 10px #FF3B30, 0 0 20px #FF3B30;
+  background-color: #FF3B30; /* Change to red when glowing */
+  animation: glowPulse 1.5s infinite;
+}
 
+@keyframes glowPulse {
+  0% {
+    box-shadow: 0 0 10px #FF3B30, 0 0 20px #FF3B30;
+  }
+  50% {
+    box-shadow: 0 0 15px #FF3B30, 0 0 30px #FF3B30;
+  }
+  100% {
+    box-shadow: 0 0 10px #FF3B30, 0 0 20px #FF3B30;
+  }
+}
 
 /* Placeholder for animation settings slider (from top-level app) */
 .animation-slider {

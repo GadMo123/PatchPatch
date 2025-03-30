@@ -13,14 +13,14 @@ import TableAndSeats, {
 } from "../../gameComponents/tableAndSeats/TableAndSeats";
 import { useBuyInDialog } from "../../contexts/BuyInContext";
 import { BuyInDialog } from "../../gameComponents/buyInDialog/BuyInDialog";
-import { useBuyIn } from "../../utils/BuyInHelpers";
+import { useBuyIn, useIsStackLow } from "../../utils/BuyInHelpers";
 import {
   CardLike,
   constructBoards,
   toCardArray,
 } from "../../utils/GameHelpers";
 import PotDisplay from "../../components/common/PotDisplay/PotDisplay";
-import { useAnimationTheme } from "../../contexts/AnimationThemeProvider"; // Adjust path as needed
+import { useAnimationTheme } from "../../contexts/AnimationThemeProvider";
 
 // Memoized BoardCards component
 const MemoizedBoardCards = React.memo(BoardCards);
@@ -78,6 +78,8 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
       : [];
   }, [gameState?.privatePlayerData?.cards]);
 
+  const isStackLow = useIsStackLow(gameState, playerId);
+
   // Force (request) server to send last game-state as long as we don't have one (for reconnection / joining mid-hand / ect.).
   useEffect(() => {
     if (gameState !== null) return; // Don't start polling if we already have the game state
@@ -120,7 +122,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
             {canBuyIn && (
               <button
                 onClick={openBuyInDialog}
-                className={`buyin-trigger --${animationLevel}`}
+                className={`buyin-trigger --${animationLevel} ${isStackLow ? "glow" : ""}`}
               >
                 +
               </button>

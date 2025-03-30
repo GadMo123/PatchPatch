@@ -141,7 +141,7 @@ export class BettingManager {
 
       this._bettingRoundPotManager.addContribution(
         this._currentPlayerToAct,
-        amount || 0
+        amount ?? 0
       );
 
       // When a player raise or bet a valid amount, he has the new biggest bet this round and minraise amount might change.
