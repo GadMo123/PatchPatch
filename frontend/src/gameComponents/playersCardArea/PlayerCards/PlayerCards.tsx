@@ -77,7 +77,7 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
 
   const handleArrangementComplete = () => {
     if (isArrangementComplete) return;
-    if (typeof cancelTimer) cancelTimer();
+    if (typeof cancelTimer === "function") cancelTimer();
     sendAction({
       gameId: gameId,
       playerId: playerId,
@@ -126,7 +126,6 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
     <div className={`player-cards-container --${animationLevel}`}>
       {rows.map((rowCards, rowIndex) => {
         const isShowdown = isHighlightedShowdownRow(rowIndex);
-        // const topPosition = rowIndex * (rowHeight + vhToPx(gap)); // Calculate top position
 
         return (
           <div
@@ -151,6 +150,10 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
                   onClick={() => handleCardClick(absoluteIndex)}
                   className={`card-wrapper --${animationLevel} ${
                     selectedCards.includes(absoluteIndex) ? "selected" : ""
+                  } ${
+                    gamePhaseArrangeCards && !isArrangementComplete
+                      ? "arrangeable"
+                      : ""
                   } ${isShowdown ? "showdown-card" : ""}`}
                   style={{
                     gridColumn: colIndex + 1,
@@ -180,11 +183,13 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
           </div>
         );
       })}
+
+      {/* Arrangement controls positioned to the right */}
       {gamePhaseArrangeCards && !isArrangementComplete && (
         <div className={`arrangement-controls --${animationLevel}`}>
           {timeLeft > 0 && (
             <div className={`timer --${animationLevel}`}>
-              Time left: {timeLeft / 1000}s
+              Time left: {Math.ceil(timeLeft / 1000)}s
             </div>
           )}
           <button

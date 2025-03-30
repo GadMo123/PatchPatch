@@ -126,7 +126,7 @@ const TableAndSeats: React.FC<TableProps> = ({
       const handX = x * handPositionFactor;
       const handY = y * handPositionFactor;
 
-      const potDistanceRatio = 0.6;
+      const potDistanceRatio = 0.75;
       const potX = x * potDistanceRatio;
       const potY = y * potDistanceRatio;
 

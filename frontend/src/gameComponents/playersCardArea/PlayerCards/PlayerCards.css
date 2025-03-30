@@ -1,18 +1,21 @@
 .player-cards-container {
+  margin-top: 15px;
   height: 100%;
   z-index: 6;
   max-height: 100%;
   max-width: calc((height / 3) * 4 / 1.618);
+  gap: 6px;
   display: flex;
   overflow: visible;
   flex-direction: column;
   justify-content: flex-end;
+  position: relative;
 }
 
 .player-card-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0.3vh;
+  column-gap: 4px;
   max-height: 31%;
   border-radius: 8px;
   padding: 4px;
@@ -210,11 +213,18 @@
 
 /* Arrangement controls */
 .arrangement-controls {
+  position: absolute;
+  right: -180px; /* Position to the right of the cards */
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 1vh;
-  margin-top: 1vh;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  min-width: 100px;
 }
 
 .arrangement-controls.--high {
@@ -233,6 +243,29 @@
 }
 
 /* Timer and ready button */
+.timer {
+  color: white;
+  margin-bottom: 10px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.ready-button {
+  padding: 8px 16px;
+  background-color: #00FF9D;
+  color: black;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ready-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px #00FF9D;
+}
+
 .time-remaining.--high,
 .timer.--high,
 .ready-button.--high {
@@ -275,5 +308,18 @@
 
 /* Mobile optimizations */
 @media (max-width: 768px) {
-  /*todo*/
+  .arrangement-controls {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    margin-top: 10px;
+    flex-direction: row;
+    gap: 10px;
+  }
+  
+  .timer {
+    margin-bottom: 0;
+    margin-right: 10px;
+  }
 }

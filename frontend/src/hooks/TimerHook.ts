@@ -11,37 +11,49 @@ export function useCountdownTimer({
   onComplete,
 }: TimerConfig): [number, () => void] {
   const [timeLeft, setTimeLeft] = useState(serverTimeRemaining);
-  const timerRef = useRef<NodeJS.Timeout>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const isManuallyCancelled = useRef(false);
-  const hasInitialized = useRef(false);
+  const lastServerTime = useRef(serverTimeRemaining);
 
   // Handle server time updates
   useEffect(() => {
-    console.log("timer update : " + serverTimeRemaining);
-    setTimeLeft(serverTimeRemaining);
-    if (serverTimeRemaining > 0) hasInitialized.current = true;
-  }, [serverTimeRemaining]);
+    console.log("timer update: " + serverTimeRemaining);
+
+    // Only reset the timer if we're getting a fresh timer value from the server
+    if (
+      serverTimeRemaining > 0 &&
+      (serverTimeRemaining !== lastServerTime.current || timeLeft <= 0)
+    ) {
+      // Reset timer state for a new round
+      isManuallyCancelled.current = false;
+      setTimeLeft(serverTimeRemaining);
+      lastServerTime.current = serverTimeRemaining;
+    }
+  }, [serverTimeRemaining, timeLeft]);
 
   // Handle countdown
   useEffect(() => {
-    if (!hasInitialized.current) return;
-
+    // Clear any existing timer
     if (timerRef.current) {
       clearInterval(timerRef.current);
+      timerRef.current = null;
     }
 
+    // If timer is complete or cancelled, don't start a new one
     if (timeLeft <= 0 || isManuallyCancelled.current) {
-      if (!isManuallyCancelled.current) {
+      if (timeLeft <= 0 && !isManuallyCancelled.current) {
         onComplete?.();
       }
       return;
     }
 
+    // Start a new timer
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         const newTime = prev - 1000;
         if (newTime <= 0) {
           clearInterval(timerRef.current as NodeJS.Timeout);
+          timerRef.current = null;
           if (!isManuallyCancelled.current) {
             onComplete?.();
           }
@@ -51,19 +63,21 @@ export function useCountdownTimer({
       });
     }, 1000);
 
+    // Cleanup on unmount or dependencies change
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
+        timerRef.current = null;
       }
     };
-  }, [timeLeft]);
+  }, [timeLeft, onComplete]);
 
   const cancelTimer = useCallback(() => {
     isManuallyCancelled.current = true;
     if (timerRef.current) {
       clearInterval(timerRef.current);
+      timerRef.current = null;
     }
-    hasInitialized.current = false;
     setTimeLeft(0);
   }, []);
 

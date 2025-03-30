@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);  /* 5 cards per row */
   grid-template-rows: repeat(3, auto);    /* 3 rows */
-  gap: 0.6vh;
+  gap: 7px;
   width: 100%;
   position: relative; /* Allow absolute positioning of showdown row */
 }
@@ -13,8 +13,8 @@
   grid-template-columns: repeat(5, 1fr);
   grid-column: 1 / -1; /* Span all columns */
   transition: all 0.3s ease;
-  border-radius: 8px;
-  padding: 4px;
+  border-radius: 4px;
+  column-gap: 4px;
   width: 100%;
 }
 
