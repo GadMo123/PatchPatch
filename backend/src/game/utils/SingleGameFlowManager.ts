@@ -40,7 +40,9 @@ export class SingleGameFlowManager {
 
   private async prapereNextHand() {
     const ready = await this._game.PrepareNextHand();
-    const afterFunction = ready ? this.startNextStreet.bind(this) : null;
+    const afterFunction = ready
+      ? this.startNextStreet.bind(this)
+      : this._game.enterRestMode.bind(this._game);
     this._game.updateGameStateAndBroadcast({}, afterFunction);
   }
 
@@ -144,8 +146,7 @@ export class SingleGameFlowManager {
     }
     //hand is done
     if (this._game.isHandWonWithoutShowdown()) {
-      if (this._game.isReadyForNextHand()) this.startNextStreet();
-      else this._game.cleanupHand();
+      this.startNextStreet();
     } else if (this._game.getPhase() === GamePhase.RiverBetting) {
       this._game.doShowdown(this.prapereNextHand.bind(this));
     }

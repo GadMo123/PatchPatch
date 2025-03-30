@@ -253,6 +253,15 @@ export class Game {
     return this._state.id;
   }
 
+  enterRestMode() {
+    this._TableConditionChangeMutex.runExclusive(async () => {
+      this._gameFlowManager = null;
+      this.cleanupHand();
+      this._state.phase = GamePhase.Waiting;
+      console.log("waiting mode entered");
+    });
+  }
+
   async handleGameStateRequest(player: Player): Promise<boolean> {
     const sittingPlayer = this.getPlayer(player.getId()); // if player is PlayerInGame
     const success = await this._broadcaster.broadcastCachedState(
