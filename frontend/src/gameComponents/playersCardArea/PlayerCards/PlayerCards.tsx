@@ -122,6 +122,20 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
     rows.push(playerCards.slice(i, i + cardsPerRow));
   }
 
+  // Waiting indicator component
+  const WaitingIndicator = () => (
+    <div className={`waiting-indicator --${animationLevel}`}>
+      <div className={`waiting-text --${animationLevel}`}>
+        Waiting for other players
+      </div>
+      <div className="waiting-dots">
+        <div className="dot"></div>
+        <div className="dot"></div>
+        <div className="dot"></div>
+      </div>
+    </div>
+  );
+
   return (
     <div className={`player-cards-container --${animationLevel}`}>
       {rows.map((rowCards, rowIndex) => {
@@ -184,20 +198,25 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
         );
       })}
 
-      {/* Arrangement controls positioned to the right */}
-      {gamePhaseArrangeCards && !isArrangementComplete && (
+      {gamePhaseArrangeCards && (
         <div className={`arrangement-controls --${animationLevel}`}>
-          {timeLeft > 0 && (
-            <div className={`timer --${animationLevel}`}>
-              Time left: {Math.ceil(timeLeft / 1000)}s
-            </div>
+          {!isArrangementComplete ? (
+            <>
+              {timeLeft > 0 && (
+                <div className={`timer --${animationLevel}`}>
+                  Time left: {Math.ceil(timeLeft / 1000)}s
+                </div>
+              )}
+              <button
+                onClick={handleArrangementComplete}
+                className={`ready-button --${animationLevel}`}
+              >
+                I'm Ready
+              </button>
+            </>
+          ) : (
+            <WaitingIndicator />
           )}
-          <button
-            onClick={handleArrangementComplete}
-            className={`ready-button --${animationLevel}`}
-          >
-            I'm Ready
-          </button>
         </div>
       )}
     </div>
