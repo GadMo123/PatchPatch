@@ -84,12 +84,13 @@ export class Game {
     Array.from(this._state.playerInPosition.values()).forEach((player) =>
       player?.updatePlayerPrivateState({ cards: undefined })
     );
-    this._playersToRemoveAfterHand.forEach((playerId) => {
-      this._state.playersAbsolutePosition =
-        this._state.playersAbsolutePosition.filter(
-          (player) => player?.getId() !== playerId
-        );
-    });
+    // removed players list - replace with null for empty seat to keep the mechanism of playersAbsolutePosition
+    this._state.playersAbsolutePosition =
+      this._state.playersAbsolutePosition.map((player) =>
+        player && this._playersToRemoveAfterHand.includes(player.getId())
+          ? null
+          : player
+      );
     this._playersToRemoveAfterHand = [];
     this._playersSitoutNextHand.forEach((player) => player.toggleSitOut(true));
     this._playersSitoutNextHand = new Set();
@@ -129,6 +130,7 @@ export class Game {
         nextHandPlayers
       );
 
+      console.log("newt hand button " + nextHandBTNPlayer.getName());
       this._state.playerInPosition = assignPositions(
         nextHandPlayers,
         nextHandBTNPlayer.getId()
@@ -224,20 +226,25 @@ export class Game {
     const playerId = player.getId();
     let playerInCurrentHand = false;
     this._TableConditionChangeMutex.runExclusive(async () => {
-      for (const [_, activePlayer] of this._state.playerInPosition) {
-        if (activePlayer && activePlayer.getId() === playerId) {
-          playerInCurrentHand = true;
-          break;
+      if (this._state.phase !== GamePhase.Waiting) {
+        for (const [_, activePlayer] of this._state.playerInPosition) {
+          if (activePlayer && activePlayer.getId() === playerId) {
+            playerInCurrentHand = true;
+            break;
+          }
         }
       }
       if (playerInCurrentHand) {
         // add player to remove list after the current hand
         this._playersToRemoveAfterHand.push(playerId);
+        // set player folded when leave in mid-hand
+        player.updatePlayerPublicState({ isFolded: true });
       } else {
         this._state.playersAbsolutePosition =
-          this._state.playersAbsolutePosition.filter(
-            (player) => player?.getId() !== playerId
+          this._state.playersAbsolutePosition.map((player) =>
+            player?.getId() === playerId ? null : player
           );
+        setImmediate(() => this.updateGameStateAndBroadcast({}, null));
       }
     });
   }

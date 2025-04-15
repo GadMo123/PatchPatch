@@ -8,6 +8,7 @@ import { GameStateServerBroadcast } from "@patchpatch/shared";
 import { getTablePropsFromGameState } from "../../utils/TableAndRotationHelper";
 import { useGameStateUpdates } from "../../hooks/HandleServerBroadcastEvent";
 import {
+  useExitGame,
   useGameStateRequest,
   useSitOutNextHand,
 } from "../../hooks/CreateSocketAction";
@@ -25,6 +26,7 @@ import {
 import PotDisplay from "../../components/common/PotDisplay/PotDisplay";
 import { useAnimationTheme } from "../../contexts/AnimationThemeProvider";
 import SitOutControl from "../../components/actions/SitOutControl";
+import LeaveGame from "../../components/actions/LeaveGame";
 
 // Memoized BoardCards component
 const MemoizedBoardCards = React.memo(BoardCards);
@@ -46,6 +48,8 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
   );
   const { sendAction: getGameState } = useGameStateRequest(); // Ask the server for current game-state on demand (non-standart usage, usfull for dc, lag ect.)
   const { sendAction: sitOut } = useSitOutNextHand();
+  const { sendAction: leaveGame } = useExitGame();
+  const [isInHand, setIsInHand] = useState(false);
 
   const {
     canBuyIn,
@@ -69,6 +73,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
       gameState?.publicPlayerDataMapByTablePosition,
       gameState?.noShowdown,
       gameState?.showdown,
+      gameState?.bettingState?.playerToAct,
       playerId,
     ]
   );
@@ -107,6 +112,16 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     console.log(state);
     setGameState(state);
     updateBuyInState(state);
+    setIsInHand(
+      state.phase !== "waiting" &&
+        state.publicPlayerDataMapByTablePosition.some(
+          (data) =>
+            data.id === playerId &&
+            data.position !== null &&
+            data.position !== undefined &&
+            data.isFolded === false
+        )
+    );
   });
 
   // Get the player's sitout timer from game state
@@ -126,7 +141,7 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
 
   // Handle sit out/in actions
   const handleSitOutChange = async (sitout: boolean) => {
-    const success = await sitOut({ gameId, playerId, sitout });
+    await sitOut({ gameId, playerId, sitout });
   };
 
   const onBuyIn = async (amount: number) => {
@@ -142,9 +157,19 @@ const GameView: React.FC<{ playerId: string; gameId: string }> = ({
     <GameContextProvider playerId={playerId} gameId={gameId}>
       <div className={`game-view --${animationLevel}`}>
         <div className="upper-row">
-          <div className={`game-status --${animationLevel}`}>
-            Game ID: {gameId}
-          </div>
+          <LeaveGame
+            sitOutNextHand={() => {
+              handleSitOutChange(true);
+              const checkbox = document.querySelector(
+                '.sitout-checkbox-label input[type="checkbox"]'
+              );
+              if (checkbox instanceof HTMLInputElement) {
+                checkbox.checked = true;
+              }
+            }}
+            isInHand={isInHand}
+            exitGame={() => leaveGame({ gameId, playerId })}
+          />
           <div className="settings">
             {canBuyIn && (
               <button

@@ -98,6 +98,7 @@ export interface PublicPlayerClientData {
     cards?: Card[];
     roundPotContributions?: number;
     sitoutTimer?: number | null;
+    isFolded?: boolean | null;
     removed?: boolean;
 }
 export interface PrivatePlayerClientData {

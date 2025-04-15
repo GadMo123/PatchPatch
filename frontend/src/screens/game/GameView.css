@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
   padding: 0.3vh;
-  background-color: #1A2333; /* Deep midnight blue as the base */
+  background-color: #0B132B; /* Deep midnight blue as the base */
   color: #F5F5F5; /* Soft white text for contrast */
   overflow: visible;
 }
@@ -16,58 +16,59 @@
   height: 3vh;
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  padding: 0 1vw;
+  padding: 0.5vh 1vw;
+  gap:1vh;
   position: relative;
   z-index: 10;
 }
 
-.game-status {
-  font-size: 1.2rem;
+/* Common button styling for both buttons */
+.leave-game-button, .buyin-trigger {
+  height: 2.5rem;
+  width: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 1.5rem;
+  cursor: pointer;
   color: #F5F5F5;
+  padding: 0;
 }
 
 .settings {
+  margin-top: 1rem;
   display: flex;
+  justify-self: flex-start;
   align-items: center;
-  gap: 1vw;
-  position: absolute;
-  right: 1vw;
-  top: 50%;
-  transform: translateY(-50%);
+  position: relative;
 }
 
 .buyin-trigger {
-  position: fixed;
-  right: calc(var(--animation-control-width) + 1rem + 3vh);
-  z-index: 10;
-  background-color: #22C55E; /* Neon green */
-  color: #F5F5F5; /* Soft white */
-  border: none;
-  border-radius: 4px;
-  padding: 0.2vh 0.5vw;
-  font-size: 1.5rem;
-  cursor: pointer;
+  background-color: #6c5b7b; /* Grayish purple that complements the background */
 }
 
 .buyin-trigger.glow {
-  box-shadow: 0 0 10px #FF3B30, 0 0 20px #FF3B30;
-  background-color: #FF3B30; /* Change to red when glowing */
-  animation: glowPulse 1.5s infinite;
+  box-shadow: 0 0 5px #8a2be2, 0 0 10px #8a2be2;
+  background-color: #8a2be2; /* Brighter purple when glowing */
+  animation: glowPulse 3s infinite;
 }
 
 @keyframes glowPulse {
   0% {
-    box-shadow: 0 0 10px #FF3B30, 0 0 20px #FF3B30;
+    box-shadow: 0 0 4px #8a2be2, 0 0 8px #8a2be2;
   }
   50% {
-    box-shadow: 0 0 15px #FF3B30, 0 0 30px #FF3B30;
+    box-shadow: 0 0 7px #8a2be2, 0 0 14px #8a2be2;
   }
   100% {
-    box-shadow: 0 0 10px #FF3B30, 0 0 20px #FF3B30;
+    box-shadow: 0 0 4px #8a2be2, 0 0 8px #8a2be2;
   }
 }
+
 
 /* Placeholder for animation settings slider (from top-level app) */
 .animation-slider {
@@ -102,9 +103,9 @@
 
 .game-view.--mid {
   background-image: 
-      radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.25) 1px, transparent 1px),
-      radial-gradient(circle at 60% 60%, rgba(128, 0, 128, 0.25) 1px, transparent 1px);
-  background-size: 100px 100px; /* Larger spacing for fewer sparkles */
+    radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.28) 1px, transparent 1px),
+    radial-gradient(circle at 60% 60%, rgba(128, 0, 128, 0.45) 1px, transparent 1px);
+    background-size: 100px 100px; 
   background-position: 0 0, 50px 50px; 
   background-repeat: repeat; 
   animation: sparkleTwinkle 12s infinite; /* Slower animation */
@@ -211,21 +212,7 @@
   transition: none; /* No transitions */
 }
 
-.boards-container.--high:hover,
-.bet-panel.--high:hover,
-.player-area.--high:hover,
-.buyin-trigger.--high:hover {
-  /* transform: scale(1.02);  */
-  /* box-shadow: 0 0 10px #00FF9D; /* Neon green glow 
-  transition: transform 5s ease, box-shadow 0.1s ease; */
-}
 
-.boards-container.--mid:hover,
-.bet-panel.--mid:hover,
-.player-area.--mid:hover,
-.buyin-trigger.--mid:hover {
-
-}
 
 .boards-container.--low:hover,
 .bet-panel.--low:hover,
@@ -259,17 +246,17 @@
 
 
 .buyin-trigger.--high:hover {
-  background-color: #16A34A; /* Darker neon green */
-  box-shadow: 0 0 10px #00FF9D; /* Enhanced glow */
+  background-color: #8474a1; /* Slightly lighter purple */
+  box-shadow: 0 0 10px #9d81ba; /* Enhanced glow */
 }
 
 .buyin-trigger.--mid:hover {
-  background-color: #22C55E; /* Less intense green */
-  box-shadow: 0 0 5px #00FF9D; /* Reduced glow */
+  background-color: #796a8f; /* Medium intensity */
+  box-shadow: 0 0 5px #9d81ba; /* Reduced glow */
 }
 
 .buyin-trigger.--low:hover {
-  background-color: #22C55E; /* No change */
+  background-color: #6c5b7b; /* No change */
   box-shadow: none; /* No glow */
 }
 

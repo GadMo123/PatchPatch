@@ -17,6 +17,7 @@ export const getTablePropsFromGameState = (
   const seats: { [index: number]: PublicPlayerClientData } = {};
   const showdownState = gameState.showdown;
   const noShowdownState = gameState.noShowdown;
+  const playerToAct = gameState.bettingState?.playerToAct;
 
   let tableRotation = 0;
   let isJoinedGame = false;
@@ -54,6 +55,7 @@ export const getTablePropsFromGameState = (
     isJoinedGame,
     canBuyIn,
     noShowdownState,
+    playerToAct,
     showdownState,
   };
 };

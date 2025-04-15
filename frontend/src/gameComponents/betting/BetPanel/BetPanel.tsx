@@ -58,9 +58,28 @@ const BetPanel: React.FC<BetPanelProps> = ({
 
   // Update boarder color based on time left
   const getBorderColor = () => {
-    const red = Math.min(255, 255 * (1 - timePercentage / 100));
-    const green = Math.min(255, 255 * (timePercentage / 100));
-    return `rgb(${red}, ${green}, 0)`;
+    // Start color: Neon Green (#00FF9D) -> RGB(0, 255, 157)
+    // End color: Muted Purple (#A855F7) -> RGB(168, 85, 247)
+    const startRed = 0; // Neon Green Red
+    const startGreen = 255; // Neon Green Green
+    const startBlue = 157; // Neon Green Blue
+
+    const endRed = 168; // Muted Purple Red
+    const endGreen = 85; // Muted Purple Green
+    const endBlue = 247; // Muted Purple Blue
+
+    // Interpolate between the start and end colors based on timePercentage
+    const red = Math.round(
+      startRed + (endRed - startRed) * (1 - timePercentage / 100)
+    );
+    const green = Math.round(
+      startGreen + (endGreen - startGreen) * (1 - timePercentage / 100)
+    );
+    const blue = Math.round(
+      startBlue + (endBlue - startBlue) * (1 - timePercentage / 100)
+    );
+
+    return `rgb(${red}, ${green}, ${blue})`;
   };
 
   // Dynamically get panel dimensions

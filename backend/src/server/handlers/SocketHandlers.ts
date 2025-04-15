@@ -217,6 +217,7 @@ export class SocketHandlers {
     }
   }
 
+  // todo?? , we can give up on this one, anyway logic isn't there yet if we use it
   async handleStandUp(payload: unknown): Promise<HandlerResponse> {
     const validation = validateInGamePayload(payload);
     if (!validation.success) {

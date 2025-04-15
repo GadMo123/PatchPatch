@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./TableAndSeats.css";
 import { useGameContext } from "../../contexts/GameContext";
 import {
@@ -21,6 +21,7 @@ export interface TableProps {
   canBuyIn: boolean;
   showdownState: ShowdownResultClientData | null;
   noShowdownState: NoShowdownResultClientData | null;
+  playerToAct?: string;
   children?: React.ReactNode;
 }
 
@@ -31,6 +32,7 @@ const TableAndSeats: React.FC<TableProps> = ({
   canBuyIn,
   showdownState,
   noShowdownState,
+  playerToAct,
   children,
 }) => {
   const { animationLevel } = useAnimationTheme();
@@ -45,6 +47,22 @@ const TableAndSeats: React.FC<TableProps> = ({
   const [sitoutTimers, setSitoutTimers] = useState<{
     [key: string]: number;
   }>({});
+  const [thinkingIndicatorScale, setThinkingIndicatorScale] = useState(1);
+
+  // Add pulsing animation effect for thinking indicator
+  useEffect(() => {
+    const animateThinking = () => {
+      setThinkingIndicatorScale((prev) => {
+        // Create a pulsing effect between 0.8 and 1.2
+        if (prev >= 1.2) return 0.8;
+        return prev + 0.01;
+      });
+    };
+
+    // Only run animation when we have a player to act
+    const animationInterval = setInterval(animateThinking, 50);
+    return () => clearInterval(animationInterval);
+  }, []);
 
   useEffect(() => {
     // Update sitout timers based on seatsMap
@@ -155,13 +173,20 @@ const TableAndSeats: React.FC<TableProps> = ({
       const y = ellipseRadiusY * Math.sin(angle);
       const seatInfo = seatsMap[index];
 
-      const isHeroSeat = seatInfo.id === playerId;
+      const isHeroSeat = seatInfo.id && seatInfo.id === playerId;
       const showBuyInButton = isHeroSeat && canBuyIn;
       const isWinner = seatInfo.id && showWinningAnimation[seatInfo.id] > 0;
       const winAmount =
         isWinner && seatInfo.id ? showWinningAnimation[seatInfo.id] : 0;
       const hasSitoutTimer =
         seatInfo.id && sitoutTimers[seatInfo.id] !== undefined;
+
+      // Check if this player is the current player to act
+      const isPlayerToAct = playerToAct && seatInfo.id === playerToAct;
+
+      // Only show thinking indicator for non-hero player to act
+      const showThinkingIndicator = isPlayerToAct && !isHeroSeat;
+      //console.log(showThinkingIndicator + " showThinkingIndicator");
 
       const handPositionFactor = 1.1; // Reduced to bring cards closer to the seat
       const handX = x * handPositionFactor;
@@ -181,6 +206,11 @@ const TableAndSeats: React.FC<TableProps> = ({
         x * buttonDistanceRatio * Math.sin(buttonAngleOffset) +
         y * buttonDistanceRatio * Math.cos(buttonAngleOffset);
 
+      // Calculate position for thinking indicator
+      const thinkingDistanceRatio = 1.05; // Position outside the seat
+      const thinkingX = x * thinkingDistanceRatio;
+      const thinkingY = y * thinkingDistanceRatio;
+
       const hasButtonPosition = seatInfo.position === "btn";
       const hasSmallBlindPosition = seatInfo.position === "sb";
       const shouldShowButton =
@@ -191,14 +221,14 @@ const TableAndSeats: React.FC<TableProps> = ({
       return (
         <React.Fragment key={seatInfo.tableAbsolutePosition}>
           <div
-            className={`table-seat ${seatInfo.id ? "occupied" : ""} --${animationLevel}`}
+            className={`table-seat ${seatInfo.id ? "occupied" : "unoccupied"} --${animationLevel}`}
             style={{
               left: `calc(50% + ${x}px)`,
               top: `calc(50% + ${y}px)`,
             }}
           >
             {seatInfo.id ? (
-              <div className="occupied-seat">
+              <div className={`occupied-seat ${isHeroSeat ? "you" : ""}`}>
                 <div className={`player-name --${animationLevel}`}>
                   {isHeroSeat ? "You" : seatInfo.name}
                 </div>
@@ -237,6 +267,20 @@ const TableAndSeats: React.FC<TableProps> = ({
               )
             )}
           </div>
+
+          {/* Player thinking indicator */}
+          {showThinkingIndicator && (
+            <div
+              className={`thinking-indicator --${animationLevel}`}
+              style={{
+                position: "absolute",
+                left: `calc(50% + ${thinkingX}px)`,
+                top: `calc(50% + ${thinkingY}px)`,
+                transform: `translate(-50%, -50%)`,
+                zIndex: 20,
+              }}
+            />
+          )}
 
           {/* Display sitout timer if player has one */}
           {hasSitoutTimer && (

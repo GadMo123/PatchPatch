@@ -14,8 +14,8 @@
   gap: 8px; /* Reduced gap for player contributions */
   padding: 0.75rem;
   background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white background */
-  border: 1px solid #00D2FF; /* Neon blue border */
-  border-radius: 6px;
+  /* border: 1px solid #00D2FF; Neon blue border */
+  /* border-radius: 6px; */
   font-size: 0.875rem;
   position: relative; /* For glass-like overlay */
 }

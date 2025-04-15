@@ -2,7 +2,8 @@
 .container {
     border: 0.5px solid #3d3d3d;
     border-radius: 4px;
-    background-color: #FFFFFF; /* Glossy white background */
+    background-color: #F5F5F5; 
+    border: 1px solid #1A2333; /* Dark border for contrast */
     padding: 8px;
     display: flex;
     flex-direction: column;
@@ -28,10 +29,9 @@
     z-index: 1;
 }
 
-/* Card background colors with gradients */
-.container.h { /* Hearts - Deep Red */
-    background-image: linear-gradient(to bottom, #E63946 0%, #A61C2E 100%);
-    border: 1px solid #E63946;
+.container.h { /* Hearts - Muted Crimson */
+    background-image: linear-gradient(to bottom, #D32F2F 0%, #9A1D1D 100%);
+    border: 1px solid #D32F2F;
 }
 
 .container.d { /* Diamonds - Steel Blue */
@@ -171,12 +171,12 @@
 }
 
 .container.d.--high:hover .suit-icon {
-    filter: drop-shadow(0 0 5px #00FF9D); /* Neon green glow for diamonds */
+    filter: drop-shadow(0 0 5px #44d4f8); /* Neon green glow for diamonds */
     transition: filter 0.2s ease;
 }
 
 .container.c.--high:hover .suit-icon {
-    filter: drop-shadow(0 0 1.5px #FFD700); /* Neon pink glow for clubs */
+    filter: drop-shadow(0 0 1.5px #82f877); /* Neon pink glow for clubs */
     transition: filter 0.2s ease;
 }
 
@@ -191,12 +191,12 @@
 }
 
 .container.d.--mid:hover .suit-icon {
-    filter: drop-shadow(0 0 3px #00FF9D); /* Reduced neon green glow for diamonds */
+    filter: drop-shadow(0 0 3px #44d4f8); /* Reduced neon green glow for diamonds */
     transition: filter 0.1s ease;
 }
 
 .container.c.--mid:hover .suit-icon {
-    filter: drop-shadow(0 0 1.2px #FFD700); /* Reduced neon pink glow for clubs */
+    filter: drop-shadow(0 0 1.2px #64c05c); /* Reduced neon pink glow for clubs */
     transition: filter 0.1s ease;
 }
 

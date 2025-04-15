@@ -111,10 +111,10 @@ io.on("connection", (socket) => {
     callback(result);
   });
 
-  socket.on(SocketEvents.STAND_UP, async (payload, callback) => {
-    const result = await socketHandlers.handleStandUp(payload);
-    callback(result);
-  });
+  // socket.on(SocketEvents.STAND_UP, async (payload, callback) => {
+  //   // const result = await socketHandlers.handleStandUp(payload);
+  //   // callback(result);
+  // });
 
   socket.on(SocketEvents.LOBBY_STATUS, async (callback) => {
     const games = ServerStateManager.getInstance().getGames();

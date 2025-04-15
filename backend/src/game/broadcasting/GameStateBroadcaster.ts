@@ -229,6 +229,7 @@ function getBaseGameState(game: Game): GameStateServerBroadcast {
       cards: playerCards,
       removed: playerState.removed,
       sitoutTimer: playerState.sitoutTimer,
+      isFolded: playerState.isFolded,
     };
   }
 }

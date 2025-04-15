@@ -1,14 +1,13 @@
-.table-ellipse
- {
+.table-ellipse {
   display: flex;
   position: relative;
   justify-content: center;
   align-items: center;
   width: 94vw; /* Matches Math.min(screenWidth * 0.4, 1300) */
   max-width: 1150px;
-  background-color: #2E7D32;
+  background-color: #2A6B2F; /* Updated base green */
   border-radius: 50%;
-  border: 2px solid #00D2FF;
+  border: 2px solid #4A148C; /* Deep purple border */
   margin: 0 auto;
 }
 
@@ -20,90 +19,133 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.1); /* Subtle semi-transparent white overlay */
+  background: rgba(123, 31, 162, 0.15); /* Subtle purple-tinted overlay */
   border-radius: 50%;
   z-index: 1;
 }
 
 .table-ellipse.--high {
-  box-shadow: 0 0 10px #00FF9D; /* Glowing neon green outline */
-  background-image: radial-gradient(circle at center, #2E7D32 0%, #1B5E20 100%); /* Full gradient */
+  box-shadow: 0 0 2px #7B1FA2, 0 0 30px rgba(103, 23, 179, 0.6);
+  background-image: radial-gradient(circle at center, #2A6B2F 0%, #1B5E20 100%); /* Updated gradient */
   transition: box-shadow 0.3s ease; /* Full animation */
 }
 
 .table-ellipse.--mid {
-  box-shadow: 0 0 5px #00FF9D; /* Reduced glow */
-  background-image: linear-gradient(to bottom, #2E7D32 0%, #1B5E20 100%); /* Simplified gradient */
+  box-shadow: 0 0 1px #7B1FA2, 0 0 30px rgba(103, 23, 179, 0.6);
+  background-image: linear-gradient(to bottom, #2A6B2F 0%, #1B5E20 100%); /* Updated gradient */
   transition: box-shadow 0.1s ease; /* Shorter transition */
 }
 
 .table-ellipse.--low {
   box-shadow: none; /* No glow */
-  background-color: #2E7D32; /* Solid color, no gradient */
+  background-color: #2A6B2F; /* Solid updated green */
   transition: none; /* No transition */
 }
 
+
+/* Base styles for seats */
 .table-seat {
   position: absolute;
-  width: 50px; /* Adjust seat size */
+  width: 50px;
   height: 50px;
-  background-color: #1A1A1A; /* Sleek black for seats */
-  border-radius: 50%; /* Make it circular */
+  background-color: #3E4C3F; /* Very muted dark green for unoccupied seats */
+  border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #F5F5F5; /* Soft white text for contrast */
+  color: #F5F5F5; /* Very light gray text */
   font-weight: bold;
-  transform: translate(-50%, -50%); /* Center seats properly */
-  z-index: 5; /* Ensure seats remain clickable */
+  transform: translate(-50%, -50%);
+  z-index: 5;
 }
 
+.occupied-seat{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-items: center;
+}
 
+/* Transition settings for seats */
 .table-seat.--high {
-  transition: all 0.3s ease; /* Full transitions */
+  transition: all 0.3s ease;
 }
 
 .table-seat.--mid {
-  transition: all 0.1s ease; /* Shorter transitions */
+  transition: all 0.1s ease;
 }
 
 .table-seat.--low {
-  transition: none; /* No transitions */
+  transition: none;
 }
 
+/* Occupied seats - Ensure background color is explicitly set */
+.table-seat.occupied {
+  background-color: #5A7A5C; /* Muted earthy green for occupied seats */
+}
 
 .table-seat.occupied.--high {
-  box-shadow: 0 0 8px #FF007A, 0 0 16px #FF007A inset; /* Neon pink highlights */
-  background-color: rgba(255, 0, 122, 0.2); /* Slight neon pink tint */
-  transition: box-shadow 0.3s ease, background-color 0.3s ease; /* Full animation */
+  box-shadow: 0 0 8px #7A9A7C, 0 0 16px #7A9A7C inset; /* Muted light green glow */
+  background-color: rgba(90, 122, 92, 0.2); /* Slight tint of #5A7A5C */
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
 .table-seat.occupied.--mid {
-  box-shadow: 0 0 4px #FF007A, 0 0 8px #FF007A inset; /* Reduced glow */
-  background-color: rgba(255, 0, 122, 0.1); /* Lighter tint */
-  transition: box-shadow 0.1s ease, background-color 0.1s ease; /* Shorter transition */
+  box-shadow: 0 0 4px #7A9A7C, 0 0 8px #7A9A7C inset; /* Reduced glow */
+  background-color: rgba(90, 122, 92, 0.1); /* Lighter tint */
+  transition: box-shadow 0.1s ease, background-color 0.1s ease;
 }
 
 .table-seat.occupied.--low {
-  box-shadow: none; /* No glow */
-  background-color: #1A1A1A; /* Solid black, no tint */
-  transition: none; /* No transition */
+  box-shadow: none;
+  background-color: #5A7A5C; /* Solid muted green for occupied seats in low setting */
+  transition: none;
 }
 
+/* Hover effects for occupied seats */
 .table-seat.occupied.--high:hover {
-  box-shadow: 0 0 12px #FF007A, 0 0 20px #FF007A inset; /* Enhanced glow on hover */
+  box-shadow: 0 0 12px #7A9A7C, 0 0 20px #7A9A7C inset; /* Enhanced glow on hover */
 }
 
 .table-seat.occupied.--mid:hover {
-  box-shadow: 0 0 6px #FF007A, 0 0 10px #FF007A inset; /* Reduced glow */
-  transition: box-shadow 0.1s ease; /* Shorter transition */
+  box-shadow: 0 0 6px #7A9A7C, 0 0 10px #7A9A7C inset; /* Reduced glow */
+  transition: box-shadow 0.1s ease;
 }
 
 .table-seat.occupied.--low:hover {
-  box-shadow: none; /* No glow */
-  transition: none; /* No transition */
+  box-shadow: none;
+  transition: none;
 }
 
+/* Highlight for the "You" seat */
+.table-seat.occupied.you {
+  background-color: #6B8E6D; /* Slightly lighter muted green for "You" seat */
+}
+
+.table-seat.occupied.you.--high {
+  box-shadow: 0 0 8px #8CAC8E, 0 0 16px #8CAC8E inset; /* Slightly brighter muted glow */
+  background-color: rgba(107, 142, 109, 0.2); /* Slight tint of #6B8E6D */
+}
+
+.table-seat.occupied.you.--mid {
+  box-shadow: 0 0 4px #8CAC8E, 0 0 8px #8CAC8E inset;
+  background-color: rgba(107, 142, 109, 0.1);
+}
+
+.table-seat.occupied.you.--low {
+  box-shadow: none;
+  background-color: #6B8E6D; /* Solid muted green for "You" in low setting */
+}
+
+.table-seat.occupied.you.--high:hover {
+  box-shadow: 0 0 12px #8CAC8E, 0 0 20px #8CAC8E inset;
+}
+
+.table-seat.occupied.you.--mid:hover {
+  box-shadow: 0 0 6px #8CAC8E, 0 0 10px #8CAC8E inset;
+}
+
+/* Player name, stack, position, and other elements transitions */
 .player-name,
 .player-stack,
 .player-position,
@@ -131,35 +173,142 @@
   transition: none; /* No transitions for low */
 }
 
+/* Join Seat button ("Seat Here") */
 .join-seat-button {
-  background-color: #22C55E; /* Green for join button */
+  background-color: #5A7A5C; /* Matching the occupied seat color */
   border: none;
   border-radius: 4px;
   padding: 5px 10px;
-  color: #F5F5F5;
+  color: #F5F5F5; /* Very light gray text */
   cursor: pointer;
 }
 
 .join-seat-button.--high:hover,
 .add-chips-button.--high:hover,
 .player-pot-contribution.--high:hover {
-  box-shadow: 0 0 10px #00FF9D; /* Enhanced glow */
-  transform: scale(1.05); /* Slight scale */
+  box-shadow: 0 0 10px #7A9A7C; /* Muted light green glow */
+  transform: scale(1.05);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .join-seat-button.--mid:hover,
 .add-chips-button.--mid:hover,
 .player-pot-contribution.--mid:hover {
-  box-shadow: 0 0 5px #00FF9D; /* Reduced glow */
-  transform: scale(1.02); /* Reduced scale */
+  box-shadow: 0 0 5px #7A9A7C; /* Reduced glow */
+  transform: scale(1.02);
   transition: box-shadow 0.1s ease, transform 0.1s ease;
 }
 
 .join-seat-button.--low:hover,
 .add-chips-button.--low:hover,
 .player-pot-contribution.--low:hover {
-  box-shadow: none; /* No glow */
-  transform: none; /* No scale */
+  box-shadow: none;
+  transform: none;
   transition: none;
+}
+
+/* Player stack (e.g., "You $320") */
+.player-stack {
+  /* background-color: #5A7A5C; Matching the occupied seat color */
+  color: #F5F5F5; /* Very light gray text */
+  border-radius: 50%;
+  padding: 5px 10px;
+}
+
+/* Add Chips button */
+.add-chips-button {
+  background-color: #5A7A5C; /* Matching the seats */
+  border: none;
+  border-radius: 50%; /* Circular shape */
+  padding: 5px;
+  color: #F5F5F5; /* Very light gray for the "+" icon */
+  cursor: pointer;
+}
+
+.add-chips-button.--high:hover {
+  box-shadow: 0 0 10px #7A9A7C; /* Muted light green glow */
+  transform: scale(1.05);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.add-chips-button.--mid:hover {
+  box-shadow: 0 0 5px #7A9A7C; /* Reduced glow */
+  transform: scale(1.02);
+  transition: box-shadow 0.1s ease, transform 0.1s ease;
+}
+
+.add-chips-button.--low:hover {
+  box-shadow: none;
+  transform: none;
+  transition: none;
+}
+
+/* Refined thinking indicator styles to better match the game theme */
+
+/* Base thinking indicator */
+.thinking-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  border-radius: 12px;
+  opacity: 0.85;
+  background-color: #3E4C3F; /* Match the muted dark green used for seats */
+  border: 1px solid #5A7A5C; /* Match occupied seat color */
+  color: #F5F5F5; /* Very light gray text matching other elements */
+  padding: 4px 8px;
+  width: auto;
+  height: auto;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+}
+
+.thinking-indicator::before {
+  content: "•••";
+  letter-spacing: 2px;
+}
+
+/* Animation level specific styles */
+.thinking-indicator.--high {
+  box-shadow: 0 0 8px #7A9A7C, 0 0 10px #7A9A7C inset; /* Match the seat glow color */
+  transition: all 0.8s ease; 
+  background-color: #3E4C3F;
+}
+
+.thinking-indicator.--mid {
+  box-shadow: 0 0 4px #7A9A7C, 0 0 6px #7A9A7C inset;
+  transition: all 0.3s ease;
+  background-color: #3E4C3F;
+}
+
+.thinking-indicator.--low {
+  box-shadow: none;
+  transition: none;
+  background-color: #3E4C3F;
+}
+
+/* Replace fast pulse with a subtle, slower pulsing animation */
+@keyframes subtlePulse {
+  0% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+  100% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+}
+
+/* Apply the animation to high and medium levels */
+.thinking-indicator.--high {
+  animation: subtlePulse 3s infinite ease-in-out; /* Much slower, gentler animation */
+}
+
+.thinking-indicator.--mid {
+  animation: subtlePulse 3s infinite ease-in-out;
 }
