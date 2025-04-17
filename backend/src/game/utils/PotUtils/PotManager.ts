@@ -18,8 +18,6 @@ export class PotManager {
     // Track remaining bets
     const remainingBets = new Map(bets);
 
-    console.log("pot contributions" + Array.from(bets.values()));
-
     // Track the last pot with 2+ contributors - to become the main pot at the end of this betting round
     let lastMultiContributorPot: PotContribution = this._mainPot;
 
@@ -33,7 +31,6 @@ export class PotManager {
 
       // Find minimum common bet contribution size amount among remaining players
       const contribution = Math.min(...Array.from(remainingBets.values()));
-      console.log("processBettingRound minBet " + contribution);
 
       // Check if we should add to main pot or create a new pot
       if (
@@ -78,7 +75,6 @@ export class PotManager {
           remainingBets.delete(player);
         }
       }
-      console.log("current main pot: " + this._mainPot.getTotalPotSize());
     }
 
     this.finalizeRound(lastMultiContributorPot, players);
@@ -124,7 +120,6 @@ export class PotManager {
       });
     });
 
-    console.log("main pot: " + this._mainPot.getTotalPotSize());
     this._sidePots.forEach((pot) =>
       console.log("Side pot - ", pot.getTotalPotSize())
     );

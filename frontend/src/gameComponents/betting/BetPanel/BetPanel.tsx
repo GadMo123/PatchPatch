@@ -51,7 +51,7 @@ const BetPanel: React.FC<BetPanelProps> = ({
 
   const [timeLeft, cancelTimer] = useCountdownTimer({
     serverTimeRemaining: bettingState.timeRemaining,
-    onComplete: () => onAction(defaultAction),
+    //onComplete: () => onAction(defaultAction),
   });
 
   const timePercentage = Math.max(0, (timeLeft / initialTime) * 100);

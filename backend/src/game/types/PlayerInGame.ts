@@ -80,9 +80,9 @@ export class PlayerInGame {
   async toggleSitOut(sitout: boolean): Promise<boolean> {
     if (this._playerPublicState?.isSittingOut === sitout) return false;
     if (sitout) {
-      // Player wants to sit out
-      this._playerPublicState.isSittingOut = true;
+      // Player sit out
       this.startSitOutTimer();
+      console.log("player sitout");
     } else {
       // Player wants to come back in
       if (!this._playerPublicState.removed)
@@ -104,6 +104,8 @@ export class PlayerInGame {
       isSittingOut: true,
     });
 
+    console.log("player sitout 2 " + this._playerPublicState.sitoutTimer);
+
     this._game.updateGameStateAndBroadcast({}, null);
 
     // Start counting down at regular intervals (1 second)
@@ -120,6 +122,9 @@ export class PlayerInGame {
       if (currentTimer <= 1000) {
         // Timer has reached zero, kick the player out
         this.stopSitOutTimer();
+        this.updatePlayerPublicState({
+          sitoutTimer: 1, // mark player as sitting out until removed phisiclly by the game
+        });
         this._playerPublicState.removed = true;
         this._game.removePlayer(this);
         return;

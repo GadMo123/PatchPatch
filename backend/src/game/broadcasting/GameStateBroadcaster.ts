@@ -26,7 +26,6 @@ import {
   PlayerPublicState,
 } from "game/types/PlayerInGame";
 import { GamePhase, ShowdownResult } from "../types/GameState";
-import { ShowdownManager } from "game/showdown/ShowdownManager";
 
 export class GameStateBroadcaster {
   private _cachedLastBaseState: GameStateServerBroadcast | null;

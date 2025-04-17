@@ -31,6 +31,7 @@ export class Game {
   private _TableConditionChangeMutex: Mutex; // For any async changes in table resources such as positions, seats ect.
   private _playersToRemoveAfterHand: string[];
   private _playersSitoutNextHand: Set<PlayerInGame>;
+  private _lastBtnAbsPosition: number | null | undefined;
 
   constructor(
     id: string,
@@ -123,17 +124,18 @@ export class Game {
         return false; // Releases lock and signal game flow manager to wait for players.
       }
 
-      const nextHandBTNPlayer = RotateButtonPosition(
-        this._state.playerInPosition
-          .get(Position.BTN || Position.SB)
-          ?.getTablePosition(), // SB for HU since in hu poker SB is the BTN.
+      const nextHandBtnPlayer = RotateButtonPosition(
+        this._lastBtnAbsPosition,
         nextHandPlayers
       );
 
-      console.log("newt hand button " + nextHandBTNPlayer.getName());
+      // Save the btn player absolute position for next hand btn rotation
+      this._lastBtnAbsPosition = nextHandBtnPlayer.getTablePosition();
+
+      console.log("new hand button " + nextHandBtnPlayer.getName());
       this._state.playerInPosition = assignPositions(
         nextHandPlayers,
-        nextHandBTNPlayer.getId()
+        nextHandBtnPlayer.getId()
       );
 
       // Reset all players' states for the next hand

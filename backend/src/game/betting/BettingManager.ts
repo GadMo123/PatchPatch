@@ -11,7 +11,6 @@ import { GameActionTimerManager } from "../utils/GameActionTimerManager";
 import { BettingRoundPotManager } from "./BettingRoundPotManager";
 import { Mutex } from "async-mutex";
 import { BettingTypes, Position } from "@patchpatch/shared";
-import { Player } from "player/Player";
 
 export class BettingManager {
   private _awaitingPlayersAction: any;
@@ -90,9 +89,11 @@ export class BettingManager {
         this._bettingState.callAmount
       );
 
-    this._timerManager.start(this._currentPlayerToAct.isSittingOut());
     this._awaitingPlayersAction = true;
-    this.broadcastBettingState();
+    this._timerManager.start(
+      this._currentPlayerToAct.isSittingOut(),
+      this.broadcastBettingState.bind(this)
+    );
   }
 
   async handlePlayerAction(
@@ -202,6 +203,9 @@ export class BettingManager {
 
   private doDefaultActionOnTimeout(): void {
     console.log("doDefualtActionOnTimeout ");
+    // Set player sitting out after timeout
+    this._currentPlayerToAct.toggleSitOut(true);
+
     const defaultAction = this._actionValidator
       .getValidActions(
         this._bettingState,
@@ -219,14 +223,6 @@ export class BettingManager {
       .filter((player): player is PlayerInGame => player !== null)
       .reduce((count, player) => count + (player.isFolded() ? 0 : 1), 0);
 
-    console.log(
-      "isBettingRoundComplete " +
-        notFoldedCount +
-        "   " +
-        this._currentPlayerToAct.getId() +
-        "   " +
-        this._roundEndsCondition.getId()
-    );
     // Round is complete if:
     // 1. Only one player remains
     // 2. action is back to the last aggresor (or first player to act in case there is no aggresion behind)

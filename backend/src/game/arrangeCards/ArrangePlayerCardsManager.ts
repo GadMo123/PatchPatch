@@ -81,8 +81,6 @@ export class ArrangePlayerCardsManager {
 
     const validationResult = validateCardsArrangement(arrangement, player);
 
-    console.log(validationResult.cards);
-
     if (!validationResult.isValid) {
       return { success: false, error: validationResult.error };
     }

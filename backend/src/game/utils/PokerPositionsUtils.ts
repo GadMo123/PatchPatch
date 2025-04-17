@@ -144,7 +144,7 @@ export function RotateButtonPosition(
     return nextHandPlayers[randomIndex];
   }
 
-  // Get all table positions from the active players
+  // Get all table positions from the active-players list
   const tablePositions = nextHandPlayers.map((player) =>
     player.getTablePosition()
   );

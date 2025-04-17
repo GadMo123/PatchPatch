@@ -21,14 +21,11 @@ export function validateCardsArrangement(
   const playerCardSet = new Set(playerCards.map((card) => cardToString(card)));
   const seenCards = new Set<string>();
 
-  console.log(playerCardSet);
-
   for (const card of arrangement) {
     const cardStr = cardToString(card);
 
     // Check if the card exists in the player's set
     if (!playerCardSet.has(cardStr)) {
-      console.log(cardStr);
       return {
         isValid: false,
         error: "Arrangement contains cards not dealt to player",
